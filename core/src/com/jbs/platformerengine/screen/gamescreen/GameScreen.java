@@ -12,22 +12,41 @@ import com.jbs.platformerengine.screen.Screen;
 
 public class GameScreen extends Screen {
     OrthographicCamera camera;
+    OrthographicCamera cameraDebug;
     Keyboard keyboard;
     ScreenChunk[][] screenChunks;
     
     public GameScreen() {
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera.setToOrtho(false, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+        cameraDebug = new OrthographicCamera();
+        cameraDebug.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         keyboard = new Keyboard();
-        loadScreenDebug();
+        loadAreaDebug();
+        renderChunkWalls();
     }
 
-    public void loadScreenDebug() {
+    public void loadAreaDebug() {
         screenChunks = new ScreenChunk[6][8];
         for(int y = 0; y < screenChunks[0].length; y++) {
             for(int x = 0; x < screenChunks.length; x++) {
                 screenChunks[x][y] = new ScreenChunk(x, y);
+            }
+        }
+
+        for(int i = 0; i < screenChunks[0][0].tiles.length; i++) {
+            screenChunks[0][0].tiles[i][0] = new Tile("Square");
+        }
+        for(int i = 0; i < 5; i++) {
+            screenChunks[0][0].tiles[10][1 + i] = new Tile("Square");
+        }
+    }
+
+    public void renderChunkWalls() {
+        for(int y = 0; y < screenChunks[0].length; y++) {
+            for(int x = 0; x < screenChunks.length; x++) {
+                screenChunks[x][y].renderChunkWalls(camera, spriteBatch);
             }
         }
     }
@@ -64,12 +83,12 @@ public class GameScreen extends Screen {
     }
 
     public void update(Player player) {
-        player.update(keyboard);
+        player.update(keyboard, screenChunks);
     }
 
     public void render(Player player) {
         ScreenUtils.clear(0, 0, 0, 1);
-        camera.position.set(player.spriteArea.x, player.spriteArea.y + 293, 0);
+        camera.position.set(player.spriteArea.x, (player.spriteArea.y + 146), 0);
         camera.update();
         
         renderChunks(camera, player);
@@ -85,13 +104,14 @@ public class GameScreen extends Screen {
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
                 if(x >= 0 && y >= 0 && x < screenChunks.length && y < screenChunks[0].length) {
-                    screenChunks[x][y].render(camera);
+                    screenChunks[x][y].render(camera, spriteBatch);
                 }
             }
         }
     }
 
     public void renderDebugData(Player player) {
+        spriteBatch.setProjectionMatrix(cameraDebug.combined);
         spriteBatch.begin();
         font.setColor(Color.WHITE);
         font.draw(spriteBatch, "FPS: " + String.valueOf(Gdx.graphics.getFramesPerSecond()), 1, 767);
