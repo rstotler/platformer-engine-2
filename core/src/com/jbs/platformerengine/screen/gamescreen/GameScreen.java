@@ -35,11 +35,24 @@ public class GameScreen extends Screen {
             }
         }
 
-        for(int i = 0; i < screenChunks[0][0].tiles.length; i++) {
-            screenChunks[0][0].tiles[i][0] = new Tile("Square");
+        // Bottom Floor //
+        for(int i = 0; i < screenChunks.length; i++) {
+            for(int ii = 0; ii < screenChunks[0][0].tiles.length; ii++) {
+                screenChunks[i][0].tiles[ii][0] = new Tile("Square");
+            }
         }
-        for(int i = 0; i < 5; i++) {
+        
+        // TestPillar //
+        for(int i = 0; i < 42; i++) {
             screenChunks[0][0].tiles[10][1 + i] = new Tile("Square");
+            screenChunks[0][0].tiles[11][1 + i] = new Tile("Square");
+        }
+
+        // Floor 2 Floor //
+        for(int i = 0; i < screenChunks[0][1].tiles.length; i++) {
+            if(i < 10 || i > 11) {
+                screenChunks[0][1].tiles[i][0] = new Tile("Square");
+            }
         }
     }
 
@@ -72,7 +85,7 @@ public class GameScreen extends Screen {
             @Override
             public boolean keyUp(int keyCode) {
                 String key = Input.Keys.toString(keyCode);
-
+                
                 if(key.equals("Left") || key.equals("Right") || key.equals("Up") || key.equals("Down")) {
                     keyboard.keyUp(key);
                 }
