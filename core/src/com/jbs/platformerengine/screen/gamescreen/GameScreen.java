@@ -41,12 +41,22 @@ public class GameScreen extends Screen {
                 screenChunks[i][0].tiles[ii][0] = new Tile("Square");
             }
         }
+        screenChunks[0][0].tiles[3][1] = new Tile("Ramp-Right");
+        screenChunks[0][0].tiles[4][1] = new Tile("Square");
+        
+        screenChunks[0][0].tiles[6][1] = new Tile("Ramp-Right");
+        screenChunks[0][0].tiles[7][1] = new Tile("Square");
+        screenChunks[0][0].tiles[7][2] = new Tile("Square");
+
+        screenChunks[0][0].tiles[10][1] = new Tile("Square");
+        screenChunks[0][0].tiles[10][2] = new Tile("Square");
+        screenChunks[0][0].tiles[10][3] = new Tile("Square-Half");
         
         // TestPillar //
-        for(int i = 0; i < 42; i++) {
-            screenChunks[0][0].tiles[10][1 + i] = new Tile("Square");
-            screenChunks[0][0].tiles[11][1 + i] = new Tile("Square");
-        }
+        // for(int i = 0; i < 42; i++) {
+        //     screenChunks[0][0].tiles[10][1 + i] = new Tile("Square");
+        //     screenChunks[0][0].tiles[11][1 + i] = new Tile("Square");
+        // }
 
         // Floor 2 Floor //
         for(int i = 0; i < screenChunks[0][1].tiles.length; i++) {
@@ -127,9 +137,10 @@ public class GameScreen extends Screen {
         spriteBatch.setProjectionMatrix(cameraDebug.combined);
         spriteBatch.begin();
         font.setColor(Color.WHITE);
-        font.draw(spriteBatch, "FPS: " + String.valueOf(Gdx.graphics.getFramesPerSecond()), 1, 767);
+        font.draw(spriteBatch, "FPS: " + String.valueOf(Gdx.graphics.getFramesPerSecond()), 1205, 767);
 
-        font.draw(spriteBatch, "Player Pos: X - " + player.spriteArea.x + " Y - " + player.spriteArea.y, 980, 767);
+        font.draw(spriteBatch, "Player Pos: X - " + player.spriteArea.x + " Y - " + player.spriteArea.y, 3, 765);
+        font.draw(spriteBatch, "On Ramp: " + player.onRamp, 3, 750);
 
         spriteBatch.end();
     }

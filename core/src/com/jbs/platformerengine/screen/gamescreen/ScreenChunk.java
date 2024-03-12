@@ -1,5 +1,7 @@
 package com.jbs.platformerengine.screen.gamescreen;
 
+import java.util.HashMap;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -24,14 +26,18 @@ public class ScreenChunk {
     }
 
     public void renderChunkWalls(OrthographicCamera camera, SpriteBatch spriteBatch) {
-        Texture textureSquare = new Texture("images/Square.png");
+        HashMap<String, Texture> textureMap = new HashMap<>();
+        textureMap.put("Square", new Texture("images/Square.png"));
+        textureMap.put("Square-Half", new Texture("images/Square-Half.png"));
+        textureMap.put("Ramp-Right", new Texture("images/Ramp-Right.png"));
+
         frameBufferWalls.begin();
         spriteBatch.begin();
 
         for(int y = 0; y < tiles[0].length; y++) {
             for(int x = 0; x < tiles.length; x++) {
-                if(tiles[x][y] != null && tiles[x][y].type.equals("Square")) {
-                    spriteBatch.draw(textureSquare, x * 16, y * 16);
+                if(tiles[x][y] != null) {
+                    spriteBatch.draw(textureMap.get(tiles[x][y].type), x * 16, y * 16);
                 }
             }
         }
