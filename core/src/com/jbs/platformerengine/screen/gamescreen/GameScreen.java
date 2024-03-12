@@ -43,14 +43,23 @@ public class GameScreen extends Screen {
         }
         screenChunks[0][0].tiles[3][1] = new Tile("Ramp-Right");
         screenChunks[0][0].tiles[4][1] = new Tile("Square");
+        screenChunks[0][0].tiles[5][1] = new Tile("Ramp-Left");
         
-        screenChunks[0][0].tiles[6][1] = new Tile("Ramp-Right");
-        screenChunks[0][0].tiles[7][1] = new Tile("Square");
-        screenChunks[0][0].tiles[7][2] = new Tile("Square");
+        screenChunks[0][0].tiles[7][1] = new Tile("Ramp-Right");
+        screenChunks[0][0].tiles[8][1] = new Tile("Square");
+        screenChunks[0][0].tiles[8][2] = new Tile("Square");
+        screenChunks[0][0].tiles[8][3] = new Tile("Square");
+        screenChunks[0][0].tiles[8][4] = new Tile("Ramp-Left");
+        screenChunks[0][0].tiles[9][1] = new Tile("Ramp-Left");
 
-        screenChunks[0][0].tiles[10][1] = new Tile("Square");
-        screenChunks[0][0].tiles[10][2] = new Tile("Square");
-        screenChunks[0][0].tiles[10][3] = new Tile("Square-Half");
+        screenChunks[0][0].tiles[11][1] = new Tile("Ramp-Right");
+        screenChunks[0][0].tiles[12][1] = new Tile("Square");
+        screenChunks[0][0].tiles[12][2] = new Tile("Square-Half");
+        screenChunks[0][0].tiles[13][1] = new Tile("Ramp-Left");
+
+        screenChunks[0][0].tiles[15][1] = new Tile("Square");
+        screenChunks[0][0].tiles[15][2] = new Tile("Square");
+        screenChunks[0][0].tiles[15][3] = new Tile("Square-Half");
         
         // TestPillar //
         // for(int i = 0; i < 42; i++) {
@@ -140,7 +149,8 @@ public class GameScreen extends Screen {
         font.draw(spriteBatch, "FPS: " + String.valueOf(Gdx.graphics.getFramesPerSecond()), 1205, 767);
 
         font.draw(spriteBatch, "Player Pos: X - " + player.spriteArea.x + " Y - " + player.spriteArea.y, 3, 765);
-        font.draw(spriteBatch, "On Ramp: " + player.onRamp, 3, 750);
+        font.draw(spriteBatch, "Jumping: " + player.jumpCheck, 3, 750);
+        font.draw(spriteBatch, "On Ramp: " + player.onRamp, 3, 735);
 
         spriteBatch.end();
     }
