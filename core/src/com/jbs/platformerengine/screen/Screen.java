@@ -14,7 +14,7 @@ public class Screen {
         font = new BitmapFont(Gdx.files.internal("fonts/Code_New_Roman_18.fnt"), Gdx.files.internal("fonts/Code_New_Roman_18.png"), false);
     }
 
-    public void handleInput() {}
+    public void handleInput(Player player) {}
 
     public void update(Player player) {}
 

@@ -31,6 +31,8 @@ public class ScreenChunk {
         textureMap.put("Square-Half", new Texture("images/Square-Half.png"));
         textureMap.put("Ramp-Right", new Texture("images/Ramp-Right.png"));
         textureMap.put("Ramp-Left", new Texture("images/Ramp-Left.png"));
+        textureMap.put("Ramp-Right-Half-Bottom", new Texture("images/Ramp-Right-Half-Bottom.png"));
+        textureMap.put("Ramp-Left-Half-Bottom", new Texture("images/Ramp-Left-Half-Bottom.png"));
 
         frameBufferWalls.begin();
         spriteBatch.begin();

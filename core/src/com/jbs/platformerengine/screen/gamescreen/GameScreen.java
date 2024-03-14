@@ -3,6 +3,7 @@ package com.jbs.platformerengine.screen.gamescreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -60,6 +61,10 @@ public class GameScreen extends Screen {
         screenChunks[0][0].tiles[15][1] = new Tile("Square");
         screenChunks[0][0].tiles[15][2] = new Tile("Square");
         screenChunks[0][0].tiles[15][3] = new Tile("Square-Half");
+
+        screenChunks[0][0].tiles[18][1] = new Tile("Ramp-Right-Half-Bottom");
+        screenChunks[0][0].tiles[19][1] = new Tile("Square-Half");
+        screenChunks[0][0].tiles[20][1] = new Tile("Ramp-Left-Half-Bottom");
         
         // TestPillar //
         // for(int i = 0; i < 42; i++) {
@@ -83,7 +88,7 @@ public class GameScreen extends Screen {
         }
     }
 
-    public void handleInput() {
+    public void handleInput(Player player) {
         Gdx.input.setInputProcessor(new InputAdapter() {
 
             @Override
@@ -112,6 +117,10 @@ public class GameScreen extends Screen {
                 return true;
             }
         });
+
+        if(player.jumpButtonPressedCheck && !Gdx.input.isKeyPressed(Keys.UP)) {
+            player.jumpTimer = player.jumpTimerMax;
+        }
     }
 
     public void update(Player player) {
@@ -149,8 +158,8 @@ public class GameScreen extends Screen {
         font.draw(spriteBatch, "FPS: " + String.valueOf(Gdx.graphics.getFramesPerSecond()), 1205, 767);
 
         font.draw(spriteBatch, "Player Pos: X - " + player.spriteArea.x + " Y - " + player.spriteArea.y, 3, 765);
-        font.draw(spriteBatch, "Jumping: " + player.jumpCheck, 3, 750);
-        font.draw(spriteBatch, "On Ramp: " + player.onRamp, 3, 735);
+        font.draw(spriteBatch, "On Ramp: " + player.onRamp + " - On Half-Ramp: " + player.onHalfRamp, 3, 750);
+        font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ")", 3, 735);
 
         spriteBatch.end();
     }

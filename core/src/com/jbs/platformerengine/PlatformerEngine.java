@@ -17,7 +17,7 @@ public class PlatformerEngine extends ApplicationAdapter {
 
 	@Override
 	public void render () {
-		screen.handleInput();
+		screen.handleInput(player);
 		screen.update(player);
 		screen.render(player);
 	}
