@@ -65,6 +65,14 @@ public class GameScreen extends Screen {
         screenChunks[0][0].tiles[18][1] = new Tile("Ramp-Right-Half-Bottom");
         screenChunks[0][0].tiles[19][1] = new Tile("Square-Half");
         screenChunks[0][0].tiles[20][1] = new Tile("Ramp-Left-Half-Bottom");
+
+        screenChunks[0][0].tiles[23][1] = new Tile("Ramp-Right-Half-Top");
+        screenChunks[0][0].tiles[24][1] = new Tile("Square");
+        screenChunks[0][0].tiles[24][2] = new Tile("Square");
+        screenChunks[0][0].tiles[24][3] = new Tile("Ramp-Left-Half-Top");
+        screenChunks[0][0].tiles[25][1] = new Tile("Ramp-Left-Half-Top");
+
+        screenChunks[0][0].tiles[28][1] = new Tile("Ramp-Right-Half-Bottom");
         
         // TestPillar //
         // for(int i = 0; i < 42; i++) {
