@@ -3,6 +3,7 @@ package com.jbs.platformerengine.screen.gamescreen;
 import java.util.HashMap;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -39,6 +40,9 @@ public class ScreenChunk {
         frameBufferWalls.begin();
         spriteBatch.begin();
 
+        Gdx.graphics.getGL20().glClearColor(0f,0f,0f,0f);
+        Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+        
         for(int y = 0; y < tiles[0].length; y++) {
             for(int x = 0; x < tiles.length; x++) {
                 if(tiles[x][y] != null) {

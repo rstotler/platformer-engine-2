@@ -1,11 +1,15 @@
 package com.jbs.platformerengine.screen.gamescreen;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.player.Player;
@@ -15,6 +19,7 @@ public class GameScreen extends Screen {
     OrthographicCamera camera;
     OrthographicCamera cameraDebug;
     Keyboard keyboard;
+
     ScreenChunk[][] screenChunks;
     
     public GameScreen() {
@@ -24,6 +29,7 @@ public class GameScreen extends Screen {
         cameraDebug.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         keyboard = new Keyboard();
+
         loadAreaDebug();
         renderChunkWalls();
     }
@@ -131,6 +137,51 @@ public class GameScreen extends Screen {
 
         if(player.jumpButtonPressedCheck && !Gdx.input.isKeyPressed(Keys.UP)) {
             player.jumpTimer = player.jumpTimerMax;
+        }
+
+        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            clickScreen(true);
+        } else if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            clickScreen(false);
+        }
+    }
+
+    public void clickScreen(boolean justClicked) {
+        float cameraZoomPercent = camera.viewportHeight / Gdx.graphics.getHeight();
+        int xLoc = (int) (camera.position.x - (camera.viewportWidth / 2) + (Gdx.input.getX() * cameraZoomPercent));
+        int yLoc = (int) (camera.position.y - (camera.viewportHeight / 2) + ((Gdx.graphics.getHeight() - Gdx.input.getY()) * cameraZoomPercent));
+        
+        if(xLoc >= 0 && yLoc >= 0) {
+            int chunkX = (xLoc / 16) / screenChunks[0][0].tiles.length;
+            int chunkY = (yLoc / 16) / screenChunks[0][0].tiles[0].length;
+            int tileX = (xLoc / 16) % screenChunks[0][0].tiles.length;
+            int tileY = (yLoc / 16) % screenChunks[0][0].tiles[0].length;
+
+            if(!justClicked && screenChunks[chunkX][chunkY].tiles[tileX][tileY] == null) {
+                screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Square");
+
+                Texture texture = new Texture("images/Square.png");
+                screenChunks[chunkX][chunkY].frameBufferWalls.begin();
+                spriteBatch.begin();
+                spriteBatch.draw(texture, tileX * 16, tileY * 16);
+                spriteBatch.end();
+                screenChunks[chunkX][chunkY].frameBufferWalls.end();
+            }
+            else if(justClicked) {
+                int tileTypeIndex = 0;
+                ArrayList<String> tileTypeList = new ArrayList<>(Arrays.asList("Square", "Square-Half", "Ramp-Right", "Ramp-Left", "Ramp-Right-Half-Bottom", "Ramp-Left-Half-Bottom", "Ramp-Right-Half-Top", "Ramp-Left-Half-Top"));
+                if(screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
+                    tileTypeIndex = tileTypeList.indexOf(screenChunks[chunkX][chunkY].tiles[tileX][tileY].type) + 1;
+                    if(tileTypeIndex >= tileTypeList.size()) {
+                        tileTypeIndex = 0;
+                    }
+                    screenChunks[chunkX][chunkY].tiles[tileX][tileY].type = tileTypeList.get(tileTypeIndex);
+                } else {
+                    screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Square");
+                }
+
+                screenChunks[chunkX][chunkY].renderChunkWalls(camera, spriteBatch);
+            }
         }
     }
 
