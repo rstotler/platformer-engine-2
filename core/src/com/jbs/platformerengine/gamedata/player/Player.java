@@ -29,7 +29,7 @@ public class Player {
 
     public Player() {
         shapeRenderer = new ShapeRenderer();
-        spriteArea = new Rect(430, 75, 16, 48);
+        spriteArea = new Rect(430, 35, 16, 48);
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
@@ -133,10 +133,13 @@ public class Player {
                             if(targetTile.type.equals("Square") && (!onRamp || i > 0)) {
                                 spriteArea.x = (targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + (spriteArea.width / 2) + 16;
                                 collideCheck = true;
-                            } else if(targetTile.type.equals("Square-Half") && ((!onHalfRamp && spriteArea.y + heightMod < (targetTileY * 16) + 8)) || i > 0) {
+                            } else if(targetTile.type.equals("Square-Half") && ((!onHalfRamp && spriteArea.y + heightMod < (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8)) || i > 0) {
                                 spriteArea.x = (targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + (spriteArea.width / 2) + 16;
                                 collideCheck = true;
-                            } else if(targetTile.type.equals("Ramp-Right") && !onRamp) {
+                            } else if(targetTile.type.equals("Ramp-Right") && !onRamp && spriteArea.y < (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 16) {
+                                spriteArea.x = (targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + (spriteArea.width / 2) + 16;
+                                collideCheck = true;
+                            } else if(targetTile.type.equals("Ramp-Right-Half-Bottom") && !onHalfRamp && spriteArea.y < (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8) {
                                 spriteArea.x = (targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + (spriteArea.width / 2) + 16;
                                 collideCheck = true;
                             } else if(targetTile.type.equals("Ramp-Right-Half-Top") && !onRamp) {
@@ -196,13 +199,16 @@ public class Player {
                             if(targetTile.type.equals("Square") && (!onRamp || i > 0)) {
                                 spriteArea.x = (targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) - (spriteArea.width / 2);
                                 collideCheck = true;
-                            } else if(targetTile.type.equals("Square-Half") && ((!onHalfRamp && spriteArea.y + heightMod < (targetTileY * 16) + 8)) || i > 0) {
+                            } else if(targetTile.type.equals("Square-Half") && ((!onHalfRamp && spriteArea.y + heightMod < (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8)) || i > 0) {
                                 spriteArea.x = (targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) - (spriteArea.width / 2);
                                 collideCheck = true;
                             } else if(targetTile.type.equals("Ramp-Left") && !onRamp) {
                                 spriteArea.x = (targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) - (spriteArea.width / 2);
                                 collideCheck = true;
-                            } else if(targetTile.type.equals("Ramp-Right-Half-Top") && ((!onHalfRamp && spriteArea.y + heightMod < (targetTileY * 16) + 8)) || i > 0) {
+                            } else if(targetTile.type.equals("Ramp-Left-Half-Bottom") && !onHalfRamp && spriteArea.y < (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8) {
+                                spriteArea.x = (targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) - (spriteArea.width / 2);
+                                collideCheck = true;
+                            } else if(targetTile.type.equals("Ramp-Right-Half-Top") && ((!onHalfRamp && spriteArea.y + heightMod < (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8)) || i > 0) {
                                 spriteArea.x = (targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) - (spriteArea.width / 2);
                                 collideCheck = true;
                             } else if(targetTile.type.equals("Ramp-Left-Half-Top") && !onRamp) {
@@ -231,8 +237,6 @@ public class Player {
 
         // Up/Down Movement //
         spriteArea.y += velocity.y;
-        onRamp = false;
-        onHalfRamp = false;
 
         // Up Collision Detection //
         if(velocity.y > 0) {
@@ -291,7 +295,8 @@ public class Player {
             for(int i = 0; i < 2; i++) {
                 boolean yCollisionCheck = false;
                 boolean inRampTileCell = false;
-
+                int newYLoc = -9999;
+                
                 // Y Collision Detection (Middle) //
                 if(spriteArea.x >= 0) {
                     int chunkX = spriteArea.x / Gdx.graphics.getWidth();
@@ -306,11 +311,16 @@ public class Player {
                             boolean collideCheck = false;
 
                             if(targetTile != null) {
+                                if(targetTile.type.equals("Square") || targetTile.type.equals("Square-Half")) {
+                                    onRamp = false;
+                                    onHalfRamp = false;
+                                }
+
                                 if(targetTile.type.equals("Ramp-Right")) {
                                     inRampTileCell = true;
                                     int tileHeightMod = 16 - (((targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) - spriteArea.x);
                                     if(spriteArea.y <= (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 2) {
-                                        spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 2;
+                                        newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 2;
                                         onRamp = true;
                                         collideCheck = true;
                                     }
@@ -318,35 +328,37 @@ public class Player {
                                     inRampTileCell = true;
                                     int tileHeightMod = (((targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) - spriteArea.x) - 2;
                                     if(spriteArea.y <= (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 2) {
-                                        spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 2;
+                                        newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 2;
                                         onRamp = true;
                                         collideCheck = true;
                                     }
                                 } else if(targetTile.type.equals("Ramp-Right-Half-Bottom")) {
-                                    int tileHeightMod = (int) (8 * (1 - (((targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) - spriteArea.x) / 16.0f));
+                                    int tileHeightMod = (int) (8 * (1 - (((targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) - spriteArea.x) / 16.0f)) - 1;
                                     if(spriteArea.y <= (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1) {
-                                        spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1;
+                                        newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1;
                                         onHalfRamp = true;
                                         collideCheck = true;
                                     }
                                 } else if(targetTile.type.equals("Ramp-Left-Half-Bottom")) {
                                     int tileHeightMod = (int) (8 - (8 * (1 - (((targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) - spriteArea.x) / 16.0f))) - 1;
                                     if(spriteArea.y <= (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1) {
-                                        spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1;
+                                        newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1;
                                         onHalfRamp = true;
                                         collideCheck = true;
                                     }
                                 } else if(targetTile.type.equals("Ramp-Right-Half-Top")) {
+                                    inRampTileCell = true;
                                     int tileHeightMod = (int) (8 + (8 * (1 - (((targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) - spriteArea.x) / 16.0f)));
                                     if(spriteArea.y <= (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1) {
-                                        spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1;
+                                        newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod;
                                         onRamp = true;
                                         collideCheck = true;
                                     }
                                 } else if(targetTile.type.equals("Ramp-Left-Half-Top")) {
+                                    inRampTileCell = true;
                                     int tileHeightMod = (int) (16 - (8 * (1 - (((targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) - spriteArea.x) / 16.0f)));
                                     if(spriteArea.y <= (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod) {
-                                        spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod;
+                                        newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod;
                                         onRamp = true;
                                         collideCheck = true;
                                     }
@@ -358,7 +370,6 @@ public class Player {
                                     jumpTimer = jumpTimerMax;
 
                                     yCollisionCheck = true;
-                                    break;
                                 }
                             }
                         }
@@ -366,7 +377,7 @@ public class Player {
                 }
 
                 // Y Collision Detection (Left Side) //
-                if(!yCollisionCheck && (spriteArea.x - (spriteArea.width / 2)) < (Gdx.graphics.getWidth() * screenChunks.length)) {
+                if((spriteArea.x - (spriteArea.width / 2)) < (Gdx.graphics.getWidth() * screenChunks.length)) {
                     int chunkX = (spriteArea.x - (spriteArea.width / 2)) / Gdx.graphics.getWidth();
                     int chunkY = spriteArea.y / Gdx.graphics.getHeight();
                     ScreenChunk targetChunk = screenChunks[chunkX][chunkY];
@@ -379,21 +390,25 @@ public class Player {
 
                         if(targetTile != null && !inRampTileCell) {
                             if(targetTile.type.equals("Square")) {
-                                spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 16;
+                                newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 16;
                                 collideCheck = true;
-                            } else if(targetTile.type.equals("Square-Half") && spriteArea.y < (targetTileY * 16) + 8) {
-                                spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8;
+                            } else if(targetTile.type.equals("Square-Half") && !onHalfRamp && spriteArea.y < (targetTileY * 16) + 8) {
+                                newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8;
                                 collideCheck = true;
                             } else if(targetTile.type.equals("Ramp-Right")) {
-                                spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 16;
+                                newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 16;
                                 onRamp = true;
+                                collideCheck = true;
+                            } else if(targetTile.type.equals("Ramp-Right-Half-Bottom") && spriteArea.x >= (targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16 && spriteArea.y <= (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8) {
+                                newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8;
+                                onHalfRamp = true;
                                 collideCheck = true;
                             } else if(targetTile.type.equals("Ramp-Right-Half-Top") && spriteArea.x >= (targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) {
-                                spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 16;
+                                newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 16;
                                 onRamp = true;
                                 collideCheck = true;
-                            } else if(targetTile.type.equals("Ramp-Left-Half-Top") && spriteArea.y <= (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8) {
-                                spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8;
+                            } else if(targetTile.type.equals("Ramp-Left-Half-Top") && !onHalfRamp && spriteArea.y <= (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8) {
+                                newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8 + 1;
                                 onRamp = true;
                                 collideCheck = true;
                             }
@@ -410,7 +425,7 @@ public class Player {
                 }
                 
                 // Y Collision Detection (Right Side) //
-                if(!yCollisionCheck && spriteArea.x + (spriteArea.width / 2) - 1 >= 0) {
+                if(spriteArea.x + (spriteArea.width / 2) - 1 >= 0) {
                     int chunkX = (spriteArea.x + (spriteArea.width / 2) - 1) / Gdx.graphics.getWidth();
                     int chunkY = spriteArea.y / Gdx.graphics.getHeight();
                     if(chunkX < screenChunks.length) {
@@ -421,24 +436,28 @@ public class Player {
                         if(targetTileX >= 0 && targetTileX < 80 && targetTileY >= 0 && targetTileY < 48){
                             Tile targetTile = targetChunk.tiles[targetTileX][targetTileY];
                             boolean collideCheck = false;
-
+                            
                             if(targetTile != null && !inRampTileCell) {
                                 if(targetTile.type.equals("Square")) {
-                                    spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 16;
+                                    newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 16;
                                     collideCheck = true;
-                                } else if(targetTile.type.equals("Square-Half") && spriteArea.y < (targetTileY * 16) + 8) {
-                                    spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8;
+                                } else if(targetTile.type.equals("Square-Half") && !onHalfRamp && spriteArea.y < (targetTileY * 16) + 8) {
+                                    newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8;
                                     collideCheck = true;
                                 } else if(targetTile.type.equals("Ramp-Left")) {
-                                    spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 16;
+                                    newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 16;
                                     onRamp = true;
                                     collideCheck = true;
-                                } else if(targetTile.type.equals("Ramp-Right-Half-Top") && spriteArea.y <= (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8) {
-                                    spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8;
+                                } else if(targetTile.type.equals("Ramp-Left-Half-Bottom") && spriteArea.x <= (targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) && spriteArea.y <= (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8) {
+                                    newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8;
+                                    onHalfRamp = true;
+                                    collideCheck = true;
+                                } else if(targetTile.type.equals("Ramp-Right-Half-Top") && !onHalfRamp && spriteArea.y <= (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8) {
+                                    newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 8 + 1;
                                     onRamp = true;
                                     collideCheck = true;
                                 } else if(targetTile.type.equals("Ramp-Left-Half-Top") && spriteArea.x <= (targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16)) {
-                                    spriteArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 16;
+                                    newYLoc = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + 16;
                                     onRamp = true;
                                     collideCheck = true;
                                 }
@@ -453,6 +472,14 @@ public class Player {
                             }
                         }
                     }
+                }
+            
+                if(!inRampTileCell && !yCollisionCheck && i == 0) {
+                    onRamp = false;
+                    onHalfRamp = false;
+                }
+                if(newYLoc != -9999) {
+                    spriteArea.y = newYLoc;
                 }
             }
         }
