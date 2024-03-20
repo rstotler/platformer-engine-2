@@ -36,6 +36,8 @@ public class ScreenChunk {
         textureMap.put("Ramp-Left-Half-Bottom", new Texture("images/Ramp-Left-Half-Bottom.png"));
         textureMap.put("Ramp-Right-Half-Top", new Texture("images/Ramp-Right-Half-Top.png"));
         textureMap.put("Ramp-Left-Half-Top", new Texture("images/Ramp-Left-Half-Top.png"));
+        textureMap.put("Ceiling-Ramp-Right", new Texture("images/Ceiling-Ramp-Right.png"));
+        textureMap.put("Ceiling-Ramp-Left", new Texture("images/Ceiling-Ramp-Left.png"));
 
         frameBufferWalls.begin();
         spriteBatch.begin();
@@ -46,7 +48,9 @@ public class ScreenChunk {
         for(int y = 0; y < tiles[0].length; y++) {
             for(int x = 0; x < tiles.length; x++) {
                 if(tiles[x][y] != null) {
-                    spriteBatch.draw(textureMap.get(tiles[x][y].type), x * 16, y * 16);
+                    if(textureMap.containsKey(tiles[x][y].type)) {
+                        spriteBatch.draw(textureMap.get(tiles[x][y].type), x * 16, y * 16);
+                    }
                 }
             }
         }
