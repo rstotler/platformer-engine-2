@@ -1,17 +1,15 @@
 package com.jbs.platformerengine.screen.gamescreen;
 
-import java.util.HashMap;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.jbs.platformerengine.gamedata.Point;
+import com.jbs.platformerengine.screen.ImageManager;
 
 public class ScreenChunk {
     ShapeRenderer shapeRenderer;
@@ -26,19 +24,7 @@ public class ScreenChunk {
         tiles = new Tile[80][48];
     }
 
-    public void renderChunkWalls(OrthographicCamera camera, SpriteBatch spriteBatch) {
-        HashMap<String, Texture> textureMap = new HashMap<>();
-        textureMap.put("Square", new Texture("images/Square.png"));
-        textureMap.put("Square-Half", new Texture("images/Square-Half.png"));
-        textureMap.put("Ramp-Right", new Texture("images/Ramp-Right.png"));
-        textureMap.put("Ramp-Left", new Texture("images/Ramp-Left.png"));
-        textureMap.put("Ramp-Right-Half-Bottom", new Texture("images/Ramp-Right-Half-Bottom.png"));
-        textureMap.put("Ramp-Left-Half-Bottom", new Texture("images/Ramp-Left-Half-Bottom.png"));
-        textureMap.put("Ramp-Right-Half-Top", new Texture("images/Ramp-Right-Half-Top.png"));
-        textureMap.put("Ramp-Left-Half-Top", new Texture("images/Ramp-Left-Half-Top.png"));
-        textureMap.put("Ceiling-Ramp-Right", new Texture("images/Ceiling-Ramp-Right.png"));
-        textureMap.put("Ceiling-Ramp-Left", new Texture("images/Ceiling-Ramp-Left.png"));
-
+    public void renderChunkWalls(OrthographicCamera camera, SpriteBatch spriteBatch, String levelName, ImageManager imageManager) {
         frameBufferWalls.begin();
         spriteBatch.begin();
 
@@ -48,8 +34,12 @@ public class ScreenChunk {
         for(int y = 0; y < tiles[0].length; y++) {
             for(int x = 0; x < tiles.length; x++) {
                 if(tiles[x][y] != null) {
-                    if(textureMap.containsKey(tiles[x][y].type)) {
-                        spriteBatch.draw(textureMap.get(tiles[x][y].type), x * 16, y * 16);
+                    if(imageManager.tile.containsKey(levelName) && imageManager.tile.get(levelName).containsKey(tiles[x][y].type)) {
+                        if(tiles[x][y].num < imageManager.tile.get(levelName).get(tiles[x][y].type).size()) {
+                            spriteBatch.draw(imageManager.tile.get(levelName).get(tiles[x][y].type).get(tiles[x][y].num - 1), x * 16, y * 16);
+                        } else {
+                            spriteBatch.draw(imageManager.tile.get(levelName).get(tiles[x][y].type).get(0), x * 16, y * 16);
+                        }
                     }
                 }
             }

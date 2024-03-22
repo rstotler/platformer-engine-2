@@ -20,13 +20,13 @@ public class Keyboard {
     }
 
     public void keyDown(String key) {
-        if(key.equals("Left")) {
+        if(key.equals("Left") || key.equals("A")) {
             left = true;
-        } else if(key.equals("Right")) {
+        } else if(key.equals("Right") || key.equals("D")) {
             right = true;
-        } else if(key.equals("Up")) {
+        } else if(key.equals("Up") || key.equals("W")) {
             up = true;
-        } else if(key.equals("Down")) {
+        } else if(key.equals("Down") || key.equals("S")) {
             down = true;
         }
 
@@ -34,13 +34,13 @@ public class Keyboard {
     }
 
     public void keyUp(String key) {
-        if(key.equals("Left")) {
+        if(key.equals("Left") || key.equals("A")) {
             left = false;
-        } else if(key.equals("Right")) {
+        } else if(key.equals("Right") || key.equals("D")) {
             right = false;
-        } else if(key.equals("Up")) {
+        } else if(key.equals("Up") || key.equals("W")) {
             up = false;
-        } else if(key.equals("Down")) {
+        } else if(key.equals("Down") || key.equals("S")) {
             down = false;
         }
 

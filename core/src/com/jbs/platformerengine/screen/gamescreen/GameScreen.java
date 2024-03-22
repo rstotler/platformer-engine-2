@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.player.Player;
+import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.Screen;
 
 public class GameScreen extends Screen {
@@ -20,7 +21,9 @@ public class GameScreen extends Screen {
     OrthographicCamera cameraDebug;
     Keyboard keyboard;
 
+    String levelName;
     ScreenChunk[][] screenChunks;
+    ImageManager imageManager;
     
     public GameScreen() {
         camera = new OrthographicCamera();
@@ -30,11 +33,15 @@ public class GameScreen extends Screen {
 
         keyboard = new Keyboard();
 
-        loadAreaDebug();
+        // loadAreaDebug();
+        loadLevel01();
         renderChunkWalls();
     }
 
     public void loadAreaDebug() {
+        levelName = "Debug";
+        imageManager = new ImageManager(Arrays.asList("Debug"));
+
         screenChunks = new ScreenChunk[6][8];
         for(int y = 0; y < screenChunks[0].length; y++) {
             for(int x = 0; x < screenChunks.length; x++) {
@@ -138,10 +145,27 @@ public class GameScreen extends Screen {
         }
     }
 
+    public void loadLevel01() {
+        levelName = "Level01";
+        imageManager = new ImageManager(Arrays.asList("Level01"));
+
+        screenChunks = new ScreenChunk[1][1];
+        for(int y = 0; y < screenChunks[0].length; y++) {
+            for(int x = 0; x < screenChunks.length; x++) {
+                screenChunks[x][y] = new ScreenChunk(x, y);
+            }
+        }
+
+        // Bottom Floor //
+        for(int x = 0; x < screenChunks[0][0].tiles.length; x++) {
+            screenChunks[0][0].tiles[x][0] = new Tile("Square", 1);
+        }
+    }
+
     public void renderChunkWalls() {
         for(int y = 0; y < screenChunks[0].length; y++) {
             for(int x = 0; x < screenChunks.length; x++) {
-                screenChunks[x][y].renderChunkWalls(camera, spriteBatch);
+                screenChunks[x][y].renderChunkWalls(camera, spriteBatch, levelName, imageManager);
             }
         }
     }
@@ -153,7 +177,8 @@ public class GameScreen extends Screen {
             public boolean keyDown(int keyCode) {
                 String key = Input.Keys.toString(keyCode);
 
-                if(key.equals("Left") || key.equals("Right") || key.equals("Up") || key.equals("Down")) {
+                if(key.equals("Left") || key.equals("Right") || key.equals("Up") || key.equals("Down")
+                || key.equals("A") || key.equals("S") || key.equals("D") || key.equals("W")) {
                     keyboard.keyDown(key);
                 }
 
@@ -168,7 +193,8 @@ public class GameScreen extends Screen {
             public boolean keyUp(int keyCode) {
                 String key = Input.Keys.toString(keyCode);
                 
-                if(key.equals("Left") || key.equals("Right") || key.equals("Up") || key.equals("Down")) {
+                if(key.equals("Left") || key.equals("Right") || key.equals("Up") || key.equals("Down")
+                || key.equals("A") || key.equals("S") || key.equals("D") || key.equals("W")) {
                     keyboard.keyUp(key);
                 }
 
@@ -176,7 +202,7 @@ public class GameScreen extends Screen {
             }
         });
 
-        if(player.jumpButtonPressedCheck && !Gdx.input.isKeyPressed(Keys.UP)) {
+        if(player.jumpButtonPressedCheck && (!Gdx.input.isKeyPressed(Keys.UP) && !Gdx.input.isKeyPressed(Input.Keys.W))) {
             player.jumpTimer = player.jumpTimerMax;
         }
 
@@ -184,7 +210,7 @@ public class GameScreen extends Screen {
             clickScreen(true, "Left");
         } else if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
             clickScreen(false, "Left");
-        } else if(Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
+        } else if(Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
             clickScreen(true, "Right");
         }
     }
@@ -206,7 +232,7 @@ public class GameScreen extends Screen {
                 if(!justClicked && screenChunks[chunkX][chunkY].tiles[tileX][tileY] == null) {
                     screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Square");
     
-                    Texture texture = new Texture("images/Square.png");
+                    Texture texture = new Texture("images/tiles/Debug/Square.png");
                     screenChunks[chunkX][chunkY].frameBufferWalls.begin();
                     spriteBatch.begin();
                     spriteBatch.draw(texture, tileX * 16, tileY * 16);
@@ -215,7 +241,7 @@ public class GameScreen extends Screen {
                 }
                 else if(justClicked) {
                     int tileTypeIndex = 0;
-                    ArrayList<String> tileTypeList = new ArrayList<>(Arrays.asList("Square", "Square-Half", "Ramp-Right", "Ramp-Left", "Ramp-Right-Half-Bottom", "Ramp-Left-Half-Bottom", "Ramp-Right-Half-Top", "Ramp-Left-Half-Top"));
+                    ArrayList<String> tileTypeList = new ArrayList<>(Arrays.asList("Square", "Square-Half", "Ramp-Right", "Ramp-Left", "Ramp-Right-Half-Bottom", "Ramp-Left-Half-Bottom", "Ramp-Right-Half-Top", "Ramp-Left-Half-Top", "Ceiling-Ramp-Right", "Ceiling-Ramp-Left"));
                     if(screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
                         tileTypeIndex = tileTypeList.indexOf(screenChunks[chunkX][chunkY].tiles[tileX][tileY].type) + 1;
                         if(tileTypeIndex >= tileTypeList.size()) {
@@ -226,12 +252,12 @@ public class GameScreen extends Screen {
                         screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Square");
                     }
     
-                    screenChunks[chunkX][chunkY].renderChunkWalls(camera, spriteBatch);
+                    screenChunks[chunkX][chunkY].renderChunkWalls(camera, spriteBatch, levelName, imageManager);
                 }
             }
             else if(targetButton.equals("Right")) {
                 screenChunks[chunkX][chunkY].tiles[tileX][tileY] = null;
-                screenChunks[chunkX][chunkY].renderChunkWalls(camera, spriteBatch);
+                screenChunks[chunkX][chunkY].renderChunkWalls(camera, spriteBatch, levelName, imageManager);
             }
             
         }
