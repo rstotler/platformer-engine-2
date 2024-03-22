@@ -29,7 +29,7 @@ public class Player {
 
     public Player() {
         shapeRenderer = new ShapeRenderer();
-        spriteArea = new Rect(200, 60, 16, 48);
+        spriteArea = new Rect(1100, 150, 16, 48);
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
@@ -158,7 +158,7 @@ public class Player {
                                     spriteArea.x = (targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + (spriteArea.width / 2) + 16;
                                     collideCheck = true;
                                 }
-    
+
                                 if(collideCheck) {
                                     velocity.x = 0;
                                     break;
@@ -166,6 +166,13 @@ public class Player {
                             }
                         }
                     }
+                }
+                
+                // Screen Boundary Collision //
+                if(spriteArea.x - (spriteArea.width / 2) < 0) {
+                    spriteArea.x = (spriteArea.width / 2);
+                    velocity.x = 0;
+                    break;
                 }
             }
             
@@ -234,7 +241,7 @@ public class Player {
                                     spriteArea.x = (targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) - (spriteArea.width / 2);
                                     collideCheck = true;
                                 }
-    
+
                                 if(collideCheck) {
                                     velocity.x = 0;
                                     break;
@@ -242,6 +249,13 @@ public class Player {
                             }
                         }
                     }
+                }
+                
+                // Screen Boundary Collision //
+                if(spriteArea.x + (spriteArea.width / 2) >= (Gdx.graphics.getWidth() * screenChunks.length)) {
+                    spriteArea.x = (Gdx.graphics.getWidth() * screenChunks.length) - (spriteArea.width / 2);
+                    velocity.x = 0;
+                    break;
                 }
             }
         }
@@ -262,10 +276,18 @@ public class Player {
         if(velocity.y > 0) {
             onRamp = false;
             onHalfRamp = false;
-
-            // Y Collision Detection (Left Side) //
             boolean yCollisionCheck = false;
-            if((spriteArea.x - (spriteArea.width / 2)) < (Gdx.graphics.getWidth() * screenChunks.length)) {
+            
+            // Screen Boundary Collision //
+            if(spriteArea.y + spriteArea.height >= (Gdx.graphics.getHeight() * screenChunks[0].length)) {
+                spriteArea.y = (Gdx.graphics.getHeight() * screenChunks[0].length) - spriteArea.height;
+                velocity.y = 0;
+                jumpTimer = jumpTimerMax;
+                yCollisionCheck = true;
+            }
+            
+            // Y Collision Detection (Left Side) //
+            if(!yCollisionCheck && (spriteArea.x - (spriteArea.width / 2)) < (Gdx.graphics.getWidth() * screenChunks.length)) {
                 int chunkX = (spriteArea.x - (spriteArea.width / 2)) / Gdx.graphics.getWidth();
                 int chunkY = (spriteArea.y + spriteArea.height) / Gdx.graphics.getHeight();
                 ScreenChunk targetChunk = screenChunks[chunkX][chunkY];
@@ -497,6 +519,12 @@ public class Player {
                     }
                 }
             
+                // Screen Boundary Collision //
+                if(spriteArea.y <= 0) {
+                    newYLoc = 0;
+                    yCollisionCheck = true;
+                }
+
                 if(!inRampTileCell && !yCollisionCheck && i == 0) {
                     onRamp = false;
                     onHalfRamp = false;

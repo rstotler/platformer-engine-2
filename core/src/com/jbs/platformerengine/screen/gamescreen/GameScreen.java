@@ -157,8 +157,14 @@ public class GameScreen extends Screen {
         }
 
         // Bottom Floor //
-        for(int x = 0; x < screenChunks[0][0].tiles.length; x++) {
-            screenChunks[0][0].tiles[x][0] = new Tile("Square", 1);
+        for(int y = 0; y < 7; y++) {
+            for(int x = 0; x < screenChunks[0][0].tiles.length; x++) {
+                int textureNum = 2;
+                if(y == 6) {
+                    textureNum = 1;
+                }
+                screenChunks[0][0].tiles[x][y] = new Tile("Square", textureNum);
+            }
         }
     }
 
@@ -226,40 +232,42 @@ public class GameScreen extends Screen {
             int tileX = (xLoc / 16) % screenChunks[0][0].tiles.length;
             int tileY = (yLoc / 16) % screenChunks[0][0].tiles[0].length;
 
-            System.out.println(tileX + " " + tileY);
+            if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
+            && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length) {
+                System.out.println(tileX + " " + tileY);
 
-            if(targetButton.equals("Left")) {
-                if(!justClicked && screenChunks[chunkX][chunkY].tiles[tileX][tileY] == null) {
-                    screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Square");
-    
-                    Texture texture = new Texture("images/tiles/Debug/Square.png");
-                    screenChunks[chunkX][chunkY].frameBufferWalls.begin();
-                    spriteBatch.begin();
-                    spriteBatch.draw(texture, tileX * 16, tileY * 16);
-                    spriteBatch.end();
-                    screenChunks[chunkX][chunkY].frameBufferWalls.end();
-                }
-                else if(justClicked) {
-                    int tileTypeIndex = 0;
-                    ArrayList<String> tileTypeList = new ArrayList<>(Arrays.asList("Square", "Square-Half", "Ramp-Right", "Ramp-Left", "Ramp-Right-Half-Bottom", "Ramp-Left-Half-Bottom", "Ramp-Right-Half-Top", "Ramp-Left-Half-Top", "Ceiling-Ramp-Right", "Ceiling-Ramp-Left"));
-                    if(screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
-                        tileTypeIndex = tileTypeList.indexOf(screenChunks[chunkX][chunkY].tiles[tileX][tileY].type) + 1;
-                        if(tileTypeIndex >= tileTypeList.size()) {
-                            tileTypeIndex = 0;
-                        }
-                        screenChunks[chunkX][chunkY].tiles[tileX][tileY].type = tileTypeList.get(tileTypeIndex);
-                    } else {
+                if(targetButton.equals("Left")) {
+                    if(!justClicked && screenChunks[chunkX][chunkY].tiles[tileX][tileY] == null) {
                         screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Square");
+        
+                        Texture texture = new Texture("images/tiles/Debug/Square.png");
+                        screenChunks[chunkX][chunkY].frameBufferWalls.begin();
+                        spriteBatch.begin();
+                        spriteBatch.draw(texture, tileX * 16, tileY * 16);
+                        spriteBatch.end();
+                        screenChunks[chunkX][chunkY].frameBufferWalls.end();
                     }
-    
+                    else if(justClicked) {
+                        int tileTypeIndex = 0;
+                        ArrayList<String> tileTypeList = new ArrayList<>(Arrays.asList("Square", "Square-Half", "Ramp-Right", "Ramp-Left", "Ramp-Right-Half-Bottom", "Ramp-Left-Half-Bottom", "Ramp-Right-Half-Top", "Ramp-Left-Half-Top", "Ceiling-Ramp-Right", "Ceiling-Ramp-Left"));
+                        if(screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
+                            tileTypeIndex = tileTypeList.indexOf(screenChunks[chunkX][chunkY].tiles[tileX][tileY].type) + 1;
+                            if(tileTypeIndex >= tileTypeList.size()) {
+                                tileTypeIndex = 0;
+                            }
+                            screenChunks[chunkX][chunkY].tiles[tileX][tileY].type = tileTypeList.get(tileTypeIndex);
+                        } else {
+                            screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Square");
+                        }
+        
+                        screenChunks[chunkX][chunkY].renderChunkWalls(camera, spriteBatch, levelName, imageManager);
+                    }
+                }
+                else if(targetButton.equals("Right")) {
+                    screenChunks[chunkX][chunkY].tiles[tileX][tileY] = null;
                     screenChunks[chunkX][chunkY].renderChunkWalls(camera, spriteBatch, levelName, imageManager);
                 }
             }
-            else if(targetButton.equals("Right")) {
-                screenChunks[chunkX][chunkY].tiles[tileX][tileY] = null;
-                screenChunks[chunkX][chunkY].renderChunkWalls(camera, spriteBatch, levelName, imageManager);
-            }
-            
         }
     }
 
@@ -269,9 +277,17 @@ public class GameScreen extends Screen {
 
     public void render(Player player) {
         ScreenUtils.clear(0, 0, 0, 1);
-        camera.position.set(player.spriteArea.x, (player.spriteArea.y + 80), 0);
-        camera.update();
+
+        if(player.spriteArea.x < 320) {
+            camera.position.set(320, (player.spriteArea.y + 80), 0);
+        } else if(player.spriteArea.x > 960 + (Gdx.graphics.getWidth() * (screenChunks.length - 1))) {
+            camera.position.set(960, (player.spriteArea.y + 80), 0);
+        } else if(player.spriteArea.x >= 320) {
+            camera.position.set(player.spriteArea.x, (player.spriteArea.y + 80), 0);
+        }
         
+        camera.update();
+
         renderChunks(camera, player);
         player.render(camera);
 

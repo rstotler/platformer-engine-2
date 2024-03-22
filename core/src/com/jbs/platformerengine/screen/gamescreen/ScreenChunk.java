@@ -35,7 +35,7 @@ public class ScreenChunk {
             for(int x = 0; x < tiles.length; x++) {
                 if(tiles[x][y] != null) {
                     if(imageManager.tile.containsKey(levelName) && imageManager.tile.get(levelName).containsKey(tiles[x][y].type)) {
-                        if(tiles[x][y].num < imageManager.tile.get(levelName).get(tiles[x][y].type).size()) {
+                        if(tiles[x][y].num <= imageManager.tile.get(levelName).get(tiles[x][y].type).size()) {
                             spriteBatch.draw(imageManager.tile.get(levelName).get(tiles[x][y].type).get(tiles[x][y].num - 1), x * 16, y * 16);
                         } else {
                             spriteBatch.draw(imageManager.tile.get(levelName).get(tiles[x][y].type).get(0), x * 16, y * 16);
