@@ -14,6 +14,7 @@ import com.jbs.platformerengine.screen.ImageManager;
 public class ScreenChunk {
     ShapeRenderer shapeRenderer;
     FrameBuffer frameBufferWalls;
+
     public Point location;
     public Tile[][] tiles;
 

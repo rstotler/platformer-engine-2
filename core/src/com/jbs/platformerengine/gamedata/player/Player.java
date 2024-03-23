@@ -15,21 +15,33 @@ public class Player {
     ShapeRenderer shapeRenderer;
     public Rect spriteArea;
 
-    PointF velocity;
+    public PointF velocity;
     int moveSpeed;
 
     public boolean jumpCheck;
     public boolean jumpButtonPressedCheck;
     public int jumpTimerMax;
     public int jumpTimer;
+    public int jumpCount;
     float maxFallVelocity;
+    
+    public boolean superJumpCheck;
+    public float superJumpTimer;
+    public float superJumpTimerMax;
+    public float superJumpPercent;
+
+    public boolean dashCheck;
+    public float dashTimer;
+    public float dashTimerMax;
+    public float dashPercent;
+    public String dashDirection;
 
     public boolean onRamp;
     public boolean onHalfRamp;
 
     public Player() {
         shapeRenderer = new ShapeRenderer();
-        spriteArea = new Rect(1100, 150, 16, 48);
+        spriteArea = new Rect(100, 150, 16, 48);
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
@@ -38,7 +50,18 @@ public class Player {
         jumpButtonPressedCheck = false;
         jumpTimerMax = 10;
         jumpTimer = jumpTimerMax;
+        jumpCount = 0;
         maxFallVelocity = -5;
+
+        superJumpCheck = false;
+        superJumpTimer = 0f;
+        superJumpTimerMax = 60f;
+        superJumpPercent = 0f;
+
+        dashCheck = false;
+        dashTimer = 0f;
+        dashTimerMax = 20f;
+        dashPercent = 0f;
 
         onRamp = false;
         onHalfRamp = false;
@@ -58,14 +81,18 @@ public class Player {
         } else if(!keyboard.left && keyboard.right) {
             velocity.x = moveSpeed;
         }
+        if(velocity.x != 0 && keyboard.shift) {
+            velocity.x *= 1.5;
+        }
 
         // Jump Velocity //
         if(keyboard.up) {
-            if((keyboard.lastDown.equals("Up") || keyboard.lastDown.equals("W")) && !jumpCheck && !jumpButtonPressedCheck) {
+            if((keyboard.lastDown.equals("Up") || keyboard.lastDown.equals("W")) && jumpCount < getMaxJumpCount() && !jumpButtonPressedCheck) {
                 velocity.y = 8;
                 jumpCheck = true;
                 jumpButtonPressedCheck = true;
                 jumpTimer = 0;
+                jumpCount += 1;
             } else if(jumpTimer < jumpTimerMax) {
                 jumpTimer += 1;
             }
@@ -73,6 +100,34 @@ public class Player {
         if(keyboard.lastUp != null && (keyboard.lastUp.equals("Up") || keyboard.lastUp.equals("W"))) {
             jumpTimer = jumpTimerMax;
             jumpButtonPressedCheck = false;
+        }
+
+        // Super Jump //
+        if(superJumpCheck) {
+            if(superJumpTimer < superJumpTimerMax) {
+                superJumpTimer += 1;
+                superJumpPercent = (float) (1 - Math.sin(Math.toRadians((superJumpTimer / superJumpTimerMax) * 90)));
+                if(24 * superJumpPercent >= 1.25) {
+                    velocity.y = 24 * superJumpPercent;
+                }
+            }
+        }
+
+        // Dash //
+        if(dashCheck) {
+            if(dashTimer < dashTimerMax) {
+                dashTimer += 1;
+                dashPercent = (float) (1 - Math.sin(Math.toRadians((dashTimer / dashTimerMax) * 90)));
+                if(7 * dashPercent >= 1.25) {
+                    int directionMod = 1;
+                    if(dashDirection.equals("Left")) {
+                        directionMod = -1;
+                    }
+                    velocity.x = (7 * dashPercent) * directionMod;
+                }
+            } else {
+                dashCheck = false;
+            }
         }
 
         keyboard.lastDown = "";
@@ -461,6 +516,8 @@ public class Player {
                                     velocity.y = 0;
                                     jumpCheck = false;
                                     jumpTimer = jumpTimerMax;
+                                    jumpCount = 0;
+                                    superJumpCheck = false;
     
                                     yCollisionCheck = true;
                                 }
@@ -511,6 +568,8 @@ public class Player {
                                     velocity.y = 0;
                                     jumpCheck = false;
                                     jumpTimer = jumpTimerMax;
+                                    jumpCount = 0;
+                                    superJumpCheck = false;
 
                                     yCollisionCheck = true;
                                 }
@@ -553,5 +612,27 @@ public class Player {
         // shapeRenderer.circle(spriteArea.x, spriteArea.y + 146, 2);
 
         shapeRenderer.end();
+    }
+
+    public int getMaxJumpCount() {
+        return 2;
+    }
+
+    public void superJump() {
+        if(superJumpPercent < .05) {
+            superJumpCheck = true;
+            superJumpTimer = 0f;
+            if(jumpCount == 0) {
+                jumpCount = 1;
+            }
+        }
+    }
+
+    public void dash(String direction) {
+        if(dashPercent < .15) {
+            dashCheck = true;
+            dashTimer = 0f;
+            dashDirection = direction;
+        }
     }
 }

@@ -184,7 +184,8 @@ public class GameScreen extends Screen {
                 String key = Input.Keys.toString(keyCode);
 
                 if(key.equals("Left") || key.equals("Right") || key.equals("Up") || key.equals("Down")
-                || key.equals("A") || key.equals("S") || key.equals("D") || key.equals("W")) {
+                || key.equals("A") || key.equals("S") || key.equals("D") || key.equals("W")
+                || key.equals("L-Shift") || key.equals("R-Shift")) {
                     keyboard.keyDown(key);
                 }
 
@@ -200,7 +201,8 @@ public class GameScreen extends Screen {
                 String key = Input.Keys.toString(keyCode);
                 
                 if(key.equals("Left") || key.equals("Right") || key.equals("Up") || key.equals("Down")
-                || key.equals("A") || key.equals("S") || key.equals("D") || key.equals("W")) {
+                || key.equals("A") || key.equals("S") || key.equals("D") || key.equals("W")
+                || key.equals("L-Shift") || key.equals("R-Shift")) {
                     keyboard.keyUp(key);
                 }
 
@@ -218,6 +220,14 @@ public class GameScreen extends Screen {
             clickScreen(false, "Left");
         } else if(Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
             clickScreen(true, "Right");
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            player.superJump();
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
+            player.dash("Left");
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+            player.dash("Right");
         }
     }
 
@@ -314,8 +324,9 @@ public class GameScreen extends Screen {
         font.draw(spriteBatch, "FPS: " + String.valueOf(Gdx.graphics.getFramesPerSecond()), 1205, 767);
 
         font.draw(spriteBatch, "Player Pos: X - " + player.spriteArea.x + " Y - " + player.spriteArea.y, 3, 765);
-        font.draw(spriteBatch, "On Ramp: " + player.onRamp + " - On Half-Ramp: " + player.onHalfRamp, 3, 750);
-        font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ")", 3, 735);
+        font.draw(spriteBatch, "Velocity: X - " + player.velocity.x + " Y - " + player.velocity.y, 3, 750);
+        font.draw(spriteBatch, "On Ramp: " + player.onRamp + " - On Half-Ramp: " + player.onHalfRamp, 3, 735);
+        font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount, 3, 720);
 
         spriteBatch.end();
     }

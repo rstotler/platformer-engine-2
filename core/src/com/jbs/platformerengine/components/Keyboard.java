@@ -5,6 +5,7 @@ public class Keyboard {
     public boolean right;
     public boolean up;
     public boolean down;
+    public boolean shift;
 
     public String lastDown;
     public String lastUp;
@@ -14,6 +15,7 @@ public class Keyboard {
         right = false;
         up = false;
         down = false;
+        shift = false;
 
         lastDown = "";
         lastUp = "";
@@ -28,6 +30,8 @@ public class Keyboard {
             up = true;
         } else if(key.equals("Down") || key.equals("S")) {
             down = true;
+        } else if(key.equals("L-Shift") || key.equals("R-Shift")) {
+            shift = true;
         }
 
         lastDown = key;
@@ -42,6 +46,8 @@ public class Keyboard {
             up = false;
         } else if(key.equals("Down") || key.equals("S")) {
             down = false;
+        } else if(key.equals("L-Shift") || key.equals("R-Shift")) {
+            shift = false;
         }
 
         lastUp = key;
