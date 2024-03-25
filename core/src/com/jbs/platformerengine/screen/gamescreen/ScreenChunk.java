@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.screen.ImageManager;
 
@@ -20,16 +19,16 @@ public class ScreenChunk {
 
     public ScreenChunk(int x, int y) {
         shapeRenderer = new ShapeRenderer();
-        frameBufferWalls = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
         location = new Point(x, y);
         tiles = new Tile[80][48];
     }
 
-    public void renderChunkWalls(OrthographicCamera camera, SpriteBatch spriteBatch, String levelName, ImageManager imageManager) {
+    public void bufferTiles(OrthographicCamera camera, SpriteBatch spriteBatch, String levelName, ImageManager imageManager) {
+        frameBufferWalls = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
         frameBufferWalls.begin();
         spriteBatch.begin();
 
-        Gdx.graphics.getGL20().glClearColor(0f,0f,0f,0f);
+        Gdx.graphics.getGL20().glClearColor(0f, 0f, 0f, 0f);
         Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
         
         for(int y = 0; y < tiles[0].length; y++) {
@@ -50,12 +49,12 @@ public class ScreenChunk {
         frameBufferWalls.end();
     }
 
-    public void render(OrthographicCamera camera, SpriteBatch spriteBatch) {
-        shapeRenderer.setProjectionMatrix(camera.combined);
-        shapeRenderer.begin(ShapeType.Filled);
-        shapeRenderer.setColor(0, (10 + (location.y * 5))/255f, (10 + (location.x * 5))/255f, 0);
-        shapeRenderer.rect((location.x * Gdx.graphics.getWidth()), (location.y * Gdx.graphics.getHeight()), Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        shapeRenderer.end();
+    public void renderTiles(OrthographicCamera camera, SpriteBatch spriteBatch) {
+        // shapeRenderer.setProjectionMatrix(camera.combined);
+        // shapeRenderer.begin(ShapeType.Filled);
+        // shapeRenderer.setColor(0, (10 + (location.y * 5))/255f, (10 + (location.x * 5))/255f, 0);
+        // shapeRenderer.rect((location.x * Gdx.graphics.getWidth()), (location.y * Gdx.graphics.getHeight()), Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        // shapeRenderer.end();
 
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();

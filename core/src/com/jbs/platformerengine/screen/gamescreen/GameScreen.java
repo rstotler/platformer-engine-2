@@ -6,10 +6,14 @@ import java.util.Arrays;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.player.Player;
@@ -23,6 +27,8 @@ public class GameScreen extends Screen {
 
     String levelName;
     ScreenChunk[][] screenChunks;
+    
+    ArrayList<FrameBuffer> frameBufferBackground; 
     ImageManager imageManager;
     
     public GameScreen() {
@@ -35,12 +41,14 @@ public class GameScreen extends Screen {
 
         // loadAreaDebug();
         loadLevel01();
-        renderChunkWalls();
+
+        loadBackgroundFrameBuffers(levelName);
+        imageManager = new ImageManager(Arrays.asList(levelName));
+        bufferChunks();
     }
 
     public void loadAreaDebug() {
         levelName = "Debug";
-        imageManager = new ImageManager(Arrays.asList("Debug"));
 
         screenChunks = new ScreenChunk[6][8];
         for(int y = 0; y < screenChunks[0].length; y++) {
@@ -147,9 +155,8 @@ public class GameScreen extends Screen {
 
     public void loadLevel01() {
         levelName = "Level01";
-        imageManager = new ImageManager(Arrays.asList("Level01"));
-
-        screenChunks = new ScreenChunk[1][1];
+        
+        screenChunks = new ScreenChunk[2][2];
         for(int y = 0; y < screenChunks[0].length; y++) {
             for(int x = 0; x < screenChunks.length; x++) {
                 screenChunks[x][y] = new ScreenChunk(x, y);
@@ -157,21 +164,55 @@ public class GameScreen extends Screen {
         }
 
         // Bottom Floor //
-        for(int y = 0; y < 7; y++) {
-            for(int x = 0; x < screenChunks[0][0].tiles.length; x++) {
-                int textureNum = 2;
-                if(y == 6) {
-                    textureNum = 1;
+        for(int chunkX = 0; chunkX < 2; chunkX++) {
+            for(int y = 0; y < 7; y++) {
+                for(int x = 0; x < screenChunks[0][0].tiles.length; x++) {
+                    int textureNum = 2;
+                    if(y == 6) {
+                        textureNum = 1;
+                    }
+                    screenChunks[chunkX][0].tiles[x][y] = new Tile("Square", textureNum);
                 }
-                screenChunks[0][0].tiles[x][y] = new Tile("Square", textureNum);
             }
         }
     }
 
-    public void renderChunkWalls() {
+    public void loadBackgroundFrameBuffers(String levelName) {
+        if(levelName.equals("Level01")) {
+            frameBufferBackground = new ArrayList<>();
+
+            for(FileHandle directoryHandle : Gdx.files.internal("assets/images/backgrounds").list()) {
+                String directoryName = directoryHandle.toString().substring(directoryHandle.toString().lastIndexOf("/") + 1);
+                if(directoryName.equals(levelName)) {
+                    for(FileHandle fileHandle : Gdx.files.internal(directoryHandle.toString()).list()) {
+                        FrameBuffer frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+                        
+                        frameBuffer.begin();
+                        spriteBatch.begin();
+    
+                        Gdx.graphics.getGL20().glClearColor(0f, 0f, 0f, 0f);
+                        Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+    
+                        Texture texture = new Texture(fileHandle.toString().substring(fileHandle.toString().indexOf("/") + 1));
+                        spriteBatch.draw(texture, 0, 0);
+                        
+                        spriteBatch.end();
+                        frameBuffer.end();
+    
+                        texture.dispose();
+                        frameBufferBackground.add(frameBuffer);
+                    }
+    
+                    break;
+                }
+            }
+        }
+    }
+
+    public void bufferChunks() {
         for(int y = 0; y < screenChunks[0].length; y++) {
             for(int x = 0; x < screenChunks.length; x++) {
-                screenChunks[x][y].renderChunkWalls(camera, spriteBatch, levelName, imageManager);
+                screenChunks[x][y].bufferTiles(camera, spriteBatch, levelName, imageManager);
             }
         }
     }
@@ -270,12 +311,12 @@ public class GameScreen extends Screen {
                             screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Square");
                         }
         
-                        screenChunks[chunkX][chunkY].renderChunkWalls(camera, spriteBatch, levelName, imageManager);
+                        screenChunks[chunkX][chunkY].bufferTiles(camera, spriteBatch, levelName, imageManager);
                     }
                 }
                 else if(targetButton.equals("Right")) {
                     screenChunks[chunkX][chunkY].tiles[tileX][tileY] = null;
-                    screenChunks[chunkX][chunkY].renderChunkWalls(camera, spriteBatch, levelName, imageManager);
+                    screenChunks[chunkX][chunkY].bufferTiles(camera, spriteBatch, levelName, imageManager);
                 }
             }
         }
@@ -291,27 +332,61 @@ public class GameScreen extends Screen {
         if(player.spriteArea.x < 320) {
             camera.position.set(320, (player.spriteArea.y + 80), 0);
         } else if(player.spriteArea.x > 960 + (Gdx.graphics.getWidth() * (screenChunks.length - 1))) {
-            camera.position.set(960, (player.spriteArea.y + 80), 0);
+            camera.position.set(960 + (Gdx.graphics.getWidth() * (screenChunks.length - 1)), (player.spriteArea.y + 80), 0);
         } else if(player.spriteArea.x >= 320) {
             camera.position.set(player.spriteArea.x, (player.spriteArea.y + 80), 0);
         }
-        
         camera.update();
 
-        renderChunks(camera, player);
+        renderBackground(player);
+        renderTiles(camera, player);
         player.render(camera);
 
         renderDebugData(player);
     }
 
-    public void renderChunks(OrthographicCamera camera, Player player) {
+    public void renderBackground(Player player) {
+        spriteBatch.setProjectionMatrix(camera.combined);
+        spriteBatch.begin();
+
+        float xPercent = (player.spriteArea.x - 320.0f) / ((Gdx.graphics.getWidth() * screenChunks.length) - 640);
+        if(frameBufferBackground != null) {
+            for(int i = 0; i < frameBufferBackground.size(); i++) {
+                float xMod = 0;
+                if(xPercent >= 0) {
+                    if(xPercent > 1) {
+                        xPercent = 1;
+                    }
+                    if(i == 0) {
+                        xMod = 2000 * xPercent;
+                    } else if(i == 1) {
+                        xMod = 1500 * xPercent;
+                    } else if(i == 2) {
+                        xMod = 750 * xPercent;
+                    }
+                }
+                int xIndex = (int) ((player.spriteArea.x - 320) / (Gdx.graphics.getWidth() + xMod));
+                float xLoc = (xIndex * Gdx.graphics.getWidth()) + xMod;
+
+                if(i == 0 || i == 2) {
+                    spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc - Gdx.graphics.getWidth(), 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                }
+                spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc + Gdx.graphics.getWidth(), 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+            }
+        }
+
+        spriteBatch.end();
+    }
+
+    public void renderTiles(OrthographicCamera camera, Player player) {
         int chunkStartX = player.spriteArea.x / Gdx.graphics.getWidth() - 1;
         int chunkStartY = player.spriteArea.y / Gdx.graphics.getHeight() - 1;
 
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
                 if(x >= 0 && y >= 0 && x < screenChunks.length && y < screenChunks[0].length) {
-                    screenChunks[x][y].render(camera, spriteBatch);
+                    screenChunks[x][y].renderTiles(camera, spriteBatch);
                 }
             }
         }
