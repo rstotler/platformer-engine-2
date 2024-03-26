@@ -12,6 +12,7 @@ import com.jbs.platformerengine.screen.ImageManager;
 
 public class ScreenChunk {
     ShapeRenderer shapeRenderer;
+    FrameBuffer frameBufferTiles;
     FrameBuffer frameBufferWalls;
 
     public Point location;
@@ -21,11 +22,13 @@ public class ScreenChunk {
         shapeRenderer = new ShapeRenderer();
         location = new Point(x, y);
         tiles = new Tile[80][48];
+
+        frameBufferWalls = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
     }
 
     public void bufferTiles(OrthographicCamera camera, SpriteBatch spriteBatch, String levelName, ImageManager imageManager) {
-        frameBufferWalls = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
-        frameBufferWalls.begin();
+        frameBufferTiles = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+        frameBufferTiles.begin();
         spriteBatch.begin();
 
         Gdx.graphics.getGL20().glClearColor(0f, 0f, 0f, 0f);
@@ -46,7 +49,7 @@ public class ScreenChunk {
         }
 
         spriteBatch.end();
-        frameBufferWalls.end();
+        frameBufferTiles.end();
     }
 
     public void renderTiles(OrthographicCamera camera, SpriteBatch spriteBatch) {
@@ -58,7 +61,7 @@ public class ScreenChunk {
 
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
-        spriteBatch.draw(frameBufferWalls.getColorBufferTexture(), location.x * Gdx.graphics.getWidth(), location.y * Gdx.graphics.getHeight(), Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+        spriteBatch.draw(frameBufferTiles.getColorBufferTexture(), location.x * Gdx.graphics.getWidth(), location.y * Gdx.graphics.getHeight(), Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
         spriteBatch.end();
     }
 }

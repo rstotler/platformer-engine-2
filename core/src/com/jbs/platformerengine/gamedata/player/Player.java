@@ -36,6 +36,8 @@ public class Player {
     public float dashPercent;
     public String dashDirection;
 
+    public boolean dropKickCheck;
+
     public boolean onRamp;
     public boolean onHalfRamp;
 
@@ -63,6 +65,8 @@ public class Player {
         dashTimerMax = 20f;
         dashPercent = 0f;
 
+        dropKickCheck = false;
+
         onRamp = false;
         onHalfRamp = false;
     }
@@ -87,12 +91,21 @@ public class Player {
 
         // Jump Velocity //
         if(keyboard.up) {
-            if((keyboard.lastDown.equals("Up") || keyboard.lastDown.equals("W")) && jumpCount < getMaxJumpCount() && !jumpButtonPressedCheck) {
-                velocity.y = 8;
-                jumpCheck = true;
-                jumpButtonPressedCheck = true;
-                jumpTimer = 0;
-                jumpCount += 1;
+            if((keyboard.lastDown.equals("Up") || keyboard.lastDown.equals("W"))) {
+                if(jumpCount < getMaxJumpCount() && !jumpButtonPressedCheck) {
+                    velocity.y = 8;
+                    jumpCheck = true;
+                    jumpButtonPressedCheck = true;
+                    jumpTimer = 0;
+                    jumpCount += 1;
+
+                // Drop Kick (Button Press) //
+                } else {
+                    if(!dropKickCheck && (superJumpTimer == 0 || superJumpTimer >= superJumpTimerMax)) {
+                        dropKickCheck = true;
+                    }
+                }
+
             } else if(jumpTimer < jumpTimerMax) {
                 jumpTimer += 1;
             }
@@ -315,8 +328,11 @@ public class Player {
             }
         }
 
-        // Gravity //
-        if(velocity.y > maxFallVelocity) {
+        // Gravity (Or Drop Kick) //
+        if(dropKickCheck) {
+            velocity.y = -15;
+        }
+        else if(velocity.y > maxFallVelocity) {
             if(jumpTimer == jumpTimerMax) {
                 velocity.y -= .7;
             } else {
@@ -463,10 +479,6 @@ public class Player {
                                 }
 
                                 if(collideCheck) {
-                                    velocity.y = 0;
-                                    jumpCheck = false;
-                                    jumpTimer = jumpTimerMax;
-
                                     yCollisionCheck = true;
                                 }
                             }
@@ -513,12 +525,6 @@ public class Player {
                                 }
     
                                 if(collideCheck) {
-                                    velocity.y = 0;
-                                    jumpCheck = false;
-                                    jumpTimer = jumpTimerMax;
-                                    jumpCount = 0;
-                                    superJumpCheck = false;
-    
                                     yCollisionCheck = true;
                                 }
                             }
@@ -565,12 +571,6 @@ public class Player {
                                 }
 
                                 if(collideCheck) {
-                                    velocity.y = 0;
-                                    jumpCheck = false;
-                                    jumpTimer = jumpTimerMax;
-                                    jumpCount = 0;
-                                    superJumpCheck = false;
-
                                     yCollisionCheck = true;
                                 }
                             }
@@ -590,6 +590,16 @@ public class Player {
                 }
                 if(newYLoc != -9999) {
                     spriteArea.y = newYLoc;
+
+                    velocity.y = 0;
+                    jumpCheck = false;
+                    jumpTimer = jumpTimerMax;
+                    jumpCount = 0;
+
+                    superJumpCheck = false;
+                    if(dropKickCheck) {
+                        dropKickCheck = false;
+                    }
                 }
             }
         }
@@ -619,7 +629,7 @@ public class Player {
     }
 
     public void superJump() {
-        if(superJumpPercent < .05) {
+        if(!dropKickCheck && superJumpPercent < .05) {
             superJumpCheck = true;
             superJumpTimer = 0f;
             if(jumpCount == 0) {

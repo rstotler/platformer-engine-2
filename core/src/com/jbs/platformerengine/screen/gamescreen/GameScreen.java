@@ -2,6 +2,8 @@ package com.jbs.platformerengine.screen.gamescreen;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -40,7 +42,7 @@ public class GameScreen extends Screen {
         keyboard = new Keyboard();
 
         // loadAreaDebug();
-        loadLevel01();
+        loadArea01();
 
         loadBackgroundFrameBuffers(levelName);
         imageManager = new ImageManager(Arrays.asList(levelName));
@@ -153,8 +155,8 @@ public class GameScreen extends Screen {
         }
     }
 
-    public void loadLevel01() {
-        levelName = "Level01";
+    public void loadArea01() {
+        levelName = "Area01";
         
         screenChunks = new ScreenChunk[2][2];
         for(int y = 0; y < screenChunks[0].length; y++) {
@@ -164,8 +166,9 @@ public class GameScreen extends Screen {
         }
 
         // Bottom Floor //
+        int baseFloorThickness = 7;
         for(int chunkX = 0; chunkX < 2; chunkX++) {
-            for(int y = 0; y < 7; y++) {
+            for(int y = 0; y < baseFloorThickness; y++) {
                 for(int x = 0; x < screenChunks[0][0].tiles.length; x++) {
                     int textureNum = 2;
                     if(y == 6) {
@@ -175,38 +178,183 @@ public class GameScreen extends Screen {
                 }
             }
         }
+
+        // Hills //
+        int hillCount = new Random().nextInt(20) + 10;
+        int tileIndex = 15;
+        for(int hillIndex = 0; hillIndex < hillCount; hillIndex++) {
+            int hillWidth = new Random().nextInt(20) + 12;
+            int yCount = 1;
+            if(new Random().nextInt(2) == 0) {
+                yCount = 2;
+            }
+
+            for(int y = 0; y < yCount; y++) {
+                if(y == 1) {
+                    int xOffset = new Random().nextInt(4) + 2;
+                    tileIndex += xOffset;
+                    hillWidth -= (new Random().nextInt(3) + 3) + xOffset;
+                }
+
+                String slopeLeftSide = "Ramp";
+                String slopeRightSide = "Ramp";
+                if(new Random().nextInt(2) == 0) {
+                    slopeLeftSide = "Ramp-Half";
+                }
+                if(new Random().nextInt(2) == 0) {
+                    slopeRightSide = "Ramp-Half";
+                }
+                
+                for(int x = tileIndex; x < tileIndex + hillWidth; x++) {
+                    int chunkX = x / screenChunks[0][0].tiles.length;
+                    int tileX = x % screenChunks[0][0].tiles.length;
+                    if(chunkX < screenChunks.length && tileX < screenChunks[0][0].tiles.length) {
+                        String tileType = "Square";
+                        if(x == tileIndex) {
+                            if(slopeLeftSide.equals("Ramp")) {
+                                tileType = "Ramp-Right";
+                            } else {
+                                tileType = "Ramp-Right-Half-Bottom";
+                            }
+                        } else if(x == tileIndex + 1 && slopeLeftSide.equals("Ramp-Half")) {
+                            tileType = "Ramp-Right-Half-Top";
+                        } else if(x == tileIndex + hillWidth - 1) {
+                            if(slopeRightSide.equals("Ramp")) {
+                                tileType = "Ramp-Left";
+                            } else {
+                                tileType = "Ramp-Left-Half-Bottom";
+                            }
+                        } else if(x == tileIndex + hillWidth - 2 && slopeRightSide.equals("Ramp-Half")) {
+                            tileType = "Ramp-Left-Half-Top";
+                        }
+                        
+                        screenChunks[chunkX][0].tiles[tileX][baseFloorThickness - 1 + y] = new Tile("Square", 2);
+                        screenChunks[chunkX][0].tiles[tileX][baseFloorThickness + y] = new Tile(tileType);
+                    }
+                }
+            }
+            
+            tileIndex += hillWidth + new Random().nextInt(30) + 7;
+        }
+
+        // FrameBuffer (Wall) //
+        for(int i = 0; i < 4; i++) {
+            drawTree(50 + (i * 150), 112);
+        }
     }
 
     public void loadBackgroundFrameBuffers(String levelName) {
-        if(levelName.equals("Level01")) {
+        if(levelName.equals("Area01")) {
             frameBufferBackground = new ArrayList<>();
 
             for(FileHandle directoryHandle : Gdx.files.internal("assets/images/backgrounds").list()) {
                 String directoryName = directoryHandle.toString().substring(directoryHandle.toString().lastIndexOf("/") + 1);
                 if(directoryName.equals(levelName)) {
                     for(FileHandle fileHandle : Gdx.files.internal(directoryHandle.toString()).list()) {
-                        FrameBuffer frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+                        int fileNameIndex = fileHandle.toString().lastIndexOf("/");
+                        if(fileHandle.toString().substring(fileNameIndex + 1).length() >= 10 && fileHandle.toString().substring(fileNameIndex + 1, fileNameIndex + 11).equals("Background")) {
+                            FrameBuffer frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
                         
-                        frameBuffer.begin();
-                        spriteBatch.begin();
-    
-                        Gdx.graphics.getGL20().glClearColor(0f, 0f, 0f, 0f);
-                        Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
-    
-                        Texture texture = new Texture(fileHandle.toString().substring(fileHandle.toString().indexOf("/") + 1));
-                        spriteBatch.draw(texture, 0, 0);
-                        
-                        spriteBatch.end();
-                        frameBuffer.end();
-    
-                        texture.dispose();
-                        frameBufferBackground.add(frameBuffer);
+                            frameBuffer.begin();
+                            spriteBatch.begin();
+        
+                            Gdx.graphics.getGL20().glClearColor(0f, 0f, 0f, 0f);
+                            Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+        
+                            Texture texture = new Texture(fileHandle.toString().substring(fileHandle.toString().indexOf("/") + 1));
+                            spriteBatch.draw(texture, 0, 0);
+                            
+                            spriteBatch.end();
+                            frameBuffer.end();
+        
+                            texture.dispose();
+                            frameBufferBackground.add(frameBuffer);
+                        }
                     }
     
                     break;
                 }
             }
         }
+    }
+
+    public void drawTree(int xLoc, int yLoc) {
+        HashMap<String, ArrayList<Texture>> imageMap = new HashMap<String, ArrayList<Texture>>();
+
+        // Load Tiles //
+        for(FileHandle directoryHandle : Gdx.files.internal("assets/images/modular/Tree-Thick").list()) {
+            String tileName = directoryHandle.toString().substring(directoryHandle.toString().lastIndexOf("/") + 1, directoryHandle.toString().lastIndexOf("_"));
+            if(!imageMap.containsKey(tileName)) {
+                imageMap.put(tileName, new ArrayList<Texture>());
+            }
+
+            String filePath = directoryHandle.toString().substring(directoryHandle.toString().indexOf("/") + 1);
+            Texture tileTexture = new Texture(filePath);
+            imageMap.get(tileName).add(tileTexture);
+        }
+
+        FrameBuffer frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, 1280, 768, false);
+        frameBuffer.begin();
+        spriteBatch.begin();
+
+        // Tree Trunk //
+        boolean trunkHoleCreated = false;
+        int trunkHeight = new Random().nextInt(6) + 4;
+        for(int y = 0; y < trunkHeight; y++) {
+            
+            // Trunk Base //
+            if(y == 0) {
+                for(int x = 0; x < 3; x++) {
+                    if(x == 0) {
+                        spriteBatch.draw(imageMap.get("Base").get(x), xLoc, yLoc);
+                    } else if(x == 1) {
+                        if(new Random().nextInt(2) == 0) {
+                            spriteBatch.draw(imageMap.get("Base").get(1), xLoc + 16, yLoc);
+                        } else {
+                            spriteBatch.draw(imageMap.get("Base").get(2), xLoc + 16, yLoc);
+                        }
+                    } else {
+                        if(new Random().nextInt(2) == 0) {
+                            spriteBatch.draw(imageMap.get("Base").get(3), xLoc + 32, yLoc);
+                        } else {
+                            spriteBatch.draw(imageMap.get("Base").get(4), xLoc + 32, yLoc);
+                        }
+                    }
+                }
+            }
+
+            // Main Trunk //
+            else {
+                int randomTrunkIndex = 0;
+                if(trunkHoleCreated || y == 1 || y == trunkHeight - 1) {
+                    randomTrunkIndex = new Random().nextInt(3);
+                } else {
+                    int holeCheck = 0;
+                    if(new Random().nextInt(3) == 0) {
+                        holeCheck = 1;
+                    }
+                    randomTrunkIndex = new Random().nextInt(3 + holeCheck);
+                }
+                spriteBatch.draw(imageMap.get("Trunk").get(randomTrunkIndex), xLoc + 16, yLoc + (y * 16));
+                if(randomTrunkIndex == 3) {
+                    trunkHoleCreated = true;
+                }
+            }
+        }
+
+        frameBuffer.end();
+        screenChunks[0][0].frameBufferWalls.begin();
+        spriteBatch.draw(frameBuffer.getColorBufferTexture(), 0, 0, 1280, 768, 0, 0, 1, 1);
+        spriteBatch.end();
+        screenChunks[0][0].frameBufferWalls.end();
+
+        // Dispose Textures //
+        for(String key : imageMap.keySet()) {
+            for(Texture texture : imageMap.get(key)) {
+                texture.dispose();
+            }
+        }
+        frameBuffer.dispose();
     }
 
     public void bufferChunks() {
@@ -292,11 +440,11 @@ public class GameScreen extends Screen {
                         screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Square");
         
                         Texture texture = new Texture("images/tiles/Debug/Square.png");
-                        screenChunks[chunkX][chunkY].frameBufferWalls.begin();
+                        screenChunks[chunkX][chunkY].frameBufferTiles.begin();
                         spriteBatch.begin();
                         spriteBatch.draw(texture, tileX * 16, tileY * 16);
                         spriteBatch.end();
-                        screenChunks[chunkX][chunkY].frameBufferWalls.end();
+                        screenChunks[chunkX][chunkY].frameBufferTiles.end();
                     }
                     else if(justClicked) {
                         int tileTypeIndex = 0;
@@ -327,7 +475,7 @@ public class GameScreen extends Screen {
     }
 
     public void render(Player player) {
-        ScreenUtils.clear(0, 0, 0, 1);
+        ScreenUtils.clear(0/255f, 0/255f, 7/255f, 1);
 
         if(player.spriteArea.x < 320) {
             camera.position.set(320, (player.spriteArea.y + 80), 0);
@@ -339,7 +487,8 @@ public class GameScreen extends Screen {
         camera.update();
 
         renderBackground(player);
-        renderTiles(camera, player);
+        renderWalls(player);
+        //renderTiles(camera, player);
         player.render(camera);
 
         renderDebugData(player);
@@ -358,7 +507,7 @@ public class GameScreen extends Screen {
                         xPercent = 1;
                     }
                     if(i == 0) {
-                        xMod = 2000 * xPercent;
+                        xMod = 1750 * xPercent;
                     } else if(i == 1) {
                         xMod = 1500 * xPercent;
                     } else if(i == 2) {
@@ -377,6 +526,24 @@ public class GameScreen extends Screen {
         }
 
         spriteBatch.end();
+    }
+
+    public void renderWalls(Player player) {
+        int chunkStartX = player.spriteArea.x / Gdx.graphics.getWidth() - 1;
+        int chunkStartY = player.spriteArea.y / Gdx.graphics.getHeight() - 1;
+
+        for(int y = chunkStartY; y < chunkStartY + 3; y++) {
+            for(int x = chunkStartX; x < chunkStartX + 3; x++) {
+                if(x >= 0 && y >= 0 && x < screenChunks.length && y < screenChunks[0].length) {
+                    spriteBatch.setProjectionMatrix(camera.combined);
+                    spriteBatch.begin();
+                    int xLoc = x * Gdx.graphics.getWidth();
+                    int yLoc = y * Gdx.graphics.getHeight();
+                    spriteBatch.draw(screenChunks[x][y].frameBufferWalls.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                    spriteBatch.end();
+                }
+            }
+        }
     }
 
     public void renderTiles(OrthographicCamera camera, Player player) {
