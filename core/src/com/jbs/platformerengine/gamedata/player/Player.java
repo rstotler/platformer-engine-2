@@ -46,7 +46,7 @@ public class Player {
         spriteArea = new Rect(100, 150, 16, 48);
 
         velocity = new PointF(0, 0);
-        moveSpeed = 2;
+        moveSpeed = 6;
 
         jumpCheck = false;
         jumpButtonPressedCheck = false;
