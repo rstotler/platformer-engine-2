@@ -237,11 +237,20 @@ public class GameScreen extends Screen {
             tileIndex += hillWidth + new Random().nextInt(30) + 7;
         }
 
-        // Wall FrameBuffer (Trees) //
+        // Wall FrameBuffer (Trees, Grass, Rocks) //
+        ArrayList<Texture> grassTexture = new ArrayList<>();
+        grassTexture.add(new Texture("images/objects/Grass_A.png"));
+        grassTexture.add(new Texture("images/objects/Grass_B.png"));
+        grassTexture.add(new Texture("images/objects/Grass_C.png"));
+        grassTexture.add(new Texture("images/objects/Grass_D.png"));
+        Texture rockTexture = new Texture("images/objects/Rock.png");
+
         for(int chunkX = 0; chunkX < screenChunks.length; chunkX++) {
             for(int backgroundIndex = 0; backgroundIndex < 2; backgroundIndex++) {
-                ArrayList<Integer> locationList = new ArrayList<>();
-                for(int i = 0; i < 30; i++) {
+
+                // Trees //
+                ArrayList<Integer> treeLocationList = new ArrayList<>();
+                for(int i = 0; i < 0; i++) {
                     int xLoc;
                     if(chunkX == 0) {
                         xLoc = new Random().nextInt(Gdx.graphics.getWidth()) - 81;
@@ -253,13 +262,14 @@ public class GameScreen extends Screen {
 
                     // Adjacent Tree Check //
                     boolean drawTree = true;
-                    for(Integer previousX : locationList) {
+                    for(Integer previousX : treeLocationList) {
                         if(previousX > xLoc - 20 && previousX < xLoc + 20) {
                             drawTree = false;
                             break;
                         }
                     }
 
+                    // Draw Tree //
                     if(drawTree) {
                         int yLoc = 112;
                         int tileX = (xLoc - 8) / 16;
@@ -299,12 +309,48 @@ public class GameScreen extends Screen {
                             }
     
                             drawTree(screenChunks[chunkX][0].frameBufferWalls, xLoc, yLoc, isThin, isDark);
-                            locationList.add(xLoc);
+                            treeLocationList.add(xLoc);
                         }
                     }
                 }
+            
+                // Grass & Rocks //
+                if(backgroundIndex == 1) {
+                    screenChunks[chunkX][0].frameBufferWalls.begin();
+                    spriteBatch.begin();
+                    
+                    for(int x = 0; x < screenChunks[0][0].tiles.length; x++) {
+
+                        // Get Target Y-Level & Tile //
+                        int targetYLevel = 6;
+                        if(screenChunks[chunkX][0].tiles[x][8] != null) {
+                            targetYLevel = 8;
+                        } else if(screenChunks[chunkX][0].tiles[x][7] != null) {
+                            targetYLevel = 7;
+                        }
+                        Tile targetTile = screenChunks[chunkX][0].tiles[x][targetYLevel];
+
+                        // Draw Grass & Rocks //
+                        if(targetTile != null && targetTile.type.equals("Square")) {
+                            if(new Random().nextInt(3) == 0) {
+                                spriteBatch.draw(grassTexture.get(new Random().nextInt(4)), x * 16, (targetYLevel + 1) * 16);
+                            } else if(new Random().nextInt(15) == 0) {
+                                spriteBatch.draw(rockTexture, x * 16, (targetYLevel + 1) * 16);
+                            }
+                        }
+                    }
+
+                    spriteBatch.end();
+                    screenChunks[chunkX][0].frameBufferWalls.end();
+                }
             }
         }
+
+        // Dispose Textures //
+        for(Texture texture : grassTexture) {
+            texture.dispose();
+        }
+        rockTexture.dispose();
     }
 
     public void loadBackgroundFrameBuffers(String levelName) {
@@ -346,7 +392,7 @@ public class GameScreen extends Screen {
         HashMap<String, ArrayList<Texture>> imageMap = new HashMap<String, ArrayList<Texture>>();
 
         // Load Tiles //
-        for(FileHandle directoryHandle : Gdx.files.internal("assets/images/modular/Tree-Thick").list()) {
+        for(FileHandle directoryHandle : Gdx.files.internal("assets/images/modular/Tree").list()) {
             String tileName = directoryHandle.toString().substring(directoryHandle.toString().lastIndexOf("/") + 1, directoryHandle.toString().lastIndexOf("_"));
             if(!imageMap.containsKey(tileName)) {
                 imageMap.put(tileName, new ArrayList<Texture>());
@@ -364,10 +410,23 @@ public class GameScreen extends Screen {
         // Tree Trunk //
         boolean trunkHoleCreated = false;
         boolean trunkMossCreated = false;
+        boolean noLeavesCheck = false;
         int trunkHeight = new Random().nextInt(7) + 9;
+
+        String isDarkAffix = "";
+        if(isDark) {
+            isDarkAffix = "Dark-";
+        }
+        String sizeAffix = "Thick-";
         if(isThin) {
             trunkHeight -= 3;
+            sizeAffix = "Thin-";
+            if(!isDark && new Random().nextInt(2) == 0) {
+                noLeavesCheck = true;
+                trunkHeight -= 3;
+            }
         }
+
         int leavesWidth = (new Random().nextInt(3) * 2) + 7;
         int leavesHeight = (new Random().nextInt(3) * 2) + 5;
         int centerXCord = xLoc;
@@ -377,28 +436,21 @@ public class GameScreen extends Screen {
         int trimSizeLeft = new Random().nextInt(maxTrimSize);
         int trimSizeRight = new Random().nextInt(maxTrimSize);
 
-        String isDarkAffix = "";
-        if(isDark) {
-            isDarkAffix = "Dark-";
-        }
-        String sizeAffix = "Thick-";
-        if(isThin) {
-            sizeAffix = "Thin-";
-        }
-
         // Draw Background (Bottom Layer) Leaves //
-        int bottomLayerWidth = leavesWidth - trimSizeLeft - trimSizeRight - 2;
-        for(int x = 0; x < bottomLayerWidth; x++) {
-            int backgroundX = centerXCord - (((leavesWidth / 2) - trimSizeLeft) * 16) + (x * 16) + 16;
-            int backgroundY = centerYCord - ((leavesHeight / 2) * 16) - 10;
-            int tileIndex = 1;
-            if(x == 0) {
-                tileIndex = 0;
-            } else if(x == leavesWidth - 3) {
-                tileIndex = 2;
+        if(!noLeavesCheck) {
+            int bottomLayerWidth = leavesWidth - trimSizeLeft - trimSizeRight - 2;
+            for(int x = 0; x < bottomLayerWidth; x++) {
+                int backgroundX = centerXCord - (((leavesWidth / 2) - trimSizeLeft) * 16) + (x * 16) + 16;
+                int backgroundY = centerYCord - ((leavesHeight / 2) * 16) - 10;
+                int tileIndex = 1;
+                if(x == 0) {
+                    tileIndex = 0;
+                } else if(x == leavesWidth - 3) {
+                    tileIndex = 2;
+                }
+                
+                spriteBatch.draw(imageMap.get("Leaves-Bottom").get(tileIndex), backgroundX, backgroundY);
             }
-            
-            spriteBatch.draw(imageMap.get("Leaves-Bottom").get(tileIndex), backgroundX, backgroundY);
         }
 
         // Draw Tree Base & Trunk //
@@ -452,7 +504,7 @@ public class GameScreen extends Screen {
                     randomTrunkIndex = new Random().nextInt(maxRandom);
                 } else {
                     int holeCheck = 0;
-                    if(new Random().nextInt(8) == 0) {
+                    if(new Random().nextInt(10) == 0) {
                         holeCheck = 1;
                     }
                     randomTrunkIndex = new Random().nextInt(maxRandom + holeCheck);
@@ -485,95 +537,107 @@ public class GameScreen extends Screen {
                     trunkHoleCreated = true;
                 }
             }
+
+            // Top Trunk (No Leaves) //
+            if(noLeavesCheck) {
+                spriteBatch.draw(imageMap.get("Thin-Top-Trunk").get(0), xLoc - 8, yLoc + (y * 16) + 16);
+                spriteBatch.draw(imageMap.get("Thin-Top-Trunk").get(1), xLoc - 8, yLoc + (y * 16) + 32);
+                spriteBatch.draw(imageMap.get("Thin-Top-Trunk").get(2), xLoc - 8, yLoc + (y * 16) + 48);
+                spriteBatch.draw(imageMap.get("Thin-Top-Trunk").get(3), xLoc - 8, yLoc + (y * 16) + 64);
+            }
         }
 
-        // Top Leaves //
-        boolean[][] treeMap = new boolean[leavesWidth][leavesHeight];
-        for(int leavesYIndex = 0; leavesYIndex < leavesHeight; leavesYIndex++) {
-            for(int leavesXIndex = 0; leavesXIndex < leavesWidth; leavesXIndex++) {
-                treeMap[leavesXIndex][leavesYIndex] = true;
+        // Leaves //
+        if(!noLeavesCheck) {
+
+            // Top Leaves //
+            boolean[][] treeMap = new boolean[leavesWidth][leavesHeight];
+            for(int leavesYIndex = 0; leavesYIndex < leavesHeight; leavesYIndex++) {
+                for(int leavesXIndex = 0; leavesXIndex < leavesWidth; leavesXIndex++) {
+                    treeMap[leavesXIndex][leavesYIndex] = true;
+                }
+            }
+            
+            // Trim TreeMap //
+            int trimLeftCount = 0;
+            int trimRightCount = 0;
+            for(int y = 0 ; y < leavesHeight; y++) {
+                for(int side = 0; side < 2; side++) {
+                    int trimSize = trimSizeLeft;
+                    if(side == 1) {
+                        trimSize = trimSizeRight;
+                    }
+                    if(trimSize > 0) {
+                        for(int x = 0; x < trimSize; x++) {
+                            int xMod = 0;
+                            if(side == 1) {
+                                xMod = leavesWidth - 1 - x;
+                            }
+                            treeMap[x + xMod][y] = false;
+                        }
+                    }
+                    int trimSizeMod = new Random().nextInt(3) - 1;
+                    if(y == leavesHeight - 2 && trimSizeMod == -1) {
+                        trimSizeMod = 1;
+                    }
+                    if(trimSize + trimSizeMod >= 0 && trimSize + trimSizeMod <= maxTrimSize) {
+                        if(side == 0 && trimLeftCount >= 2) {
+                            trimSizeLeft += trimSizeMod;
+                            trimLeftCount = 0;
+                        } else if(side == 1 && trimRightCount >= 2) {
+                            trimSizeRight += trimSizeMod;
+                            trimRightCount = 0;
+                        }
+                    }
+                }
+                trimLeftCount++;
+                trimRightCount++;
+            }
+
+            for(int y = 0; y < treeMap[0].length; y++) {
+                for(int x = 0; x < treeMap.length; x++) {
+                    if(treeMap[x][y]) {
+                        String tileType = "Leaves";
+                        String tileSection = "MiddleA";
+                        int tileIndex = 1;
+                        if(x == 0 || !treeMap[x - 1][y]) {
+                            tileIndex = 0;
+                        } else if(x == treeMap.length - 1 || !treeMap[x + 1][y]) {
+                            tileIndex = 2;
+                        }
+
+                        if(y == 0) {
+                            tileSection = "Bottom";
+                        } else if(y == leavesHeight - 1) {
+                            tileSection = "Top";
+                        } else if(y == 1) {
+                            tileSection = "MiddleB";
+                        }
+
+                        if(y > 0 && (x == 0 || treeMap[x - 1][y] == false) && treeMap[x][y - 1] == false) {
+                            tileSection = "Bottom-Corner";
+                            tileIndex = 0;
+                        } else if(y > 0 && (x == leavesWidth - 1 || treeMap[x + 1][y] == false) && treeMap[x][y - 1] == false) {
+                            tileSection = "Bottom-Corner";
+                            tileIndex = 1;
+                        } else if(y < leavesHeight - 1 && (x == 0 || treeMap[x - 1][y] == false) && treeMap[x][y + 1] == false) {
+                            tileSection = "Top-Corner";
+                            tileIndex = 0;
+                        } else if(y < leavesHeight - 1 && (x == leavesWidth - 1 || treeMap[x + 1][y] == false) && treeMap[x][y + 1] == false) {
+                            tileSection = "Top-Corner";
+                            tileIndex = 1;
+                        }
+                        
+                        int leavesXCord = centerXCord - (leavesWidth / 2) + x;
+                        int leavesYCord = centerYCord - (leavesHeight / 2) + y;
+                        int leavesX = centerXCord + ((leavesXCord - centerXCord) * 16);
+                        int leavesY = centerYCord + ((leavesYCord - centerYCord) * 16);
+                        spriteBatch.draw(imageMap.get(tileType + "-" + tileSection).get(tileIndex), leavesX, leavesY);
+                    }
+                }
             }
         }
         
-        // Trim TreeMap //
-        int trimLeftCount = 0;
-        int trimRightCount = 0;
-        for(int y = 0 ; y < leavesHeight; y++) {
-            for(int side = 0; side < 2; side++) {
-                int trimSize = trimSizeLeft;
-                if(side == 1) {
-                    trimSize = trimSizeRight;
-                }
-                if(trimSize > 0) {
-                    for(int x = 0; x < trimSize; x++) {
-                        int xMod = 0;
-                        if(side == 1) {
-                            xMod = leavesWidth - 1 - x;
-                        }
-                        treeMap[x + xMod][y] = false;
-                    }
-                }
-                int trimSizeMod = new Random().nextInt(3) - 1;
-                if(y == leavesHeight - 2 && trimSizeMod == -1) {
-                    trimSizeMod = 1;
-                }
-                if(trimSize + trimSizeMod >= 0 && trimSize + trimSizeMod <= maxTrimSize) {
-                    if(side == 0 && trimLeftCount >= 2) {
-                        trimSizeLeft += trimSizeMod;
-                        trimLeftCount = 0;
-                    } else if(side == 1 && trimRightCount >= 2) {
-                        trimSizeRight += trimSizeMod;
-                        trimRightCount = 0;
-                    }
-                }
-            }
-            trimLeftCount++;
-            trimRightCount++;
-        }
-
-        for(int y = 0; y < treeMap[0].length; y++) {
-            for(int x = 0; x < treeMap.length; x++) {
-                if(treeMap[x][y]) {
-                    String tileType = "Leaves";
-                    String tileSection = "MiddleA";
-                    int tileIndex = 1;
-                    if(x == 0 || !treeMap[x - 1][y]) {
-                        tileIndex = 0;
-                    } else if(x == treeMap.length - 1 || !treeMap[x + 1][y]) {
-                        tileIndex = 2;
-                    }
-
-                    if(y == 0) {
-                        tileSection = "Bottom";
-                    } else if(y == leavesHeight - 1) {
-                        tileSection = "Top";
-                    } else if(y == 1) {
-                        tileSection = "MiddleB";
-                    }
-
-                    if(y > 0 && (x == 0 || treeMap[x - 1][y] == false) && treeMap[x][y - 1] == false) {
-                        tileSection = "Bottom-Corner";
-                        tileIndex = 0;
-                    } else if(y > 0 && (x == leavesWidth - 1 || treeMap[x + 1][y] == false) && treeMap[x][y - 1] == false) {
-                        tileSection = "Bottom-Corner";
-                        tileIndex = 1;
-                    } else if(y < leavesHeight - 1 && (x == 0 || treeMap[x - 1][y] == false) && treeMap[x][y + 1] == false) {
-                        tileSection = "Top-Corner";
-                        tileIndex = 0;
-                    } else if(y < leavesHeight - 1 && (x == leavesWidth - 1 || treeMap[x + 1][y] == false) && treeMap[x][y + 1] == false) {
-                        tileSection = "Top-Corner";
-                        tileIndex = 1;
-                    }
-                    
-                    int leavesXCord = centerXCord - (leavesWidth / 2) + x;
-                    int leavesYCord = centerYCord - (leavesHeight / 2) + y;
-                    int leavesX = centerXCord + ((leavesXCord - centerXCord) * 16);
-                    int leavesY = centerYCord + ((leavesYCord - centerYCord) * 16);
-                    spriteBatch.draw(imageMap.get(tileType + "-" + tileSection).get(tileIndex), leavesX, leavesY);
-                }
-            }
-        }
-
         spriteBatch.end();
         frameBuffer.end();
 
