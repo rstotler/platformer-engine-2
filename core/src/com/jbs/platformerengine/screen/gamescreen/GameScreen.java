@@ -237,44 +237,71 @@ public class GameScreen extends Screen {
             tileIndex += hillWidth + new Random().nextInt(30) + 7;
         }
 
-        // FrameBuffer (Wall) //
+        // Wall FrameBuffer (Trees) //
         for(int chunkX = 0; chunkX < screenChunks.length; chunkX++) {
-            for(int i = 0; i < 25; i++) {
-                int xLoc;
-                if(chunkX == 0) {
-                    xLoc = new Random().nextInt(Gdx.graphics.getWidth()) - 81;
-                } else {
-                    xLoc = new Random().nextInt(Gdx.graphics.getWidth() - (73 * 2)) + 73;
-                }
-                
-                int yLoc = 112;
-                int tileX = (xLoc - 8) / 16;
-                int tileY = 6;
-                boolean drawTree = true;
-
-                // Get Start Tile Height //
-                if(tileX >= 0 && tileX < screenChunks[0][0].tiles.length) {
-                    if(screenChunks[chunkX][0].tiles[tileX][tileY + 2] != null) {
-                        tileY += 2;
-                    } else if(screenChunks[chunkX][0].tiles[tileX][tileY + 1] != null) {
-                        tileY += 1;
+            for(int backgroundIndex = 0; backgroundIndex < 2; backgroundIndex++) {
+                ArrayList<Integer> locationList = new ArrayList<>();
+                for(int i = 0; i < 30; i++) {
+                    int xLoc;
+                    if(chunkX == 0) {
+                        xLoc = new Random().nextInt(Gdx.graphics.getWidth()) - 81;
+                    } else if(chunkX == screenChunks.length - 1) {
+                        xLoc = new Random().nextInt(Gdx.graphics.getWidth() - 73) + 73;
+                    } else {
+                        xLoc = new Random().nextInt(Gdx.graphics.getWidth() - (73 * 2)) + 73;
                     }
-                }
-                
-                // No Building Trees On Ramps //
-                for(int xMod = -2; xMod < 3; xMod++) {
-                    if(tileX + xMod >= 0 && tileX + xMod < screenChunks[0][0].tiles.length) {
-                        Tile targetTile = screenChunks[chunkX][0].tiles[tileX + xMod][tileY];
-                        if(targetTile == null || !targetTile.type.equals("Square")) {
+
+                    // Adjacent Tree Check //
+                    boolean drawTree = true;
+                    for(Integer previousX : locationList) {
+                        if(previousX > xLoc - 20 && previousX < xLoc + 20) {
                             drawTree = false;
                             break;
                         }
                     }
-                }
+
+                    if(drawTree) {
+                        int yLoc = 112;
+                        int tileX = (xLoc - 8) / 16;
+                        int tileY = 6;
+        
+                        // Get Start Tile Height //
+                        if(tileX >= 0 && tileX < screenChunks[0][0].tiles.length) {
+                            if(screenChunks[chunkX][0].tiles[tileX][tileY + 2] != null) {
+                                tileY += 2;
+                            } else if(screenChunks[chunkX][0].tiles[tileX][tileY + 1] != null) {
+                                tileY += 1;
+                            }
+                        }
+                        
+                        // No Building Trees On Ramps //
+                        for(int xMod = -2; xMod < 3; xMod++) {
+                            if(tileX + xMod >= 0 && tileX + xMod < screenChunks[0][0].tiles.length) {
+                                Tile targetTile = screenChunks[chunkX][0].tiles[tileX + xMod][tileY];
+                                if(targetTile == null || !targetTile.type.equals("Square")) {
+                                    drawTree = false;
+                                    break;
+                                }
+                            }
+                        }
+            
+                        if(drawTree) {
+                            yLoc = (tileY * 16) + 16;
     
-                if(drawTree) {
-                    yLoc = (tileY * 16) + 16;
-                    drawTree(screenChunks[chunkX][0].frameBufferWalls, xLoc, yLoc);
+                            boolean isThin = false;
+                            if(new Random().nextInt(3) == 0) {
+                                isThin = true;
+                            }
+    
+                            boolean isDark = false;
+                            if(backgroundIndex == 0) {
+                                isDark = true;
+                            }
+    
+                            drawTree(screenChunks[chunkX][0].frameBufferWalls, xLoc, yLoc, isThin, isDark);
+                            locationList.add(xLoc);
+                        }
+                    }
                 }
             }
         }
@@ -315,7 +342,7 @@ public class GameScreen extends Screen {
         }
     }
 
-    public void drawTree(FrameBuffer targetFrameBuffer, int xLoc, int yLoc) {
+    public void drawTree(FrameBuffer targetFrameBuffer, int xLoc, int yLoc, boolean isThin, boolean isDark) {
         HashMap<String, ArrayList<Texture>> imageMap = new HashMap<String, ArrayList<Texture>>();
 
         // Load Tiles //
@@ -336,28 +363,72 @@ public class GameScreen extends Screen {
 
         // Tree Trunk //
         boolean trunkHoleCreated = false;
-        int trunkHeight = new Random().nextInt(8) + 7;
+        boolean trunkMossCreated = false;
+        int trunkHeight = new Random().nextInt(7) + 9;
+        if(isThin) {
+            trunkHeight -= 3;
+        }
+        int leavesWidth = (new Random().nextInt(3) * 2) + 7;
+        int leavesHeight = (new Random().nextInt(3) * 2) + 5;
+        int centerXCord = xLoc;
+        int centerYCord = yLoc + (16 * (trunkHeight + ((leavesHeight - 1) / 2) - 1));
+
+        int maxTrimSize = (leavesWidth / 2) - 2;
+        int trimSizeLeft = new Random().nextInt(maxTrimSize);
+        int trimSizeRight = new Random().nextInt(maxTrimSize);
+
+        String isDarkAffix = "";
+        if(isDark) {
+            isDarkAffix = "Dark-";
+        }
+        String sizeAffix = "Thick-";
+        if(isThin) {
+            sizeAffix = "Thin-";
+        }
+
+        // Draw Background (Bottom Layer) Leaves //
+        int bottomLayerWidth = leavesWidth - trimSizeLeft - trimSizeRight - 2;
+        for(int x = 0; x < bottomLayerWidth; x++) {
+            int backgroundX = centerXCord - (((leavesWidth / 2) - trimSizeLeft) * 16) + (x * 16) + 16;
+            int backgroundY = centerYCord - ((leavesHeight / 2) * 16) - 10;
+            int tileIndex = 1;
+            if(x == 0) {
+                tileIndex = 0;
+            } else if(x == leavesWidth - 3) {
+                tileIndex = 2;
+            }
+            
+            spriteBatch.draw(imageMap.get("Leaves-Bottom").get(tileIndex), backgroundX, backgroundY);
+        }
+
+        // Draw Tree Base & Trunk //
         for(int y = 0; y < trunkHeight; y++) {
             
             // Trunk Base //
             if(y == 0) {
 
                 // Triple Trunk Base //
-                if(new Random().nextInt(2) == 0) {
+                if((!isDark && new Random().nextInt(2) == 0)
+                || new Random().nextInt(4) == 0) {
                     for(int x = 0; x < 3; x++) {
                         if(x == 0) {
-                            spriteBatch.draw(imageMap.get("Base").get(x), xLoc - 8 - 16, yLoc);
+                            spriteBatch.draw(imageMap.get(isDarkAffix + sizeAffix + "Base").get(0), xLoc - 8 - 16, yLoc);
                         } else if(x == 1) {
-                            if(new Random().nextInt(2) == 0) {
-                                spriteBatch.draw(imageMap.get("Base").get(1), xLoc - 8, yLoc);
+                            if(isDark || isThin || new Random().nextInt(2) == 0) {
+                                spriteBatch.draw(imageMap.get(isDarkAffix + sizeAffix + "Base").get(1), xLoc - 8, yLoc);
                             } else {
-                                spriteBatch.draw(imageMap.get("Base").get(2), xLoc - 8, yLoc);
+                                spriteBatch.draw(imageMap.get(isDarkAffix + sizeAffix + "Base").get(2), xLoc - 8, yLoc);
                             }
                         } else {
-                            if(new Random().nextInt(2) == 0) {
-                                spriteBatch.draw(imageMap.get("Base").get(3), xLoc + 8, yLoc);
+                            int indexMod = 0;
+                            if(isDark || isThin) {
+                                indexMod = -1;
+                            }
+
+                            if(isThin || new Random().nextInt(2) == 0) {
+                                spriteBatch.draw(imageMap.get(isDarkAffix + sizeAffix + "Base").get(3 + indexMod), xLoc + 8, yLoc);
                             } else {
-                                spriteBatch.draw(imageMap.get("Base").get(4), xLoc + 8, yLoc);
+                                spriteBatch.draw(imageMap.get(isDarkAffix + sizeAffix + "Base").get(4 + indexMod), xLoc + 8, yLoc);
                             }
                         }
                     }
@@ -365,35 +436,59 @@ public class GameScreen extends Screen {
                 
                 // Single Trunk Base //
                 else {
-                    spriteBatch.draw(imageMap.get("Trunk").get(0), xLoc - 8, yLoc);
+                    spriteBatch.draw(imageMap.get(isDarkAffix + sizeAffix + "Trunk").get(0), xLoc - 8, yLoc);
                 }
             }
 
             // Main Trunk //
             else {
                 int randomTrunkIndex = 0;
+                int maxRandom = 3;
+                if(isThin) {
+                    maxRandom = 2;
+                }
+
                 if(trunkHoleCreated || y == 1 || y == trunkHeight - 1) {
-                    randomTrunkIndex = new Random().nextInt(3);
+                    randomTrunkIndex = new Random().nextInt(maxRandom);
                 } else {
                     int holeCheck = 0;
-                    if(new Random().nextInt(6) == 0) {
+                    if(new Random().nextInt(8) == 0) {
                         holeCheck = 1;
                     }
-                    randomTrunkIndex = new Random().nextInt(3 + holeCheck);
+                    randomTrunkIndex = new Random().nextInt(maxRandom + holeCheck);
                 }
-                spriteBatch.draw(imageMap.get("Trunk").get(randomTrunkIndex), xLoc - 8, yLoc + (y * 16));
-                if(randomTrunkIndex == 3) {
+
+                // Moss Check //
+                if(!isThin && isDarkAffix.equals("") && !trunkMossCreated && new Random().nextInt(10) == 0) {
+                    randomTrunkIndex = 4;
+                    trunkMossCreated = true;
+                }
+
+                // Branch Check //
+                if(isThin && y > 1 && new Random().nextInt(5) == 0) {
+                    randomTrunkIndex = new Random().nextInt(3) + 3;
+                }
+                
+                spriteBatch.draw(imageMap.get(isDarkAffix + sizeAffix + "Trunk").get(randomTrunkIndex), xLoc - 8, yLoc + (y * 16));
+
+                // Draw Branches //
+                if(isThin && randomTrunkIndex >= 3) {
+                    if(randomTrunkIndex == 3 || randomTrunkIndex == 5) {
+                        spriteBatch.draw(imageMap.get(isDarkAffix + "Thin-Branch").get(0), xLoc - 8 + 16, yLoc + (y * 16));
+                    }
+                    if(randomTrunkIndex == 4 || randomTrunkIndex == 5) {
+                        spriteBatch.draw(imageMap.get(isDarkAffix + "Thin-Branch").get(randomTrunkIndex - 3), xLoc - 8 - 16, yLoc + (y * 16));
+                    }
+                }
+
+                if((!isThin && randomTrunkIndex == 3) || (isThin && randomTrunkIndex == 2)) {
                     trunkHoleCreated = true;
                 }
             }
         }
 
         // Top Leaves //
-        int leavesWidth = (new Random().nextInt(2) * 2) + 7;
-        int leavesHeight = (new Random().nextInt(2) * 2) + 5;
         boolean[][] treeMap = new boolean[leavesWidth][leavesHeight];
-        int centerXCord = xLoc;
-        int centerYCord = yLoc + (16 * (trunkHeight + ((leavesHeight - 1) / 2) - 1));
         for(int leavesYIndex = 0; leavesYIndex < leavesHeight; leavesYIndex++) {
             for(int leavesXIndex = 0; leavesXIndex < leavesWidth; leavesXIndex++) {
                 treeMap[leavesXIndex][leavesYIndex] = true;
@@ -401,9 +496,6 @@ public class GameScreen extends Screen {
         }
         
         // Trim TreeMap //
-        int maxTrimSize = (leavesWidth / 2) - 2;
-        int trimSizeLeft = new Random().nextInt(maxTrimSize);
-        int trimSizeRight = new Random().nextInt(maxTrimSize);
         int trimLeftCount = 0;
         int trimRightCount = 0;
         for(int y = 0 ; y < leavesHeight; y++) {
