@@ -334,7 +334,7 @@ public class GameScreen extends Screen {
                         if(targetTile != null && targetTile.type.equals("Square")) {
                             if(new Random().nextInt(3) == 0) {
                                 spriteBatch.draw(grassTexture.get(new Random().nextInt(4)), x * 16, (targetYLevel + 1) * 16);
-                            } else if(new Random().nextInt(15) == 0) {
+                            } else if(new Random().nextInt(20) == 0) {
                                 spriteBatch.draw(rockTexture, x * 16, (targetYLevel + 1) * 16);
                             }
                         }
@@ -815,11 +815,24 @@ public class GameScreen extends Screen {
                 int xIndex = (int) ((player.spriteArea.x - 320) / (Gdx.graphics.getWidth() + xMod));
                 float xLoc = (xIndex * Gdx.graphics.getWidth()) + xMod;
 
-                if(i == 0 || i == 2) {
-                    spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc - Gdx.graphics.getWidth(), 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                float yMod = 0;
+                if(player.spriteArea.y > (6 * 16) + 16) {
+                    int playerHeight = player.spriteArea.y - (6 * 16) - 16;
+                    float heightPercent = playerHeight / 600.0f;
+                    yMod = heightPercent * 400;
+
+                    if(i == 1) {
+                        yMod += heightPercent * 14;
+                    } else if(i == 2) {
+                        yMod += heightPercent * 50;
+                    }
                 }
-                spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
-                spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc + Gdx.graphics.getWidth(), 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+
+                if(i == 0 || i == 2) {
+                    spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc - Gdx.graphics.getWidth(), yMod, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                }
+                spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc, yMod, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc + Gdx.graphics.getWidth(), yMod, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
             }
         }
 
