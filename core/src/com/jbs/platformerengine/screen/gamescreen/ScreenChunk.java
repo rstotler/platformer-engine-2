@@ -14,6 +14,7 @@ public class ScreenChunk {
     ShapeRenderer shapeRenderer;
     FrameBuffer frameBufferTiles;
     FrameBuffer frameBufferWalls;
+    FrameBuffer frameBufferForeground;
 
     public Point location;
     public Tile[][] tiles;
@@ -24,9 +25,10 @@ public class ScreenChunk {
         tiles = new Tile[80][48];
 
         frameBufferWalls = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+        frameBufferForeground = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
     }
 
-    public void bufferTiles(OrthographicCamera camera, SpriteBatch spriteBatch, String levelName, ImageManager imageManager) {
+    public void bufferTiles(OrthographicCamera camera, SpriteBatch spriteBatch, ImageManager imageManager) {
         frameBufferTiles = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
         frameBufferTiles.begin();
         spriteBatch.begin();
@@ -37,11 +39,11 @@ public class ScreenChunk {
         for(int y = 0; y < tiles[0].length; y++) {
             for(int x = 0; x < tiles.length; x++) {
                 if(tiles[x][y] != null) {
-                    if(imageManager.tile.containsKey(levelName) && imageManager.tile.get(levelName).containsKey(tiles[x][y].type)) {
-                        if(tiles[x][y].num <= imageManager.tile.get(levelName).get(tiles[x][y].type).size()) {
-                            spriteBatch.draw(imageManager.tile.get(levelName).get(tiles[x][y].type).get(tiles[x][y].num - 1), x * 16, y * 16);
+                    if(imageManager.tile.containsKey(tiles[x][y].tileSet) && imageManager.tile.get(tiles[x][y].tileSet).containsKey(tiles[x][y].tileName)) {
+                        if(tiles[x][y].num <= imageManager.tile.get(tiles[x][y].tileSet).get(tiles[x][y].tileName).size()) {
+                            spriteBatch.draw(imageManager.tile.get(tiles[x][y].tileSet).get(tiles[x][y].tileName).get(tiles[x][y].num - 1), x * 16, y * 16);
                         } else {
-                            spriteBatch.draw(imageManager.tile.get(levelName).get(tiles[x][y].type).get(0), x * 16, y * 16);
+                            spriteBatch.draw(imageManager.tile.get(tiles[x][y].tileSet).get(tiles[x][y].tileName).get(0), x * 16, y * 16);
                         }
                     }
                 }

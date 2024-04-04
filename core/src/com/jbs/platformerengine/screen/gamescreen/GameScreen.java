@@ -22,6 +22,13 @@ import com.jbs.platformerengine.gamedata.player.Player;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.Screen;
 
+/* To-Do List:
+ * Create Classes For Each Area
+ * Only Load Necessary TileSets (Use Data From Newly Created Area Class)
+ * Fix Ceiling Ramp Collisions
+ * Move Rocks To Background FrameBuffer
+ */
+
 public class GameScreen extends Screen {
     OrthographicCamera camera;
     OrthographicCamera cameraDebug;
@@ -44,8 +51,8 @@ public class GameScreen extends Screen {
         // loadAreaDebug();
         loadArea01();
 
-        loadBackgroundFrameBuffers(levelName);
-        imageManager = new ImageManager(Arrays.asList(levelName));
+        loadBackgroundFrameBuffers();
+        imageManager = new ImageManager(); // eventually create level data and pass tilesets from there (static)
         bufferChunks();
     }
 
@@ -62,95 +69,95 @@ public class GameScreen extends Screen {
         // Bottom Floor //
         for(int i = 0; i < screenChunks.length; i++) {
             for(int ii = 0; ii < screenChunks[0][0].tiles.length; ii++) {
-                screenChunks[i][0].tiles[ii][0] = new Tile("Square");
+                screenChunks[i][0].tiles[ii][0] = new Tile("Debug", "Square");
             }
         }
 
         // Ceiling //
         for(int i = 0; i < screenChunks[0][0].tiles.length; i++) {
             for(int ii = 10; ii < 30; ii++) {
-                screenChunks[0][0].tiles[i][ii] = new Tile("Square");
+                screenChunks[0][0].tiles[i][ii] = new Tile("Debug", "Square");
             }
         }
         for(int i = 0; i < 12; i++) {
-            screenChunks[0][0].tiles[i + 9][9] = new Tile("Square");
+            screenChunks[0][0].tiles[i + 9][9] = new Tile("Debug", "Square");
         }
         for(int i = 0; i < 7; i++) {
-            screenChunks[0][0].tiles[i + 26][9] = new Tile("Square");
+            screenChunks[0][0].tiles[i + 26][9] = new Tile("Debug", "Square");
         }
         for(int i = 0; i < 3; i++) {
             screenChunks[0][0].tiles[i + 22][10] = null;
         }
 
         // Ceiling Ramps //
-        screenChunks[0][0].tiles[8][9] = new Tile("Ceiling-Ramp-Right");
-        screenChunks[0][0].tiles[21][9] = new Tile("Ceiling-Ramp-Left");
-        screenChunks[0][0].tiles[22][10] = new Tile("Ceiling-Ramp-Left");
-        screenChunks[0][0].tiles[24][10] = new Tile("Ceiling-Ramp-Right");
-        screenChunks[0][0].tiles[25][9] = new Tile("Ceiling-Ramp-Right");
-        screenChunks[0][0].tiles[33][9] = new Tile("Ceiling-Ramp-Left");
+        screenChunks[0][0].tiles[8][9] = new Tile("Debug", "Ceiling-Ramp", 1);
+        screenChunks[0][0].tiles[21][9] = new Tile("Debug", "Ceiling-Ramp", 2);
+        screenChunks[0][0].tiles[22][10] = new Tile("Debug", "Ceiling-Ramp", 2);
+        screenChunks[0][0].tiles[24][10] = new Tile("Debug", "Ceiling-Ramp", 1);
+        screenChunks[0][0].tiles[25][9] = new Tile("Debug", "Ceiling-Ramp", 1);
+        screenChunks[0][0].tiles[33][9] = new Tile("Debug", "Ceiling-Ramp", 2);
 
         // Left Wall //
         for(int i = 1; i < 10; i++) {
-            screenChunks[0][0].tiles[0][i] = new Tile("Square");
+            screenChunks[0][0].tiles[0][i] = new Tile("Debug", "Square");
         }
 
-        screenChunks[0][0].tiles[3][1] = new Tile("Ramp-Right");
-        screenChunks[0][0].tiles[4][1] = new Tile("Square");
-        screenChunks[0][0].tiles[5][1] = new Tile("Ramp-Left");
+        screenChunks[0][0].tiles[3][1] = new Tile("Debug", "Ramp", 1);
+        screenChunks[0][0].tiles[4][1] = new Tile("Debug", "Square");
+        screenChunks[0][0].tiles[5][1] = new Tile("Debug", "Ramp", 2);
         
-        screenChunks[0][0].tiles[7][1] = new Tile("Ramp-Right");
-        screenChunks[0][0].tiles[8][1] = new Tile("Square");
-        screenChunks[0][0].tiles[8][2] = new Tile("Square");
-        screenChunks[0][0].tiles[8][3] = new Tile("Square");
-        screenChunks[0][0].tiles[8][4] = new Tile("Ramp-Left");
-        screenChunks[0][0].tiles[9][1] = new Tile("Ramp-Left");
+        screenChunks[0][0].tiles[7][1] = new Tile("Debug", "Ramp", 1);
+        screenChunks[0][0].tiles[8][1] = new Tile("Debug", "Square");
+        screenChunks[0][0].tiles[8][2] = new Tile("Debug", "Square");
+        screenChunks[0][0].tiles[8][3] = new Tile("Debug", "Square");
+        screenChunks[0][0].tiles[8][4] = new Tile("Debug", "Ramp", 2);
+        screenChunks[0][0].tiles[9][1] = new Tile("Debug", "Ramp", 2);
 
-        screenChunks[0][0].tiles[11][1] = new Tile("Ramp-Right");
-        screenChunks[0][0].tiles[12][1] = new Tile("Square");
-        screenChunks[0][0].tiles[12][2] = new Tile("Square-Half");
-        screenChunks[0][0].tiles[13][1] = new Tile("Ramp-Left");
+        screenChunks[0][0].tiles[11][1] = new Tile("Debug", "Ramp", 1);
+        screenChunks[0][0].tiles[12][1] = new Tile("Debug", "Square");
+        screenChunks[0][0].tiles[12][2] = new Tile("Debug", "Square-Half");
+        screenChunks[0][0].tiles[13][1] = new Tile("Debug", "Ramp", 2);
 
-        screenChunks[0][0].tiles[15][1] = new Tile("Square");
-        screenChunks[0][0].tiles[15][2] = new Tile("Square");
-        screenChunks[0][0].tiles[15][3] = new Tile("Square-Half");
+        screenChunks[0][0].tiles[15][1] = new Tile("Debug", "Square");
+        screenChunks[0][0].tiles[15][2] = new Tile("Debug", "Square");
+        screenChunks[0][0].tiles[15][3] = new Tile("Debug", "Square-Half");
 
-        screenChunks[0][0].tiles[18][1] = new Tile("Ramp-Right-Half-Bottom");
-        screenChunks[0][0].tiles[19][1] = new Tile("Square-Half");
-        screenChunks[0][0].tiles[20][1] = new Tile("Ramp-Left-Half-Bottom");
+        screenChunks[0][0].tiles[18][1] = new Tile("Debug", "Ramp-Bottom", 1);
+        screenChunks[0][0].tiles[19][1] = new Tile("Debug", "Square-Half");
+        screenChunks[0][0].tiles[20][1] = new Tile("Debug", "Ramp-Bottom", 2);
 
-        screenChunks[0][0].tiles[23][1] = new Tile("Ramp-Right-Half-Top");
-        screenChunks[0][0].tiles[24][1] = new Tile("Square");
-        screenChunks[0][0].tiles[24][2] = new Tile("Square");
-        screenChunks[0][0].tiles[24][3] = new Tile("Ramp-Left-Half-Top");
-        screenChunks[0][0].tiles[25][1] = new Tile("Ramp-Left-Half-Top");
+        screenChunks[0][0].tiles[23][1] = new Tile("Debug", "Ramp-Top", 1);
+        screenChunks[0][0].tiles[24][1] = new Tile("Debug", "Square");
+        screenChunks[0][0].tiles[24][2] = new Tile("Debug", "Square");
+        screenChunks[0][0].tiles[24][3] = new Tile("Debug", "Ramp-Top", 2);
+        screenChunks[0][0].tiles[25][1] = new Tile("Debug", "Ramp-Top", 2);
 
-        screenChunks[0][0].tiles[28][1] = new Tile("Ramp-Right-Half-Bottom");
-        screenChunks[0][0].tiles[29][1] = new Tile("Ramp-Right-Half-Top");
-        screenChunks[0][0].tiles[30][1] = new Tile("Ramp-Left-Half-Top");
-        screenChunks[0][0].tiles[31][1] = new Tile("Ramp-Left-Half-Bottom");
+        screenChunks[0][0].tiles[28][1] = new Tile("Debug", "Ramp-Bottom", 1);
+        screenChunks[0][0].tiles[29][1] = new Tile("Debug", "Ramp-Top", 1);
+        screenChunks[0][0].tiles[30][1] = new Tile("Debug", "Ramp-Top", 2);
+        screenChunks[0][0].tiles[31][1] = new Tile("Debug", "Ramp-Bottom", 2);
 
-        screenChunks[0][0].tiles[34][1] = new Tile("Ramp-Right");
-        screenChunks[0][0].tiles[35][1] = new Tile("Square");
-        screenChunks[0][0].tiles[35][2] = new Tile("Ramp-Right");
-        screenChunks[0][0].tiles[36][2] = new Tile("Square");
-        screenChunks[0][0].tiles[36][3] = new Tile("Ramp-Right");
-        screenChunks[0][0].tiles[37][3] = new Tile("Square");
-        screenChunks[0][0].tiles[37][4] = new Tile("Ramp-Right");
-        screenChunks[0][0].tiles[36][1] = new Tile("Square");
-        screenChunks[0][0].tiles[37][1] = new Tile("Square");
-        screenChunks[0][0].tiles[37][2] = new Tile("Square");
+        screenChunks[0][0].tiles[34][1] = new Tile("Debug", "Ramp", 1);
+        screenChunks[0][0].tiles[35][1] = new Tile("Debug", "Square");
+        screenChunks[0][0].tiles[35][2] = new Tile("Debug", "Ramp", 1);
+        screenChunks[0][0].tiles[36][2] = new Tile("Debug", "Square");
+        screenChunks[0][0].tiles[36][3] = new Tile("Debug", "Ramp", 1);
+        screenChunks[0][0].tiles[37][3] = new Tile("Debug", "Square");
+        screenChunks[0][0].tiles[37][4] = new Tile("Debug", "Ramp", 1);
+        screenChunks[0][0].tiles[36][1] = new Tile("Debug", "Square");
+        screenChunks[0][0].tiles[37][1] = new Tile("Debug", "Square");
+        screenChunks[0][0].tiles[37][2] = new Tile("Debug", "Square");
         
         // TestPillar //
         // for(int i = 0; i < 42; i++) {
-        //     screenChunks[0][0].tiles[10][1 + i] = new Tile("Square");
-        //     screenChunks[0][0].tiles[11][1 + i] = new Tile("Square");
+        //     screenChunks[0][0].tiles[10][1 + i] = new Tile("Debug", "Square");
+        //     screenChunks[0][0].tiles[11][1 + i] = new Tile("Debug", "Square");
         // }
 
         // Floor 2 Floor //
         for(int i = 0; i < screenChunks[0][1].tiles.length; i++) {
             if(i < 10 || i > 11) {
-                screenChunks[0][1].tiles[i][0] = new Tile("Square");
+                screenChunks[0][1].tiles[i][0] = new Tile("Debug", "Square");
             }
         }
     }
@@ -174,7 +181,7 @@ public class GameScreen extends Screen {
                     if(y == 6) {
                         textureNum = 1;
                     }
-                    screenChunks[chunkX][0].tiles[x][y] = new Tile("Square", textureNum);
+                    screenChunks[chunkX][0].tiles[x][y] = new Tile("Dirt-Floor", "Square", textureNum);
                 }
             }
         }
@@ -210,32 +217,39 @@ public class GameScreen extends Screen {
                     int tileX = x % screenChunks[0][0].tiles.length;
                     if(chunkX < screenChunks.length && tileX < screenChunks[0][0].tiles.length) {
                         String tileType = "Square";
+                        int tileNum = 1;
                         if(x == tileIndex) {
                             if(slopeLeftSide.equals("Ramp")) {
-                                tileType = "Ramp-Right";
+                                tileType = "Ramp";
                             } else {
-                                tileType = "Ramp-Right-Half-Bottom";
+                                tileType = "Ramp-Bottom";
                             }
                         } else if(x == tileIndex + 1 && slopeLeftSide.equals("Ramp-Half")) {
-                            tileType = "Ramp-Right-Half-Top";
+                            tileType = "Ramp-Top";
                         } else if(x == tileIndex + hillWidth - 1) {
                             if(slopeRightSide.equals("Ramp")) {
-                                tileType = "Ramp-Left";
+                                tileType = "Ramp";
+                                tileNum = 2;
                             } else {
-                                tileType = "Ramp-Left-Half-Bottom";
+                                tileType = "Ramp-Bottom";
+                                tileNum = 2;
                             }
                         } else if(x == tileIndex + hillWidth - 2 && slopeRightSide.equals("Ramp-Half")) {
-                            tileType = "Ramp-Left-Half-Top";
+                            tileType = "Ramp-Top";
+                            tileNum = 2;
                         }
                         
-                        screenChunks[chunkX][0].tiles[tileX][baseFloorThickness - 1 + y] = new Tile("Square", 2);
-                        screenChunks[chunkX][0].tiles[tileX][baseFloorThickness + y] = new Tile(tileType);
+                        screenChunks[chunkX][0].tiles[tileX][baseFloorThickness - 1 + y] = new Tile("Dirt-Floor", "Square", 2);
+                        screenChunks[chunkX][0].tiles[tileX][baseFloorThickness + y] = new Tile("Dirt-Floor", tileType, tileNum);
                     }
                 }
             }
             
             tileIndex += hillWidth + new Random().nextInt(30) + 7;
         }
+
+        // Floating Platforms //
+        createDirtPlatform(30, 20, 7, 5);
 
         // Wall FrameBuffer (Trees, Grass, Rocks) //
         ArrayList<Texture> grassTexture = new ArrayList<>();
@@ -288,7 +302,7 @@ public class GameScreen extends Screen {
                         for(int xMod = -2; xMod < 3; xMod++) {
                             if(tileX + xMod >= 0 && tileX + xMod < screenChunks[0][0].tiles.length) {
                                 Tile targetTile = screenChunks[chunkX][0].tiles[tileX + xMod][tileY];
-                                if(targetTile == null || !targetTile.type.equals("Square")) {
+                                if(targetTile == null || !targetTile.tileName.equals("Square")) {
                                     drawTree = false;
                                     break;
                                 }
@@ -316,7 +330,7 @@ public class GameScreen extends Screen {
             
                 // Grass & Rocks //
                 if(backgroundIndex == 1) {
-                    screenChunks[chunkX][0].frameBufferWalls.begin();
+                    screenChunks[chunkX][0].frameBufferForeground.begin();
                     spriteBatch.begin();
                     
                     for(int x = 0; x < screenChunks[0][0].tiles.length; x++) {
@@ -331,7 +345,7 @@ public class GameScreen extends Screen {
                         Tile targetTile = screenChunks[chunkX][0].tiles[x][targetYLevel];
 
                         // Draw Grass & Rocks //
-                        if(targetTile != null && targetTile.type.equals("Square")) {
+                        if(targetTile != null && targetTile.tileName.equals("Square")) {
                             if(new Random().nextInt(3) == 0) {
                                 spriteBatch.draw(grassTexture.get(new Random().nextInt(4)), x * 16, (targetYLevel + 1) * 16);
                             } else if(new Random().nextInt(20) == 0) {
@@ -341,7 +355,7 @@ public class GameScreen extends Screen {
                     }
 
                     spriteBatch.end();
-                    screenChunks[chunkX][0].frameBufferWalls.end();
+                    screenChunks[chunkX][0].frameBufferForeground.end();
                 }
             }
         }
@@ -353,36 +367,51 @@ public class GameScreen extends Screen {
         rockTexture.dispose();
     }
 
-    public void loadBackgroundFrameBuffers(String levelName) {
-        if(levelName.equals("Area01")) {
-            frameBufferBackground = new ArrayList<>();
+    public void loadBackgroundFrameBuffers() {
+        frameBufferBackground = new ArrayList<>();
 
-            for(FileHandle directoryHandle : Gdx.files.internal("assets/images/backgrounds").list()) {
-                String directoryName = directoryHandle.toString().substring(directoryHandle.toString().lastIndexOf("/") + 1);
-                if(directoryName.equals(levelName)) {
-                    for(FileHandle fileHandle : Gdx.files.internal(directoryHandle.toString()).list()) {
-                        int fileNameIndex = fileHandle.toString().lastIndexOf("/");
-                        if(fileHandle.toString().substring(fileNameIndex + 1).length() >= 10 && fileHandle.toString().substring(fileNameIndex + 1, fileNameIndex + 11).equals("Background")) {
-                            FrameBuffer frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
-                        
-                            frameBuffer.begin();
-                            spriteBatch.begin();
-        
-                            Gdx.graphics.getGL20().glClearColor(0f, 0f, 0f, 0f);
-                            Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
-        
-                            Texture texture = new Texture(fileHandle.toString().substring(fileHandle.toString().indexOf("/") + 1));
-                            spriteBatch.draw(texture, 0, 0);
-                            
-                            spriteBatch.end();
-                            frameBuffer.end();
-        
-                            texture.dispose();
-                            frameBufferBackground.add(frameBuffer);
-                        }
-                    }
+        for(FileHandle directoryHandle : Gdx.files.internal("assets/images/backgrounds").list()) {
+            String directoryName = directoryHandle.toString().substring(directoryHandle.toString().lastIndexOf("/") + 1);
+            if(directoryName.equals(levelName)) {
+                for(FileHandle fileHandle : Gdx.files.internal(directoryHandle.toString()).list()) {
+                    int fileNameIndex = fileHandle.toString().lastIndexOf("/");
+                    if(fileHandle.toString().substring(fileNameIndex + 1).length() >= 10 && fileHandle.toString().substring(fileNameIndex + 1, fileNameIndex + 11).equals("Background")) {
+                        FrameBuffer frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+                    
+                        frameBuffer.begin();
+                        spriteBatch.begin();
     
-                    break;
+                        Gdx.graphics.getGL20().glClearColor(0f, 0f, 0f, 0f);
+                        Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+    
+                        Texture texture = new Texture(fileHandle.toString().substring(fileHandle.toString().indexOf("/") + 1));
+                        spriteBatch.draw(texture, 0, 0);
+                        
+                        spriteBatch.end();
+                        frameBuffer.end();
+    
+                        texture.dispose();
+                        frameBufferBackground.add(frameBuffer);
+                    }
+                }
+
+                break;
+            }
+        }
+    }
+
+    public void createDirtPlatform(int xLoc, int yLoc, int width, int height) {
+        int chunkX = xLoc / screenChunks[0][0].tiles.length;
+        int chunkY = yLoc / screenChunks[0][0].tiles[0].length;
+        int startX = xLoc % screenChunks[0][0].tiles.length;
+        int startY = yLoc % screenChunks[0][0].tiles[0].length;
+
+        if(chunkX < screenChunks.length && chunkY < screenChunks[0].length) {
+            for(int y = 0; y < height; y++) {
+                for(int x = 0; x < width; x++) {
+                    if(startX + x < screenChunks[0][0].tiles.length && startY + y < screenChunks[0][0].tiles[0].length) {
+                        //screenChunks[chunkX][chunkY].tiles[startX + x][startY + y] = new Tile("Square", "Dirt-Platform-Top", 2);
+                    }
                 }
             }
         }
@@ -658,7 +687,7 @@ public class GameScreen extends Screen {
     public void bufferChunks() {
         for(int y = 0; y < screenChunks[0].length; y++) {
             for(int x = 0; x < screenChunks.length; x++) {
-                screenChunks[x][y].bufferTiles(camera, spriteBatch, levelName, imageManager);
+                screenChunks[x][y].bufferTiles(camera, spriteBatch, imageManager);
             }
         }
     }
@@ -735,7 +764,7 @@ public class GameScreen extends Screen {
 
                 if(targetButton.equals("Left")) {
                     if(!justClicked && screenChunks[chunkX][chunkY].tiles[tileX][tileY] == null) {
-                        screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Square");
+                        screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Debug", "Square");
         
                         Texture texture = new Texture("images/tiles/Debug/Square.png");
                         screenChunks[chunkX][chunkY].frameBufferTiles.begin();
@@ -748,21 +777,21 @@ public class GameScreen extends Screen {
                         int tileTypeIndex = 0;
                         ArrayList<String> tileTypeList = new ArrayList<>(Arrays.asList("Square", "Square-Half", "Ramp-Right", "Ramp-Left", "Ramp-Right-Half-Bottom", "Ramp-Left-Half-Bottom", "Ramp-Right-Half-Top", "Ramp-Left-Half-Top", "Ceiling-Ramp-Right", "Ceiling-Ramp-Left"));
                         if(screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
-                            tileTypeIndex = tileTypeList.indexOf(screenChunks[chunkX][chunkY].tiles[tileX][tileY].type) + 1;
+                            tileTypeIndex = tileTypeList.indexOf(screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileName) + 1;
                             if(tileTypeIndex >= tileTypeList.size()) {
                                 tileTypeIndex = 0;
                             }
-                            screenChunks[chunkX][chunkY].tiles[tileX][tileY].type = tileTypeList.get(tileTypeIndex);
+                            screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileName = tileTypeList.get(tileTypeIndex);
                         } else {
-                            screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Square");
+                            screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Debug", "Square");
                         }
         
-                        screenChunks[chunkX][chunkY].bufferTiles(camera, spriteBatch, levelName, imageManager);
+                        screenChunks[chunkX][chunkY].bufferTiles(camera, spriteBatch, imageManager);
                     }
                 }
                 else if(targetButton.equals("Right")) {
                     screenChunks[chunkX][chunkY].tiles[tileX][tileY] = null;
-                    screenChunks[chunkX][chunkY].bufferTiles(camera, spriteBatch, levelName, imageManager);
+                    screenChunks[chunkX][chunkY].bufferTiles(camera, spriteBatch, imageManager);
                 }
             }
         }
@@ -788,6 +817,7 @@ public class GameScreen extends Screen {
         renderWalls(player);
         renderTiles(camera, player);
         player.render(camera);
+        renderForeground(camera, player);
 
         renderDebugData(player);
     }
@@ -818,7 +848,7 @@ public class GameScreen extends Screen {
                 float yMod = 0;
                 if(player.spriteArea.y > (6 * 16) + 16) {
                     int playerHeight = player.spriteArea.y - (6 * 16) - 16;
-                    float heightPercent = playerHeight / 600.0f;
+                    float heightPercent = (playerHeight / 600.0f);
                     yMod = heightPercent * 400;
 
                     if(i == 1) {
@@ -865,6 +895,24 @@ public class GameScreen extends Screen {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
                 if(x >= 0 && y >= 0 && x < screenChunks.length && y < screenChunks[0].length) {
                     screenChunks[x][y].renderTiles(camera, spriteBatch);
+                }
+            }
+        }
+    }
+
+    public void renderForeground(OrthographicCamera camera, Player player) {
+        int chunkStartX = player.spriteArea.x / Gdx.graphics.getWidth() - 1;
+        int chunkStartY = player.spriteArea.y / Gdx.graphics.getHeight() - 1;
+
+        for(int y = chunkStartY; y < chunkStartY + 3; y++) {
+            for(int x = chunkStartX; x < chunkStartX + 3; x++) {
+                if(x >= 0 && y >= 0 && x < screenChunks.length && y < screenChunks[0].length) {
+                    spriteBatch.setProjectionMatrix(camera.combined);
+                    spriteBatch.begin();
+                    int xLoc = x * Gdx.graphics.getWidth();
+                    int yLoc = y * Gdx.graphics.getHeight();
+                    spriteBatch.draw(screenChunks[x][y].frameBufferForeground.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                    spriteBatch.end();
                 }
             }
         }
