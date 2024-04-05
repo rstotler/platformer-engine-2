@@ -13,8 +13,8 @@ import com.jbs.platformerengine.screen.ImageManager;
 public class ScreenChunk {
     ShapeRenderer shapeRenderer;
     FrameBuffer frameBufferTiles;
-    FrameBuffer frameBufferWalls;
-    FrameBuffer frameBufferForeground;
+    public FrameBuffer frameBufferWalls;
+    public FrameBuffer frameBufferForeground;
 
     public Point location;
     public Tile[][] tiles;

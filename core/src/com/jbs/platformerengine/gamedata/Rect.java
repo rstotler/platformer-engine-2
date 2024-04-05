@@ -12,4 +12,11 @@ public class Rect {
         this.width = width;
         this.height = height;
     }
+
+    public Rect(int width, int height) {
+        x = 0;
+        y = 0;
+        this.width = width;
+        this.height = height;
+    }
 }
