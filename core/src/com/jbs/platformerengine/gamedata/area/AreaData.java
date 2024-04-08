@@ -10,10 +10,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
+import com.jbs.platformerengine.screen.gamescreen.Tile;
 
 public class AreaData {
     public String levelName;
     public Rect size;
+    public ArrayList<String> tileSetList;
 
     public void loadArea(ScreenChunk[][] screenChunks, SpriteBatch spriteBatch) {}
 
@@ -287,14 +289,84 @@ public class AreaData {
     public void createDirtPlatform(ScreenChunk[][] screenChunks, int xLoc, int yLoc, int width, int height) {
         int chunkX = xLoc / screenChunks[0][0].tiles.length;
         int chunkY = yLoc / screenChunks[0][0].tiles[0].length;
-        int startX = xLoc % screenChunks[0][0].tiles.length;
-        int startY = yLoc % screenChunks[0][0].tiles[0].length;
 
         if(chunkX < screenChunks.length && chunkY < screenChunks[0].length) {
+
+            // Create Platform Map //
+            boolean[][] platformMap = new boolean[width][height];
+            for(int yIndex = 0; yIndex < height; yIndex++) {
+                for(int xIndex = 0; xIndex < width; xIndex++) {
+                    platformMap[xIndex][yIndex] = false;
+                }
+            }
+
+            int trimSize = height - 2;
+            int xWidth = (width / 2) + (width % 2);
+            for(int x = 0; x < xWidth; x++) {
+                for(int y = 0; y < height; y++) {
+                    if(y >= trimSize || (x >= ((width - 2) / 2) && x <= ((width - 1) / 2) + 1)) {
+                        platformMap[x][y] = true;
+                        platformMap[width - 1 - x][y] = true;
+                    }
+                }
+
+                // Update Trim //
+                trimSize -= ((width - 2) / 2) / (height - trimSize);
+            }
+
+            // Draw Platform //
+            int startX = xLoc % screenChunks[0][0].tiles.length;
+            int startY = yLoc % screenChunks[0][0].tiles[0].length;
+
             for(int y = 0; y < height; y++) {
                 for(int x = 0; x < width; x++) {
-                    if(startX + x < screenChunks[0][0].tiles.length && startY + y < screenChunks[0][0].tiles[0].length) {
-                        //screenChunks[chunkX][chunkY].tiles[startX + x][startY + y] = new Tile("Square", "Dirt-Platform-Top", 2);
+                    if(startX + x > 0 && startX + x < screenChunks[0][0].tiles.length && startY + y > 0 && startY + y < screenChunks[0][0].tiles[0].length) {
+                        String tileName = "Middle";
+                        if(y == 0) {
+                            tileName = "Bottom";
+                        } else if(y == height - 1) {
+                            tileName = "Top";
+                        }
+
+                        int tileNum = 2;
+                        if(x == 0 || platformMap[x - 1][y] == false) {
+                            tileNum = 1;
+                        } else if(x == width - 1 || platformMap[x + 1][y] == false) {
+                            tileNum = 3;
+                        }
+
+                        if(x == 0 || platformMap[x - 1][y] == false) {
+                            if(y == 0 || platformMap[x][y - 1] == false) {
+                                tileName = "Bottom";
+                                tileNum = 1;
+                            }
+                        } else if(x == width - 1 || platformMap[x + 1][y] == false) {
+                            if(y == 0 || platformMap[x][y - 1] == false) {
+                                tileName = "Bottom";
+                                tileNum = 3;
+                            }
+                        }
+                        if(y == height - 1 && platformMap[x][y - 1] == false) {
+                            tileName = "Horizontal";
+                            if(x == 0 || platformMap[x - 1][y] == false) {
+                                tileNum = 1;
+                            } else if(x == width - 1 || platformMap[x + 1][y] == false) {
+                                tileNum = 3;
+                            } else {
+                                tileNum = 2;
+                            }
+                        }
+
+                        if(y < height - 1 && x > 0 && x < width - 1 && platformMap[x - 1][y] == true && platformMap[x + 1][y] == true) {
+                            if(y == 0 || platformMap[x][y - 1] == false) {
+                                tileName = "Bottom";
+                                tileNum = 2;
+                            }
+                        }
+
+                        if(platformMap[x][y] == true) {
+                            screenChunks[chunkX][chunkY].tiles[startX + x][startY + y] = new Tile("Dirt-Platform", tileName, tileNum);
+                        }
                     }
                 }
             }

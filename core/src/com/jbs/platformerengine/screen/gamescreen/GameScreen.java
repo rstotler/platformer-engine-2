@@ -22,14 +22,11 @@ import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
- * Only Load Necessary TileSets (Use Data From Newly Created Area Class)
  * Fix Ceiling Ramp Collisions
- * Move Rocks To Background FrameBuffer
- * Create Prototype Dirt Platforms
- * Create Upper Platform World
  * Create Big Cave
  * Attack Pattern 1
  * Some Basic Enemy Type
+ * Wave Effect When Walking Past Grass
  */
 
 public class GameScreen extends Screen {
@@ -52,25 +49,23 @@ public class GameScreen extends Screen {
         keyboard = new Keyboard();
 
         loadAreaData();
-
-        loadBackgroundFrameBuffers();
-        imageManager = new ImageManager(); // eventually create level data and pass tilesets from there (static)
-        bufferChunks();
     }
 
     public void loadAreaData() {
         AreaData areaData = new Area01();
 
         levelName = areaData.levelName;
-        
         screenChunks = new ScreenChunk[areaData.size.width][areaData.size.height];
         for(int y = 0; y < screenChunks[0].length; y++) {
             for(int x = 0; x < screenChunks.length; x++) {
                 screenChunks[x][y] = new ScreenChunk(x, y);
             }
         }
-
         areaData.loadArea(screenChunks, spriteBatch);
+
+        loadBackgroundFrameBuffers();
+        imageManager = new ImageManager(areaData.tileSetList);
+        bufferChunks();
     }
 
     public void loadBackgroundFrameBuffers() {

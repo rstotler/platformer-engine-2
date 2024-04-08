@@ -1,5 +1,7 @@
 package com.jbs.platformerengine.gamedata.area;
 
+import java.util.*;
+
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
@@ -9,6 +11,7 @@ public class AreaDebug extends AreaData {
     public AreaDebug() {
         levelName = "Debug";
         size = new Rect(6, 8);
+        tileSetList = new ArrayList<>(Arrays.asList("Debug"));
     }
 
     public void loadArea(ScreenChunk[][] screenChunks, SpriteBatch spriteBatch) {

@@ -1,7 +1,6 @@
 package com.jbs.platformerengine.gamedata.area;
 
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,6 +13,7 @@ public class Area01 extends AreaData {
     public Area01() {
         levelName = "Area01";
         size = new Rect(2, 2);
+        tileSetList = new ArrayList<>(Arrays.asList("Dirt-Floor", "Dirt-Platform"));
     }
 
     public void loadArea(ScreenChunk[][] screenChunks, SpriteBatch spriteBatch) {
@@ -94,8 +94,23 @@ public class Area01 extends AreaData {
             tileIndex += hillWidth + new Random().nextInt(30) + 7;
         }
 
-        // Floating Platforms //
-        createDirtPlatform(screenChunks, 30, 20, 7, 5);
+        // Floating Platforms (Vertical) //
+        for(int platformNum = 0; platformNum < 0; platformNum++) {
+            int platformWidth = new Random().nextInt(4) + 4;
+            int platformHeight = new Random().nextInt(3) + 3;
+            int xMod = 4 + new Random().nextInt(6);
+            if(platformNum % 2 == 1) {
+                xMod *= -1;
+            }
+            createDirtPlatform(screenChunks, 60 + xMod, 12 + (platformNum * 6), platformWidth, platformHeight);
+        }
+
+        // Floating Platforms (Horizontal) //
+        for(int platformNum = 0; platformNum < 20; platformNum++) {
+            int platformWidth = new Random().nextInt(6) + 6;
+            int platformHeight = new Random().nextInt(3) + 3;
+            createDirtPlatform(screenChunks, 4 + (platformNum * 14), 66, platformWidth, platformHeight);
+        }
 
         // Wall FrameBuffer (Trees, Grass, Rocks) //
         ArrayList<Texture> grassTexture = new ArrayList<>();
@@ -104,98 +119,132 @@ public class Area01 extends AreaData {
         grassTexture.add(new Texture("images/objects/Grass_C.png"));
         grassTexture.add(new Texture("images/objects/Grass_D.png"));
         Texture rockTexture = new Texture("images/objects/Rock.png");
+        Texture tombstoneTexture = new Texture("images/objects/Tombstone.png");
 
         for(int chunkX = 0; chunkX < screenChunks.length; chunkX++) {
-            for(int backgroundIndex = 0; backgroundIndex < 2; backgroundIndex++) {
+            for(int frameBufferIndex = 0; frameBufferIndex < 3; frameBufferIndex++) {
 
                 // Trees //
-                ArrayList<Integer> treeLocationList = new ArrayList<>();
-                for(int i = 0; i < 0; i++) {
-                    int xLoc;
-                    if(chunkX == 0) {
-                        xLoc = new Random().nextInt(Gdx.graphics.getWidth()) - 81;
-                    } else if(chunkX == screenChunks.length - 1) {
-                        xLoc = new Random().nextInt(Gdx.graphics.getWidth() - 73) + 73;
-                    } else {
-                        xLoc = new Random().nextInt(Gdx.graphics.getWidth() - (73 * 2)) + 73;
-                    }
-
-                    // Adjacent Tree Check //
-                    boolean drawTree = true;
-                    for(Integer previousX : treeLocationList) {
-                        if(previousX > xLoc - 20 && previousX < xLoc + 20) {
-                            drawTree = false;
-                            break;
+                if(frameBufferIndex == 0 || frameBufferIndex == 1) {
+                    ArrayList<Integer> treeLocationList = new ArrayList<>();
+                    for(int i = 0; i < 0; i++) {
+                        int xLoc;
+                        if(chunkX == 0) {
+                            xLoc = new Random().nextInt(Gdx.graphics.getWidth()) - 81;
+                        } else if(chunkX == screenChunks.length - 1) {
+                            xLoc = new Random().nextInt(Gdx.graphics.getWidth() - 73) + 73;
+                        } else {
+                            xLoc = new Random().nextInt(Gdx.graphics.getWidth() - (73 * 2)) + 73;
                         }
-                    }
-
-                    // Draw Tree //
-                    if(drawTree) {
-                        int yLoc = 112;
-                        int tileX = (xLoc - 8) / 16;
-                        int tileY = 6;
-        
-                        // Get Start Tile Height //
-                        if(tileX >= 0 && tileX < screenChunks[0][0].tiles.length) {
-                            if(screenChunks[chunkX][0].tiles[tileX][tileY + 2] != null) {
-                                tileY += 2;
-                            } else if(screenChunks[chunkX][0].tiles[tileX][tileY + 1] != null) {
-                                tileY += 1;
+    
+                        // Adjacent Tree Check //
+                        boolean drawTree = true;
+                        for(Integer previousX : treeLocationList) {
+                            if(previousX > xLoc - 20 && previousX < xLoc + 20) {
+                                drawTree = false;
+                                break;
                             }
                         }
-                        
-                        // No Building Trees On Ramps //
-                        for(int xMod = -2; xMod < 3; xMod++) {
-                            if(tileX + xMod >= 0 && tileX + xMod < screenChunks[0][0].tiles.length) {
-                                Tile targetTile = screenChunks[chunkX][0].tiles[tileX + xMod][tileY];
-                                if(targetTile == null || !targetTile.tileName.equals("Square")) {
-                                    drawTree = false;
-                                    break;
+    
+                        // Draw Tree //
+                        if(drawTree) {
+                            int yLoc = 112;
+                            int tileX = (xLoc - 8) / 16;
+                            int tileY = 6;
+            
+                            // Get Start Tile Height //
+                            if(tileX >= 0 && tileX < screenChunks[0][0].tiles.length) {
+                                if(screenChunks[chunkX][0].tiles[tileX][tileY + 2] != null) {
+                                    tileY += 2;
+                                } else if(screenChunks[chunkX][0].tiles[tileX][tileY + 1] != null) {
+                                    tileY += 1;
                                 }
                             }
-                        }
-            
-                        if(drawTree) {
-                            yLoc = (tileY * 16) + 16;
-    
-                            boolean isThin = false;
-                            if(new Random().nextInt(3) == 0) {
-                                isThin = true;
+                            
+                            // No Building Trees On Ramps //
+                            for(int xMod = -2; xMod < 3; xMod++) {
+                                if(tileX + xMod >= 0 && tileX + xMod < screenChunks[0][0].tiles.length) {
+                                    Tile targetTile = screenChunks[chunkX][0].tiles[tileX + xMod][tileY];
+                                    if(targetTile == null || !targetTile.tileName.equals("Square")) {
+                                        drawTree = false;
+                                        break;
+                                    }
+                                }
                             }
-    
-                            boolean isDark = false;
-                            if(backgroundIndex == 0) {
-                                isDark = true;
+                
+                            if(drawTree) {
+                                yLoc = (tileY * 16) + 16;
+        
+                                boolean isThin = false;
+                                if(new Random().nextInt(3) == 0) {
+                                    isThin = true;
+                                }
+        
+                                boolean isDark = false;
+                                if(frameBufferIndex == 0) {
+                                    isDark = true;
+                                }
+        
+                                drawTree(spriteBatch, screenChunks[chunkX][0].frameBufferWalls, xLoc, yLoc, isThin, isDark);
+                                treeLocationList.add(xLoc);
                             }
-    
-                            drawTree(spriteBatch, screenChunks[chunkX][0].frameBufferWalls, xLoc, yLoc, isThin, isDark);
-                            treeLocationList.add(xLoc);
                         }
                     }
                 }
-            
-                // Grass & Rocks //
-                if(backgroundIndex == 1) {
+
+                // Rocks & Tombstones //
+                if(frameBufferIndex == 2) {
+                    screenChunks[chunkX][0].frameBufferWalls.begin();
+                    spriteBatch.begin();
+                    
+                    for(int x = 0; x < screenChunks[0][0].tiles.length; x++) {
+                        if(new Random().nextInt(20) == 0) {
+
+                            // Get Target Y-Level & Tile //
+                            int targetYLevel = 6;
+                            if(screenChunks[chunkX][0].tiles[x][8] != null) {
+                                targetYLevel = 8;
+                            } else if(screenChunks[chunkX][0].tiles[x][7] != null) {
+                                targetYLevel = 7;
+                            }
+                            Tile targetTile = screenChunks[chunkX][0].tiles[x][targetYLevel];
+
+                            if(targetTile != null && targetTile.tileName.equals("Square")) {
+                                if(new Random().nextInt(4) == 0) {
+                                    if(x < screenChunks[0][0].tiles.length - 1 && screenChunks[chunkX][0].tiles[x + 1][targetYLevel].tileName.equals("Square")) {
+                                        spriteBatch.draw(tombstoneTexture, x * 16, (targetYLevel + 1) * 16);
+                                    }
+                                } else {
+                                    spriteBatch.draw(rockTexture, x * 16, (targetYLevel + 1) * 16);
+                                }
+                            }
+                        }
+                    }
+
+                    spriteBatch.end();
+                    screenChunks[chunkX][0].frameBufferWalls.end();
+                }
+
+                // Grass //
+                if(frameBufferIndex == 0) {
                     screenChunks[chunkX][0].frameBufferForeground.begin();
                     spriteBatch.begin();
                     
                     for(int x = 0; x < screenChunks[0][0].tiles.length; x++) {
+                        if(new Random().nextInt(3) == 0) {
 
-                        // Get Target Y-Level & Tile //
-                        int targetYLevel = 6;
-                        if(screenChunks[chunkX][0].tiles[x][8] != null) {
-                            targetYLevel = 8;
-                        } else if(screenChunks[chunkX][0].tiles[x][7] != null) {
-                            targetYLevel = 7;
-                        }
-                        Tile targetTile = screenChunks[chunkX][0].tiles[x][targetYLevel];
+                            // Get Target Y-Level & Tile //
+                            int targetYLevel = 6;
+                            if(screenChunks[chunkX][0].tiles[x][8] != null) {
+                                targetYLevel = 8;
+                            } else if(screenChunks[chunkX][0].tiles[x][7] != null) {
+                                targetYLevel = 7;
+                            }
+                            Tile targetTile = screenChunks[chunkX][0].tiles[x][targetYLevel];
 
-                        // Draw Grass & Rocks //
-                        if(targetTile != null && targetTile.tileName.equals("Square")) {
-                            if(new Random().nextInt(3) == 0) {
+                            // Draw Grass //
+                            if(targetTile != null && targetTile.tileName.equals("Square")) {
                                 spriteBatch.draw(grassTexture.get(new Random().nextInt(4)), x * 16, (targetYLevel + 1) * 16);
-                            } else if(new Random().nextInt(20) == 0) {
-                                spriteBatch.draw(rockTexture, x * 16, (targetYLevel + 1) * 16);
                             }
                         }
                     }
