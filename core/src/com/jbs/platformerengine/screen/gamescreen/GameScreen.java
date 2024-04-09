@@ -27,6 +27,7 @@ import com.jbs.platformerengine.screen.Screen;
  * Attack Pattern 1
  * Some Basic Enemy Type
  * Wave Effect When Walking Past Grass
+ * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  */
 
 public class GameScreen extends Screen {
@@ -61,10 +62,11 @@ public class GameScreen extends Screen {
                 screenChunks[x][y] = new ScreenChunk(x, y);
             }
         }
-        areaData.loadArea(screenChunks, spriteBatch);
+
+        imageManager = new ImageManager(areaData.tileSetList);
+        areaData.loadArea(screenChunks, spriteBatch, imageManager);
 
         loadBackgroundFrameBuffers();
-        imageManager = new ImageManager(areaData.tileSetList);
         bufferChunks();
     }
 

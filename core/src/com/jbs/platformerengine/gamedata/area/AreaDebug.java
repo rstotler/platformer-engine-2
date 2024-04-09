@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.jbs.platformerengine.gamedata.Rect;
+import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
 
@@ -14,7 +15,7 @@ public class AreaDebug extends AreaData {
         tileSetList = new ArrayList<>(Arrays.asList("Debug"));
     }
 
-    public void loadArea(ScreenChunk[][] screenChunks, SpriteBatch spriteBatch) {
+    public void loadArea(ScreenChunk[][] screenChunks, SpriteBatch spriteBatch, ImageManager imageManager) {
 
         // Bottom Floor //
         for(int i = 0; i < screenChunks.length; i++) {

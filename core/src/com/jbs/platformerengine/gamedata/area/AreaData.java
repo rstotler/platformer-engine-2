@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.jbs.platformerengine.gamedata.Rect;
+import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
 
@@ -17,9 +18,90 @@ public class AreaData {
     public Rect size;
     public ArrayList<String> tileSetList;
 
-    public void loadArea(ScreenChunk[][] screenChunks, SpriteBatch spriteBatch) {}
+    public void loadArea(ScreenChunk[][] screenChunks, SpriteBatch spriteBatch, ImageManager imageManager) {}
 
-    public void drawTree(SpriteBatch spriteBatch, FrameBuffer targetFrameBuffer, int xLoc, int yLoc, boolean isThin, boolean isDark) {
+    public void createFloor(ScreenChunk[][] screenChunks, String tileSetName, boolean createHills) {
+
+        // Base Floor //
+        int baseFloorThickness = 7;
+        for(int chunkX = 0; chunkX < screenChunks.length; chunkX++) {
+            for(int y = 0; y < baseFloorThickness; y++) {
+                for(int x = 0; x < screenChunks[0][0].tiles.length; x++) {
+                    int textureNum = 2;
+                    if(y == 6) {
+                        textureNum = 1;
+                    }
+                    screenChunks[chunkX][0].tiles[x][y] = new Tile(tileSetName, "Square", textureNum);
+                }
+            }
+        }
+
+        // Hills //
+        if(createHills) {
+            int hillCount = new Random().nextInt(20) + 10;
+            int tileIndex = 15;
+            for(int hillIndex = 0; hillIndex < hillCount; hillIndex++) {
+                int hillWidth = new Random().nextInt(20) + 12;
+                int yCount = 1;
+                if(new Random().nextInt(2) == 0) {
+                    yCount = 2;
+                }
+    
+                for(int y = 0; y < yCount; y++) {
+                    if(y == 1) {
+                        int xOffset = new Random().nextInt(4) + 2;
+                        tileIndex += xOffset;
+                        hillWidth -= (new Random().nextInt(2) + 2) + xOffset;
+                    }
+    
+                    String slopeLeftSide = "Ramp";
+                    String slopeRightSide = "Ramp";
+                    if(new Random().nextInt(2) == 0) {
+                        slopeLeftSide = "Ramp-Half";
+                    }
+                    if(new Random().nextInt(2) == 0) {
+                        slopeRightSide = "Ramp-Half";
+                    }
+                    
+                    for(int x = tileIndex; x < tileIndex + hillWidth; x++) {
+                        int chunkX = x / screenChunks[0][0].tiles.length;
+                        int tileX = x % screenChunks[0][0].tiles.length;
+                        if(chunkX < screenChunks.length && tileX < screenChunks[0][0].tiles.length) {
+                            String tileType = "Square";
+                            int tileNum = 1;
+                            if(x == tileIndex) {
+                                if(slopeLeftSide.equals("Ramp")) {
+                                    tileType = "Ramp";
+                                } else {
+                                    tileType = "Ramp-Bottom";
+                                }
+                            } else if(x == tileIndex + 1 && slopeLeftSide.equals("Ramp-Half")) {
+                                tileType = "Ramp-Top";
+                            } else if(x == tileIndex + hillWidth - 1) {
+                                if(slopeRightSide.equals("Ramp")) {
+                                    tileType = "Ramp";
+                                    tileNum = 2;
+                                } else {
+                                    tileType = "Ramp-Bottom";
+                                    tileNum = 2;
+                                }
+                            } else if(x == tileIndex + hillWidth - 2 && slopeRightSide.equals("Ramp-Half")) {
+                                tileType = "Ramp-Top";
+                                tileNum = 2;
+                            }
+                            
+                            screenChunks[chunkX][0].tiles[tileX][baseFloorThickness - 1 + y] = new Tile("Dirt-Floor", "Square", 2);
+                            screenChunks[chunkX][0].tiles[tileX][baseFloorThickness + y] = new Tile("Dirt-Floor", tileType, tileNum);
+                        }
+                    }
+                }
+                
+                tileIndex += hillWidth + new Random().nextInt(30) + 7;
+            }
+        }
+    }
+
+    public void createTree(SpriteBatch spriteBatch, FrameBuffer targetFrameBuffer, int xLoc, int yLoc, boolean isThin, boolean isDark) {
         HashMap<String, ArrayList<Texture>> imageMap = new HashMap<String, ArrayList<Texture>>();
 
         // Load Tiles //
@@ -286,11 +368,12 @@ public class AreaData {
         }
     }
 
-    public void createDirtPlatform(ScreenChunk[][] screenChunks, int xLoc, int yLoc, int width, int height) {
+    public void createPlatform(ScreenChunk[][] screenChunks, String tileSetName, int xLoc, int yLoc, int width, int height) {
         int chunkX = xLoc / screenChunks[0][0].tiles.length;
         int chunkY = yLoc / screenChunks[0][0].tiles[0].length;
 
-        if(chunkX < screenChunks.length && chunkY < screenChunks[0].length) {
+        if(chunkX < screenChunks.length && chunkY < screenChunks[0].length
+        && (xLoc % screenChunks[0][0].tiles.length) + width < screenChunks[0][0].tiles.length) {
 
             // Create Platform Map //
             boolean[][] platformMap = new boolean[width][height];
@@ -314,13 +397,13 @@ public class AreaData {
                 trimSize -= ((width - 2) / 2) / (height - trimSize);
             }
 
-            // Draw Platform //
+            // Set Platform Tile Type //
             int startX = xLoc % screenChunks[0][0].tiles.length;
             int startY = yLoc % screenChunks[0][0].tiles[0].length;
 
             for(int y = 0; y < height; y++) {
                 for(int x = 0; x < width; x++) {
-                    if(startX + x > 0 && startX + x < screenChunks[0][0].tiles.length && startY + y > 0 && startY + y < screenChunks[0][0].tiles[0].length) {
+                    if(startX + x >= 0 && startX + x < screenChunks[0][0].tiles.length && startY + y >= 0 && startY + y < screenChunks[0][0].tiles[0].length) {
                         String tileName = "Middle";
                         if(y == 0) {
                             tileName = "Bottom";
@@ -365,11 +448,106 @@ public class AreaData {
                         }
 
                         if(platformMap[x][y] == true) {
-                            screenChunks[chunkX][chunkY].tiles[startX + x][startY + y] = new Tile("Dirt-Platform", tileName, tileNum);
+                            screenChunks[chunkX][chunkY].tiles[startX + x][startY + y] = new Tile(tileSetName, tileName, tileNum);
                         }
                     }
                 }
             }
+        }
+    }
+
+    public void createBridge(ScreenChunk[][] screenChunks, SpriteBatch spriteBatch, ImageManager imageManager, int xLoc, int yLoc, int width, int pillarWidth, int pillarSpace) {
+        ArrayList<Texture> archTexture = new ArrayList<>();
+        archTexture.add(new Texture("images/objects/Stone-Arch_01.png"));
+        archTexture.add(new Texture("images/objects/Stone-Arch_02.png"));
+        archTexture.add(new Texture("images/objects/Stone-Arch_03.png"));
+        archTexture.add(new Texture("images/objects/Stone-Arch_04.png"));
+        archTexture.add(new Texture("images/objects/Stone-Arch_05.png"));
+        
+        for(int x = 0; x < width; x++) {
+            int chunkX = (xLoc + x) / screenChunks[0][0].tiles.length;
+            int chunkY = yLoc / screenChunks[0][0].tiles[0].length;
+            int tileX = (xLoc + x) % screenChunks[0][0].tiles.length;
+
+            screenChunks[chunkX][chunkY].frameBufferWalls.begin();
+            spriteBatch.begin();
+
+            // Top Walkable Platform //
+            screenChunks[chunkX][chunkY].tiles[tileX][yLoc] = new Tile("Stone", "Square-Half");
+
+            // Area Below Top Walkable Platform //
+            for(int y = 0; y < 4; y++) {
+                if(y == 0 || (y < 3 && x > 0) || x > 1) {
+                    int tileNum = 0;
+                    if((y == 0 && x == 0) || (y > 0 && y < 3 && x == 1) || (y == 3 && x == 2)) {
+                        tileNum = 1;
+                    }
+                    spriteBatch.draw(imageManager.tile.get("Stone").get("Square").get(tileNum), tileX * 16, (yLoc - 1 - y) * 16);
+                }
+            }
+
+            // Area Below Top Walkable Platform (Bottom Border) //
+            if(x > 1) {
+                spriteBatch.draw(imageManager.tile.get("Stone").get("Square-Half").get(1), tileX * 16, (yLoc - 4) * 16);
+            }
+
+            // Bottom Area (Before Pillars) //
+            for(int y = 0; y < 3; y++) {
+                if((y == 0 && x > 2) || (y == 1 && x > 3) || (y == 2 && x > 5)) {
+                    spriteBatch.draw(imageManager.tile.get("Stone").get("Square").get(2), tileX * 16, (yLoc - 5 - y) * 16);
+                }
+            }
+
+            // Pillars //
+            if((x + pillarWidth) % (pillarWidth + pillarSpace) < pillarWidth) {
+                for(int y = 0; y < yLoc - 7; y++) {
+                    spriteBatch.draw(imageManager.tile.get("Stone").get("Square").get(2), tileX * 16, (yLoc - 8 - y) * 16);
+                }
+            }
+
+            // Side Of Pillars (Arch) //
+            if((x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth)
+            || (x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth + pillarSpace - 1)) {
+                for(int y = 0; y < 3; y++) {
+                    spriteBatch.draw(imageManager.tile.get("Stone").get("Square").get(2), tileX * 16, (yLoc - 8 - y) * 16);
+                }
+            }
+            else if((x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth + 1)
+            || (x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth + pillarSpace - 2)) {
+                for(int y = 0; y < 2; y++) {
+                    spriteBatch.draw(imageManager.tile.get("Stone").get("Square").get(2), tileX * 16, (yLoc - 8 - y) * 16);
+                }
+            }
+            else if((x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth + 2)
+            || (x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth + pillarSpace - 3)) {
+                for(int y = 0; y < 1; y++) {
+                    spriteBatch.draw(imageManager.tile.get("Stone").get("Square").get(2), tileX * 16, (yLoc - 8 - y) * 16);
+                }
+            }
+
+            spriteBatch.end();
+            screenChunks[chunkX][chunkY].frameBufferWalls.end();
+        }
+
+        // Stone Arches //
+        int archCount = 1 + (width / (pillarWidth + pillarSpace));
+        for(int archIndex = 0; archIndex < archCount; archIndex++) {
+            int archX = 0;
+            int chunkX = (xLoc + archX) / screenChunks[0][0].tiles.length;
+            int chunkY = yLoc / screenChunks[0][0].tiles[0].length;
+
+            screenChunks[chunkX][chunkY].frameBufferWalls.begin();
+            spriteBatch.begin();
+
+            spriteBatch.draw(archTexture.get(0), archX, yLoc - 200);
+
+            spriteBatch.end();
+            screenChunks[chunkX][chunkY].frameBufferWalls.end();
+        }
+
+        // Dispose Textures //
+        for(Texture texture : archTexture) {
+            texture.dispose();
         }
     }
 }

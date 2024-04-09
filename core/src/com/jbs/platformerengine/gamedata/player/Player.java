@@ -43,7 +43,7 @@ public class Player {
 
     public Player() {
         shapeRenderer = new ShapeRenderer();
-        spriteArea = new Rect(100, 150, 16, 48);
+        spriteArea = new Rect(1250, 250, 16, 48);
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
