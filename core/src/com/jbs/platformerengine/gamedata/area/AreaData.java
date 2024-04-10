@@ -463,7 +463,10 @@ public class AreaData {
         archTexture.add(new Texture("images/objects/Stone-Arch_03.png"));
         archTexture.add(new Texture("images/objects/Stone-Arch_04.png"));
         archTexture.add(new Texture("images/objects/Stone-Arch_05.png"));
+        Texture stoneBandEdgeTexture = new Texture("images/objects/Stone-Band_01.png");
+        Texture stoneBandTexture = new Texture("images/objects/Stone-Band_02.png");
         
+        // Bridge //
         for(int x = 0; x < width; x++) {
             int chunkX = (xLoc + x) / screenChunks[0][0].tiles.length;
             int chunkY = yLoc / screenChunks[0][0].tiles[0].length;
@@ -477,9 +480,9 @@ public class AreaData {
 
             // Area Below Top Walkable Platform //
             for(int y = 0; y < 4; y++) {
-                if(y == 0 || (y < 3 && x > 0) || x > 1) {
+                if(y == 1 || (y < 3 && x > 0) || x > 1) {
                     int tileNum = 0;
-                    if((y == 0 && x == 0) || (y > 0 && y < 3 && x == 1) || (y == 3 && x == 2)) {
+                    if((y == 0 && x == 0) || y == 1 && x == 0 || (y > 1 && y < 3 && x == 1) || (y == 3 && x == 2)) {
                         tileNum = 1;
                     }
                     spriteBatch.draw(imageManager.tile.get("Stone").get("Square").get(tileNum), tileX * 16, (yLoc - 1 - y) * 16);
@@ -492,36 +495,83 @@ public class AreaData {
             }
 
             // Bottom Area (Before Pillars) //
+            int tileNum = 2;
             for(int y = 0; y < 3; y++) {
                 if((y == 0 && x > 2) || (y == 1 && x > 3) || (y == 2 && x > 5)) {
-                    spriteBatch.draw(imageManager.tile.get("Stone").get("Square").get(2), tileX * 16, (yLoc - 5 - y) * 16);
+                    if((y == 0 && x == 3) || (y == 1 && x == 4) || (y == 2 && x == 6)) {
+                        tileNum = 3;
+                    }
+                    spriteBatch.draw(imageManager.tile.get("Stone").get("Square").get(tileNum), tileX * 16, (yLoc - 5 - y) * 16);
                 }
             }
 
             // Pillars //
             if((x + pillarWidth) % (pillarWidth + pillarSpace) < pillarWidth) {
                 for(int y = 0; y < yLoc - 7; y++) {
-                    spriteBatch.draw(imageManager.tile.get("Stone").get("Square").get(2), tileX * 16, (yLoc - 8 - y) * 16);
+                    if(x == (pillarSpace) && y > 2) {
+                        tileNum = 3;
+                    }
+                    spriteBatch.draw(imageManager.tile.get("Stone").get("Square").get(tileNum), tileX * 16, (yLoc - 8 - y) * 16);
                 }
             }
 
             // Side Of Pillars (Arch) //
+            String tileName = "Square";
             if((x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth)
             || (x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth + pillarSpace - 1)) {
                 for(int y = 0; y < 3; y++) {
-                    spriteBatch.draw(imageManager.tile.get("Stone").get("Square").get(2), tileX * 16, (yLoc - 8 - y) * 16);
+                    if(y == 2 && (x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth + pillarSpace - 1)) {
+                        tileNum = 3;
+                        if(x > pillarSpace) {
+                            tileName = "Corner";
+                            tileNum = 2;
+                        }
+                    } else if(y == 2 && (x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth)) {
+                        tileNum = 4;
+                        if(x > pillarSpace) {
+                            tileName = "Corner";
+                            tileNum = 1;
+                        }
+                    }
+                    spriteBatch.draw(imageManager.tile.get("Stone").get(tileName).get(tileNum), tileX * 16, (yLoc - 8 - y) * 16);
                 }
             }
             else if((x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth + 1)
             || (x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth + pillarSpace - 2)) {
                 for(int y = 0; y < 2; y++) {
-                    spriteBatch.draw(imageManager.tile.get("Stone").get("Square").get(2), tileX * 16, (yLoc - 8 - y) * 16);
+                    if(y == 1 && (x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth + pillarSpace - 2)) {
+                        tileNum = 3;
+                        if(x > pillarSpace) {
+                            tileName = "Corner";
+                            tileNum = 2;
+                        }
+                    } else if(y == 1 && (x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth + 1)) {
+                        tileNum = 4;
+                        if(x > pillarSpace) {
+                            tileName = "Corner";
+                            tileNum = 1;
+                        }
+                    }
+                    spriteBatch.draw(imageManager.tile.get("Stone").get(tileName).get(tileNum), tileX * 16, (yLoc - 8 - y) * 16);
                 }
             }
             else if((x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth + 2)
             || (x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth + pillarSpace - 3)) {
                 for(int y = 0; y < 1; y++) {
-                    spriteBatch.draw(imageManager.tile.get("Stone").get("Square").get(2), tileX * 16, (yLoc - 8 - y) * 16);
+                    if(x > pillarWidth && (x + pillarWidth) % (pillarWidth + pillarSpace) == pillarWidth + pillarSpace - 3) {
+                        tileNum = 3;
+                        if(x > pillarSpace) {
+                            tileName = "Corner";
+                            tileNum = 2;
+                        }
+                    } else {
+                        tileNum = 4;
+                        if(x > pillarSpace) {
+                            tileName = "Corner";
+                            tileNum = 1;
+                        }
+                    }
+                    spriteBatch.draw(imageManager.tile.get("Stone").get(tileName).get(tileNum), tileX * 16, (yLoc - 8 - y) * 16);
                 }
             }
 
@@ -529,25 +579,81 @@ public class AreaData {
             screenChunks[chunkX][chunkY].frameBufferWalls.end();
         }
 
+        // Stone Band (Above Pillars) //
+        int bandCount = ((width * 16) / 96) + 1;
+        for(int bandIndex = 0; bandIndex < bandCount; bandIndex++) {
+            int bandX = (xLoc * 16) + (bandIndex * 96);
+            int bandY = ((yLoc - 2) * 16) + 7;
+            int bandDrawX = bandX % Gdx.graphics.getWidth();
+            int bandDrawY = bandY % Gdx.graphics.getHeight();
+            int chunkX = bandX / Gdx.graphics.getWidth();
+            int chunkY = bandY / Gdx.graphics.getHeight();
+
+            if(chunkX < screenChunks.length && chunkY < screenChunks[0].length) {
+                screenChunks[chunkX][chunkY].frameBufferWalls.begin();
+                spriteBatch.begin();
+
+                if(bandIndex == 0) {
+                    spriteBatch.draw(stoneBandEdgeTexture, bandDrawX, bandDrawY);
+                } else {
+                    spriteBatch.draw(stoneBandTexture, bandDrawX, bandDrawY);
+                }
+
+                spriteBatch.end();
+                screenChunks[chunkX][chunkY].frameBufferWalls.end();
+            }
+        }
+
         // Stone Arches //
-        int archCount = 1 + (width / (pillarWidth + pillarSpace));
+        int archCount = (width / (pillarWidth + pillarSpace));
         for(int archIndex = 0; archIndex < archCount; archIndex++) {
-            int archX = 0;
-            int chunkX = (xLoc + archX) / screenChunks[0][0].tiles.length;
-            int chunkY = yLoc / screenChunks[0][0].tiles[0].length;
+            int archX = (((xLoc + ((pillarWidth + pillarSpace) * (archIndex + 1))) * 16) - 11);
+            int archY = (((yLoc - 7) * 16) - 63);
+            int archDrawX = archX % Gdx.graphics.getWidth();
+            int rightArchDrawX = archDrawX + 96 + 54;
+            int archDrawY = archY % Gdx.graphics.getHeight();
+            int chunkX = archX / Gdx.graphics.getWidth();
+            int chunkY = archY / Gdx.graphics.getHeight();
 
-            screenChunks[chunkX][chunkY].frameBufferWalls.begin();
-            spriteBatch.begin();
+            int archDrawCount = 1;
+            if(archDrawX + 96 + 96 + 54 >= Gdx.graphics.getWidth()) {
+                archDrawCount = 2;
+            }
 
-            spriteBatch.draw(archTexture.get(0), archX, yLoc - 200);
+            for(int i = 0; i < archDrawCount; i++) {
+                if(i == 1) {
+                    chunkX += 1;
+                    archDrawX -= Gdx.graphics.getWidth();
+                    rightArchDrawX -= Gdx.graphics.getWidth();
+                }
 
-            spriteBatch.end();
-            screenChunks[chunkX][chunkY].frameBufferWalls.end();
+                if(chunkX < screenChunks.length) {
+                    screenChunks[chunkX][chunkY].frameBufferWalls.begin();
+                    spriteBatch.begin();
+        
+                    // Top Arch //
+                    spriteBatch.draw(archTexture.get(0), archDrawX, archDrawY);
+                    spriteBatch.draw(archTexture.get(1), rightArchDrawX, archDrawY);
+                    spriteBatch.draw(archTexture.get(4), archDrawX + 96, archDrawY);
+                    spriteBatch.draw(archTexture.get(4), archDrawX + 96 + 27, archDrawY);
+        
+                    // Side Walls //
+                    int archSideCount = (((yLoc - 8) * 16) % Gdx.graphics.getHeight()) / 74;
+                    for(int sideIndex = 1; sideIndex <= archSideCount; sideIndex++) {
+                        spriteBatch.draw(archTexture.get(2), archDrawX, archDrawY - (74 * sideIndex));
+                        spriteBatch.draw(archTexture.get(3), archDrawX + 96 + 54, archDrawY - (74 * sideIndex));
+                    }
+        
+                    spriteBatch.end();
+                    screenChunks[chunkX][chunkY].frameBufferWalls.end();
+                }
+            }
         }
 
         // Dispose Textures //
         for(Texture texture : archTexture) {
             texture.dispose();
         }
+        stoneBandTexture.dispose();
     }
 }

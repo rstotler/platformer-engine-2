@@ -343,7 +343,7 @@ public class GameScreen extends Screen {
         font.setColor(Color.WHITE);
         font.draw(spriteBatch, "FPS: " + String.valueOf(Gdx.graphics.getFramesPerSecond()), 1205, 767);
 
-        font.draw(spriteBatch, "Player Pos: X - " + player.spriteArea.x + " Y - " + player.spriteArea.y, 3, 765);
+        font.draw(spriteBatch, "Player Pos: X - " + player.spriteArea.x + " (" + (player.spriteArea.x % Gdx.graphics.getWidth()) + ") " + " Y - " + player.spriteArea.y + " (" + (player.spriteArea.y % Gdx.graphics.getHeight()) + ")", 3, 765);
         font.draw(spriteBatch, "Velocity: X - " + player.velocity.x + " Y - " + player.velocity.y, 3, 750);
         font.draw(spriteBatch, "On Ramp: " + player.onRamp + " - On Half-Ramp: " + player.onHalfRamp, 3, 735);
         font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount, 3, 720);
