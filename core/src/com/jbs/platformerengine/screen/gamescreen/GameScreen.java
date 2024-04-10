@@ -24,8 +24,6 @@ import com.jbs.platformerengine.screen.Screen;
 /* To-Do List:
  * Fix Ceiling Ramp Collisions
  * Create Big Cave
- * Attack Pattern 1
- * Some Basic Enemy Type
  * Wave Effect When Walking Past Grass
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  */
@@ -163,6 +161,8 @@ public class GameScreen extends Screen {
             player.dash("Left");
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.E)) {
             player.dash("Right");
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
+            player.attack();
         }
     }
 
@@ -347,6 +347,12 @@ public class GameScreen extends Screen {
         font.draw(spriteBatch, "Velocity: X - " + player.velocity.x + " Y - " + player.velocity.y, 3, 750);
         font.draw(spriteBatch, "On Ramp: " + player.onRamp + " - On Half-Ramp: " + player.onHalfRamp, 3, 735);
         font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount, 3, 720);
+        
+        String attackString = " (0)";
+        if(player.attackCount > 0) {
+            attackString = " (" + player.attackDecayTimer + "/" + player.attackData.get(player.getCurrentAttack()).attackDecayTimerMax[player.attackCount - 1] + ")";
+        }
+        font.draw(spriteBatch, "Attack: " + player.attackCount + attackString, 3, 705);
 
         spriteBatch.end();
     }

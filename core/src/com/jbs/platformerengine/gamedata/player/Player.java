@@ -1,5 +1,7 @@
 package com.jbs.platformerengine.gamedata.player;
 
+import java.util.*;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -17,6 +19,7 @@ public class Player {
 
     public PointF velocity;
     int moveSpeed;
+    String facingDirection;
 
     public boolean jumpCheck;
     public boolean jumpButtonPressedCheck;
@@ -38,6 +41,10 @@ public class Player {
 
     public boolean dropKickCheck;
 
+    public HashMap<String, AttackData> attackData;
+    public int attackCount;
+    public float attackDecayTimer;
+
     public boolean onRamp;
     public boolean onHalfRamp;
 
@@ -47,6 +54,7 @@ public class Player {
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
+        facingDirection = "Right";
 
         jumpCheck = false;
         jumpButtonPressedCheck = false;
@@ -67,12 +75,17 @@ public class Player {
 
         dropKickCheck = false;
 
+        attackCount = 0;
+        attackDecayTimer = 0f;
+        attackData = AttackData.loadAttackData();
+
         onRamp = false;
         onHalfRamp = false;
     }
 
     public void update(Keyboard keyboard, ScreenChunk[][] screenChunks) {
         updateInput(keyboard);
+        updateAttack();
         updateCollisions(screenChunks);
     }
 
@@ -82,8 +95,14 @@ public class Player {
         velocity.x = 0;
         if(keyboard.left && !keyboard.right) {
             velocity.x = -moveSpeed;
+            if(facingDirection.equals("Right")) {
+                facingDirection = "Left";
+            }
         } else if(!keyboard.left && keyboard.right) {
             velocity.x = moveSpeed;
+            if(facingDirection.equals("Left")) {
+                facingDirection = "Right";
+            }
         }
         if(velocity.x != 0 && keyboard.shift) {
             velocity.x *= 1.5;
@@ -145,6 +164,16 @@ public class Player {
 
         keyboard.lastDown = "";
         keyboard.lastUp = "";
+    }
+
+    public void updateAttack() {
+        if(attackCount > 0) {
+            attackDecayTimer += 1;
+            if(attackDecayTimer >= attackData.get(getCurrentAttack()).attackDecayTimerMax[attackCount - 1]) {
+                attackCount = 0;
+                attackDecayTimer = 0;
+            }
+        }
     }
 
     public void updateCollisions(ScreenChunk[][] screenChunks) {
@@ -617,9 +646,39 @@ public class Player {
         shapeRenderer.setColor(Color.GREEN);
         shapeRenderer.circle(spriteArea.x, spriteArea.y, 2);
 
+        // Facing Direction //
+        shapeRenderer.setColor(Color.YELLOW);
+        if(facingDirection.equals("Right")) {
+            shapeRenderer.circle(spriteArea.x + (spriteArea.width / 2), spriteArea.y + (spriteArea.height / 2), 1);
+        } else {
+            shapeRenderer.circle(spriteArea.x - (spriteArea.width / 2), spriteArea.y + (spriteArea.height / 2), 1);
+        }
+
         // X & Y (Screen Center)
         // shapeRenderer.setColor(Color.YELLOW);
         // shapeRenderer.circle(spriteArea.x, spriteArea.y + 146, 2);
+
+        // Attack Hit Box //
+        if(attackCount > 0
+        && attackDecayTimer >= attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1]
+        && attackDecayTimer <= attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1]) {
+            if(attackCount == 1) {
+                shapeRenderer.setColor(82/255f, 0/255f, 0/255f, 1f);
+            } else if(attackCount == 2) {
+                shapeRenderer.setColor(92/255f, 0/255f, 0/255f, 1f);
+            } else {
+                shapeRenderer.setColor(102/255f, 0/255f, 0/255f, 1f);
+            }
+            int attackXMod = attackData.get(getCurrentAttack()).attackXMod[attackCount - 1];
+            if(facingDirection.equals("Left")) {
+                attackXMod -= attackData.get(getCurrentAttack()).attackWidth[attackCount - 1] + (attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] * 2);
+            }
+            int attackYMod = attackData.get(getCurrentAttack()).attackYMod[attackCount - 1];
+            int attackWidth = attackData.get(getCurrentAttack()).attackWidth[attackCount - 1];
+            int attackHeight = attackData.get(getCurrentAttack()).attackHeight[attackCount - 1];
+            shapeRenderer.rect(spriteArea.x + attackXMod, spriteArea.y + attackYMod, attackWidth, attackHeight);
+        
+        }
 
         shapeRenderer.end();
     }
@@ -644,5 +703,16 @@ public class Player {
             dashTimer = 0f;
             dashDirection = direction;
         }
+    }
+
+    public void attack() {
+        if(attackCount < attackData.get(getCurrentAttack()).attackDecayTimerMax.length) {
+            attackCount += 1;
+            attackDecayTimer = 0;
+        }
+    }
+
+    public String getCurrentAttack() {
+        return "Sword 01";
     }
 }
