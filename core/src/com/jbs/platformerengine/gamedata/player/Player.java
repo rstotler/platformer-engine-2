@@ -50,7 +50,7 @@ public class Player {
 
     public Player() {
         shapeRenderer = new ShapeRenderer();
-        spriteArea = new Rect(1250, 250, 16, 48);
+        spriteArea = new Rect(1375, 200, 16, 48);
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
@@ -643,8 +643,8 @@ public class Player {
         shapeRenderer.rect(spriteArea.x - (spriteArea.width / 2), spriteArea.y, spriteArea.width, spriteArea.height);
         
         // X & Y (Location) //
-        shapeRenderer.setColor(Color.GREEN);
-        shapeRenderer.circle(spriteArea.x, spriteArea.y, 2);
+        // shapeRenderer.setColor(Color.GREEN);
+        // shapeRenderer.circle(spriteArea.x, spriteArea.y, 2);
 
         // Facing Direction //
         shapeRenderer.setColor(Color.YELLOW);

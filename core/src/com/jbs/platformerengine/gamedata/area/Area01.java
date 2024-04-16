@@ -5,7 +5,9 @@ import java.util.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
+import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
@@ -13,8 +15,9 @@ import com.jbs.platformerengine.screen.gamescreen.Tile;
 public class Area01 extends AreaData {
     public Area01() {
         levelName = "Area01";
-        size = new Rect(2, 2);
-        tileSetList = new ArrayList<>(Arrays.asList("Dirt-Floor", "Dirt-Platform", "Stone"));
+        size = new Rect(3, 2);
+        tileSetList = new ArrayList<>(Arrays.asList("Dirt-Floor", "Dirt-Platform", "Stone", "Wood"));
+        animatedImageList = new ArrayList<>(Arrays.asList("Torch_01"));
     }
 
     public void loadArea(ScreenChunk[][] screenChunks, SpriteBatch spriteBatch, ImageManager imageManager) {
@@ -147,7 +150,7 @@ public class Area01 extends AreaData {
         }
 
         // Bridge //
-        createBridge(screenChunks, spriteBatch, imageManager, 80, 37, 80, 4, 14);
+        createBridge(screenChunks, spriteBatch, imageManager, 80, 37, 160, 4, 14);
 
         // Rocks & Tombstones //
         Texture rockTexture = new Texture("images/objects/Rock_01.png");

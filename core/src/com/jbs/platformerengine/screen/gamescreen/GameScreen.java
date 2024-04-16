@@ -17,15 +17,16 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.area.Area01;
 import com.jbs.platformerengine.gamedata.area.AreaData;
+import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.gamedata.player.Player;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
  * Fix Ceiling Ramp Collisions
- * Create Big Cave
- * Wave Effect When Walking Past Grass
+ * Wave Filter When Walking Past Grass
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
+ * fix animation stack order
  */
 
 public class GameScreen extends Screen {
@@ -61,7 +62,7 @@ public class GameScreen extends Screen {
             }
         }
 
-        imageManager = new ImageManager(areaData.tileSetList);
+        imageManager = new ImageManager(areaData.tileSetList, areaData.animatedImageList);
         areaData.loadArea(screenChunks, spriteBatch, imageManager);
 
         loadBackgroundFrameBuffers();
@@ -104,7 +105,7 @@ public class GameScreen extends Screen {
     public void bufferChunks() {
         for(int y = 0; y < screenChunks[0].length; y++) {
             for(int x = 0; x < screenChunks.length; x++) {
-                screenChunks[x][y].bufferTiles(camera, spriteBatch, imageManager);
+                screenChunks[x][y].bufferTiles(spriteBatch, imageManager);
             }
         }
     }
@@ -205,12 +206,12 @@ public class GameScreen extends Screen {
                             screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Debug", "Square");
                         }
         
-                        screenChunks[chunkX][chunkY].bufferTiles(camera, spriteBatch, imageManager);
+                        screenChunks[chunkX][chunkY].bufferTiles(spriteBatch, imageManager);
                     }
                 }
                 else if(targetButton.equals("Right")) {
                     screenChunks[chunkX][chunkY].tiles[tileX][tileY] = null;
-                    screenChunks[chunkX][chunkY].bufferTiles(camera, spriteBatch, imageManager);
+                    screenChunks[chunkX][chunkY].bufferTiles(spriteBatch, imageManager);
                 }
             }
         }
@@ -234,9 +235,10 @@ public class GameScreen extends Screen {
 
         renderBackground(player);
         renderWalls(player);
-        renderTiles(camera, player);
+        renderTiles(player);
+        renderAnimations(player);
         player.render(camera);
-        renderForeground(camera, player);
+        renderForeground(player);
 
         renderDebugData(player);
     }
@@ -306,7 +308,7 @@ public class GameScreen extends Screen {
         }
     }
 
-    public void renderTiles(OrthographicCamera camera, Player player) {
+    public void renderTiles(Player player) {
         int chunkStartX = player.spriteArea.x / Gdx.graphics.getWidth() - 1;
         int chunkStartY = player.spriteArea.y / Gdx.graphics.getHeight() - 1;
 
@@ -319,7 +321,27 @@ public class GameScreen extends Screen {
         }
     }
 
-    public void renderForeground(OrthographicCamera camera, Player player) {
+    public void renderAnimations(Player player) {
+        int chunkStartX = player.spriteArea.x / Gdx.graphics.getWidth() - 1;
+        int chunkStartY = player.spriteArea.y / Gdx.graphics.getHeight() - 1;
+
+        for(int y = chunkStartY; y < chunkStartY + 3; y++) {
+            for(int x = chunkStartX; x < chunkStartX + 3; x++) {
+                if(x >= 0 && y >= 0 && x < screenChunks.length && y < screenChunks[0].length) {
+                    screenChunks[x][y].bufferAnimations(spriteBatch, imageManager);
+
+                    spriteBatch.setProjectionMatrix(camera.combined);
+                    spriteBatch.begin();
+                    int xLoc = x * Gdx.graphics.getWidth();
+                    int yLoc = y * Gdx.graphics.getHeight();
+                    spriteBatch.draw(screenChunks[x][y].frameBufferAnimation.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                    spriteBatch.end();
+                }
+            }
+        }
+    }
+
+    public void renderForeground(Player player) {
         int chunkStartX = player.spriteArea.x / Gdx.graphics.getWidth() - 1;
         int chunkStartY = player.spriteArea.y / Gdx.graphics.getHeight() - 1;
 

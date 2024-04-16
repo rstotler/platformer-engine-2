@@ -1,13 +1,17 @@
 package com.jbs.platformerengine.screen.gamescreen;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.jbs.platformerengine.gamedata.Point;
+import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.screen.ImageManager;
 
 public class ScreenChunk {
@@ -15,20 +19,26 @@ public class ScreenChunk {
     FrameBuffer frameBufferTiles;
     public FrameBuffer frameBufferWalls;
     public FrameBuffer frameBufferForeground;
+    public FrameBuffer frameBufferAnimation;
 
     public Point location;
     public Tile[][] tiles;
+
+    public ArrayList<BreakableObject> breakableList;
 
     public ScreenChunk(int x, int y) {
         shapeRenderer = new ShapeRenderer();
         location = new Point(x, y);
         tiles = new Tile[80][48];
 
+        breakableList = new ArrayList<>();
+
         frameBufferWalls = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
         frameBufferForeground = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+        frameBufferAnimation = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
     }
 
-    public void bufferTiles(OrthographicCamera camera, SpriteBatch spriteBatch, ImageManager imageManager) {
+    public void bufferTiles(SpriteBatch spriteBatch, ImageManager imageManager) {
         frameBufferTiles = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
         frameBufferTiles.begin();
         spriteBatch.begin();
@@ -65,5 +75,20 @@ public class ScreenChunk {
         spriteBatch.begin();
         spriteBatch.draw(frameBufferTiles.getColorBufferTexture(), location.x * Gdx.graphics.getWidth(), location.y * Gdx.graphics.getHeight(), Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
         spriteBatch.end();
+    }
+
+    public void bufferAnimations(SpriteBatch spriteBatch, ImageManager imageManager) {
+        if(breakableList.size() > 0) {
+            spriteBatch.begin();
+
+            for(BreakableObject breakableObject : breakableList) {
+                Texture objectTexture = imageManager.animatedImage.get(breakableObject.imageName).get("Default").get(breakableObject.currentFrameNum);
+                spriteBatch.draw(objectTexture, breakableObject.spriteLocation.x, breakableObject.spriteLocation.y);
+
+                breakableObject.updateAnimation();
+            }
+
+            spriteBatch.end();
+        }
     }
 }
