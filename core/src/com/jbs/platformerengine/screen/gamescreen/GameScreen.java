@@ -15,9 +15,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.jbs.platformerengine.components.Keyboard;
-import com.jbs.platformerengine.gamedata.area.Area01;
 import com.jbs.platformerengine.gamedata.area.AreaData;
-import com.jbs.platformerengine.gamedata.entity.BreakableObject;
+import com.jbs.platformerengine.gamedata.area.AreaDebug;
 import com.jbs.platformerengine.gamedata.player.Player;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.Screen;
@@ -52,7 +51,8 @@ public class GameScreen extends Screen {
     }
 
     public void loadAreaData() {
-        AreaData areaData = new Area01();
+        // AreaData areaData = new Area01();
+        AreaData areaData = new AreaDebug();
 
         levelName = areaData.levelName;
         screenChunks = new ScreenChunk[areaData.size.width][areaData.size.height];
@@ -224,12 +224,12 @@ public class GameScreen extends Screen {
     public void render(Player player) {
         ScreenUtils.clear(0/255f, 0/255f, 7/255f, 1);
 
-        if(player.spriteArea.x < 320) {
-            camera.position.set(320, (player.spriteArea.y + 80), 0);
-        } else if(player.spriteArea.x > 960 + (Gdx.graphics.getWidth() * (screenChunks.length - 1))) {
-            camera.position.set(960 + (Gdx.graphics.getWidth() * (screenChunks.length - 1)), (player.spriteArea.y + 80), 0);
-        } else if(player.spriteArea.x >= 320) {
-            camera.position.set(player.spriteArea.x, (player.spriteArea.y + 80), 0);
+        if(player.hitBoxArea.x < 320) {
+            camera.position.set(320, (player.hitBoxArea.y + 80), 0);
+        } else if(player.hitBoxArea.x > 960 + (Gdx.graphics.getWidth() * (screenChunks.length - 1))) {
+            camera.position.set(960 + (Gdx.graphics.getWidth() * (screenChunks.length - 1)), (player.hitBoxArea.y + 80), 0);
+        } else if(player.hitBoxArea.x >= 320) {
+            camera.position.set(player.hitBoxArea.x, (player.hitBoxArea.y + 80), 0);
         }
         camera.update();
 
@@ -247,7 +247,7 @@ public class GameScreen extends Screen {
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
 
-        float xPercent = (player.spriteArea.x - 320.0f) / ((Gdx.graphics.getWidth() * screenChunks.length) - 640);
+        float xPercent = (player.hitBoxArea.x - 320.0f) / ((Gdx.graphics.getWidth() * screenChunks.length) - 640);
         if(frameBufferBackground != null) {
             for(int i = 0; i < frameBufferBackground.size(); i++) {
                 float xMod = 0;
@@ -263,12 +263,12 @@ public class GameScreen extends Screen {
                         xMod = 750 * xPercent;
                     }
                 }
-                int xIndex = (int) ((player.spriteArea.x - 320) / (Gdx.graphics.getWidth() + xMod));
+                int xIndex = (int) ((player.hitBoxArea.x - 320) / (Gdx.graphics.getWidth() + xMod));
                 float xLoc = (xIndex * Gdx.graphics.getWidth()) + xMod;
 
                 float yMod = 0;
-                if(player.spriteArea.y > (6 * 16) + 16) {
-                    int playerHeight = player.spriteArea.y - (6 * 16) - 16;
+                if(player.hitBoxArea.y > (6 * 16) + 16) {
+                    int playerHeight = player.hitBoxArea.y - (6 * 16) - 16;
                     float heightPercent = (playerHeight / 600.0f);
                     yMod = heightPercent * 400;
 
@@ -291,8 +291,8 @@ public class GameScreen extends Screen {
     }
 
     public void renderWalls(Player player) {
-        int chunkStartX = player.spriteArea.x / Gdx.graphics.getWidth() - 1;
-        int chunkStartY = player.spriteArea.y / Gdx.graphics.getHeight() - 1;
+        int chunkStartX = player.hitBoxArea.x / Gdx.graphics.getWidth() - 1;
+        int chunkStartY = player.hitBoxArea.y / Gdx.graphics.getHeight() - 1;
 
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
@@ -309,8 +309,8 @@ public class GameScreen extends Screen {
     }
 
     public void renderTiles(Player player) {
-        int chunkStartX = player.spriteArea.x / Gdx.graphics.getWidth() - 1;
-        int chunkStartY = player.spriteArea.y / Gdx.graphics.getHeight() - 1;
+        int chunkStartX = player.hitBoxArea.x / Gdx.graphics.getWidth() - 1;
+        int chunkStartY = player.hitBoxArea.y / Gdx.graphics.getHeight() - 1;
 
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
@@ -322,8 +322,8 @@ public class GameScreen extends Screen {
     }
 
     public void renderAnimations(Player player) {
-        int chunkStartX = player.spriteArea.x / Gdx.graphics.getWidth() - 1;
-        int chunkStartY = player.spriteArea.y / Gdx.graphics.getHeight() - 1;
+        int chunkStartX = player.hitBoxArea.x / Gdx.graphics.getWidth() - 1;
+        int chunkStartY = player.hitBoxArea.y / Gdx.graphics.getHeight() - 1;
 
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
@@ -342,8 +342,8 @@ public class GameScreen extends Screen {
     }
 
     public void renderForeground(Player player) {
-        int chunkStartX = player.spriteArea.x / Gdx.graphics.getWidth() - 1;
-        int chunkStartY = player.spriteArea.y / Gdx.graphics.getHeight() - 1;
+        int chunkStartX = player.hitBoxArea.x / Gdx.graphics.getWidth() - 1;
+        int chunkStartY = player.hitBoxArea.y / Gdx.graphics.getHeight() - 1;
 
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
@@ -365,7 +365,7 @@ public class GameScreen extends Screen {
         font.setColor(Color.WHITE);
         font.draw(spriteBatch, "FPS: " + String.valueOf(Gdx.graphics.getFramesPerSecond()), 1205, 767);
 
-        font.draw(spriteBatch, "Player Pos: X - " + player.spriteArea.x + " (" + (player.spriteArea.x % Gdx.graphics.getWidth()) + ") " + " Y - " + player.spriteArea.y + " (" + (player.spriteArea.y % Gdx.graphics.getHeight()) + ")", 3, 765);
+        font.draw(spriteBatch, "Player Pos: X - " + player.hitBoxArea.x + " (" + (player.hitBoxArea.x % Gdx.graphics.getWidth()) + ") " + " Y - " + player.hitBoxArea.y + " (" + (player.hitBoxArea.y % Gdx.graphics.getHeight()) + ")", 3, 765);
         font.draw(spriteBatch, "Velocity: X - " + player.velocity.x + " Y - " + player.velocity.y, 3, 750);
         font.draw(spriteBatch, "On Ramp: " + player.onRamp + " - On Half-Ramp: " + player.onHalfRamp, 3, 735);
         font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount, 3, 720);

@@ -1,27 +1,29 @@
 package com.jbs.platformerengine.screen;
 
+import java.util.Random;
+
 import com.jbs.platformerengine.gamedata.Point;
 
 public class AnimatedObject {
     public String imageName;
     public Point spriteLocation;
 
-    public int currentFrameNum;
     public int currentFrameTick;
+    public int currentFrameNum;
     public int maxFrameNum;
     public int frameLength;
 
-    public AnimatedObject(String objectName, Point spriteLocation, int frameLength, ImageManager imageManager) {
-        this.imageName = objectName;
+    public AnimatedObject(String imageName, Point spriteLocation, int frameLength, ImageManager imageManager) {
+        this.imageName = imageName;
         this.spriteLocation = spriteLocation;
 
-        this.currentFrameNum = 0;
         this.currentFrameTick = 0;
         this.frameLength = frameLength;
 
-        this.maxFrameNum = 0;
-        if(imageManager.animatedImage.containsKey(objectName)) {
-            this.maxFrameNum = imageManager.animatedImage.get(objectName).get("Default").size();
+        maxFrameNum = 0;
+        if(imageManager.animatedImage.containsKey(imageName)) {
+            maxFrameNum = imageManager.animatedImage.get(imageName).get("Default").size();
+            currentFrameNum = new Random().nextInt(maxFrameNum);
         }
     }
 

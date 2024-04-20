@@ -707,11 +707,19 @@ public class AreaData {
         // Torches (Breakable Object) //
         for(int x = 0; x < archCount; x++) {
             int torchX = (xLoc * 16) + (((pillarWidth + pillarSpace) * 16) * (x + 1)) - (pillarWidth * 8) - 5;
-            int chunkX = torchX / Gdx.graphics.getWidth();
-            for(int y = 0; y < 3; y++) {
+            int torchYCount = 3;
+            if(yLoc >= 25) {
+                torchYCount = 4;
+            }
+            
+            for(int y = 0; y < torchYCount; y++) {
                 int torchY = 175 + (30 * y);
-                int chunkY = torchY / Gdx.graphics.getHeight();
-                screenChunks[chunkX][chunkY].breakableList.add(new BreakableObject("Torch_01", new Point(torchX, torchY), 3, imageManager));
+                if(y == 3) {
+                    torchY += ((yLoc - 23) * 16);
+                }
+                
+                BreakableObject breakableObject = new BreakableObject("Torch_01", new Point(torchX, torchY), 3, imageManager);
+                addObjectToTileLists(screenChunks, breakableObject);
             }
         }
         
@@ -720,5 +728,28 @@ public class AreaData {
             texture.dispose();
         }
         stoneBandTexture.dispose();
+    }
+
+    public <T> void addObjectToTileLists(ScreenChunk[][] screenChunks, T object) {
+        String objectClass = object.getClass().toString().substring(object.getClass().toString().lastIndexOf(".") + 1);
+        int chunkX = -1;
+        int chunkY = -1;
+        int xLoc = 0;
+        int yLoc = 0;
+        
+        if(objectClass.equals("BreakableObject")) {
+            BreakableObject breakableObject = (BreakableObject) object;
+
+            chunkX = breakableObject.hitBoxArea.x / Gdx.graphics.getWidth();
+            chunkY = breakableObject.hitBoxArea.y / Gdx.graphics.getHeight();
+            xLoc = breakableObject.hitBoxArea.x % Gdx.graphics.getWidth();
+            yLoc = breakableObject.hitBoxArea.x % Gdx.graphics.getHeight();
+
+            screenChunks[chunkX][chunkY].breakableList.add(breakableObject);
+        }
+
+        if(chunkX != -1) {
+
+        }
     }
 }

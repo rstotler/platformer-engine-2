@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.screen.ImageManager;
@@ -85,6 +86,11 @@ public class ScreenChunk {
                 Texture objectTexture = imageManager.animatedImage.get(breakableObject.imageName).get("Default").get(breakableObject.currentFrameNum);
                 spriteBatch.draw(objectTexture, breakableObject.spriteLocation.x, breakableObject.spriteLocation.y);
 
+                //shapeRenderer.setProjectionMatrix(camera.combined);
+                // shapeRenderer.begin(ShapeType.Filled);
+                // shapeRenderer.setColor(82/255f, 0/255f, 0/255f, 1f);
+                // shapeRenderer.rect(breakableObject.hitBoxArea.x - (breakableObject.hitBoxArea.width / 2), breakableObject.hitBoxArea.y, breakableObject.hitBoxArea.width, breakableObject.hitBoxArea.height);
+        
                 breakableObject.updateAnimation();
             }
 
