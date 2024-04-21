@@ -12,6 +12,7 @@ import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.PointF;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
+import com.jbs.platformerengine.screen.gamescreen.GameScreen;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
 
@@ -671,6 +672,10 @@ public class Player {
                                 jumpTimer = 0;
                                 dropKickCheck = false;
                                 dropKickBounceCheck = true;
+
+                                GameScreen.removeObjectFromCellCollidables(screenChunks, breakableObject);
+                                
+                                break;
                             }
                         }
                     }

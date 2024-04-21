@@ -13,7 +13,7 @@ import com.jbs.platformerengine.screen.gamescreen.Tile;
 public class Area01 extends AreaData {
     public Area01() {
         levelName = "Area01";
-        size = new Rect(3, 2);
+        size = new Rect(5, 2);
         tileSetList = new ArrayList<>(Arrays.asList("Dirt-Floor", "Dirt-Platform", "Stone", "Wood"));
         animatedImageList = new ArrayList<>(Arrays.asList("Torch_01"));
     }
@@ -148,7 +148,7 @@ public class Area01 extends AreaData {
         }
 
         // Bridge //
-        createBridge(screenChunks, spriteBatch, imageManager, 80, 37, 160, 4, 14);
+        createBridge(screenChunks, spriteBatch, imageManager, 80, 37, 160, 4, 11);
 
         // Rocks & Tombstones //
         Texture rockTexture = new Texture("images/objects/Rock_01.png");

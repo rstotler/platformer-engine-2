@@ -36,7 +36,7 @@ public class ScreenChunk {
         cellCollidables = new CellCollidables[20][12];
         for(int yIndex = 0; yIndex < cellCollidables[0].length; yIndex++) {
             for(int xIndex = 0; xIndex < cellCollidables.length; xIndex++) {
-                cellCollidables[xIndex][yIndex] = new CellCollidables();
+                cellCollidables[xIndex][yIndex] = new CellCollidables(x, y);
             }
         }
 

@@ -469,6 +469,10 @@ public class AreaData {
         archTexture.add(new Texture("images/objects/Stone-Arch_05.png"));
         Texture stoneBandEdgeTexture = new Texture("images/objects/Stone-Band_01.png");
         Texture stoneBandTexture = new Texture("images/objects/Stone-Band_02.png");
+
+        if(pillarSpace < 11) {
+            pillarSpace = 11;
+        }
         
         // Bridge //
         for(int x = 0; x < width; x++) {
@@ -665,13 +669,13 @@ public class AreaData {
             int archX = (((xLoc + ((pillarWidth + pillarSpace) * (archIndex + 1))) * 16) - 11);
             int archY = (((yLoc - 6) * 16) - 63);
             int archDrawX = archX % Gdx.graphics.getWidth();
-            int rightArchDrawX = archDrawX + 96 + 54;
+            int rightArchDrawX = archDrawX + 96 + ((pillarSpace - 11) * 16);
             int archDrawY = archY % Gdx.graphics.getHeight();
             int chunkX = archX / Gdx.graphics.getWidth();
             int chunkY = archY / Gdx.graphics.getHeight();
 
             int archDrawCount = 1;
-            if(archDrawX + 96 + 96 + 54 >= Gdx.graphics.getWidth()) {
+            if(archDrawX + 96 + 96 + ((pillarSpace - 11) * 16) >= Gdx.graphics.getWidth()) {
                 archDrawCount = 2;
             }
 
@@ -689,14 +693,23 @@ public class AreaData {
                     // Top Arch //
                     spriteBatch.draw(archTexture.get(0), archDrawX, archDrawY);
                     spriteBatch.draw(archTexture.get(1), rightArchDrawX, archDrawY);
-                    spriteBatch.draw(archTexture.get(4), archDrawX + 96, archDrawY);
-                    spriteBatch.draw(archTexture.get(4), archDrawX + 96 + 27, archDrawY);
+
+                    for(int x = 0; x < pillarSpace - 11; x++) {
+                        spriteBatch.draw(archTexture.get(4), archDrawX + 96 + (x * 16), archDrawY);
+                    }
+
+                    if(pillarSpace > 11) {
+                        spriteBatch.draw(archTexture.get(4), archDrawX + 96, archDrawY);
+                        if(pillarSpace > 12) {
+                            spriteBatch.draw(archTexture.get(4), archDrawX + 96 + 27, archDrawY);
+                        }
+                    }
         
                     // Side Walls //
                     int archSideCount = (((yLoc - 9) * 16) % Gdx.graphics.getHeight()) / 74;
                     for(int sideIndex = 1; sideIndex <= archSideCount; sideIndex++) {
                         spriteBatch.draw(archTexture.get(2), archDrawX, archDrawY - (74 * sideIndex));
-                        spriteBatch.draw(archTexture.get(3), archDrawX + 96 + 54, archDrawY - (74 * sideIndex));
+                        spriteBatch.draw(archTexture.get(3), archDrawX + 96 + ((pillarSpace - 11) * 16), archDrawY - (74 * sideIndex));
                     }
         
                     spriteBatch.end();
@@ -720,7 +733,7 @@ public class AreaData {
                 }
                 
                 BreakableObject breakableObject = new BreakableObject("Torch_01", new Point(torchX, torchY), 3, imageManager);
-                GameScreen.addObjectToTileCollidables(screenChunks, breakableObject);
+                GameScreen.addObjectToCellCollidables(screenChunks, breakableObject);
             }
         }
         

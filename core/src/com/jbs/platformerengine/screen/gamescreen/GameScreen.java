@@ -382,41 +382,89 @@ public class GameScreen extends Screen {
     }
 
     // Utility Functions //
-    public static <T> void addObjectToTileCollidables(ScreenChunk[][] screenChunks, T object) {
+    public static <T> void addObjectToCellCollidables(ScreenChunk[][] screenChunks, T object) {
         String objectClass = object.getClass().toString().substring(object.getClass().toString().lastIndexOf(".") + 1);
         
         if(objectClass.equals("BreakableObject")) {
             BreakableObject breakableObject = (BreakableObject) object;
 
-            int chunkX = breakableObject.hitBoxArea.x / Gdx.graphics.getWidth();
-            int chunkY = breakableObject.hitBoxArea.y / Gdx.graphics.getHeight();
-            int xCellStartIndex = (breakableObject.hitBoxArea.x % Gdx.graphics.getWidth()) / 64;
-            int yCellStartIndex = (breakableObject.hitBoxArea.y % Gdx.graphics.getHeight()) / 64;
-            int xPadding = breakableObject.hitBoxArea.x - ((chunkX * Gdx.graphics.getWidth()) + (xCellStartIndex * 64));
-            int yPadding = breakableObject.hitBoxArea.y - ((chunkY * Gdx.graphics.getHeight()) + (yCellStartIndex * 64));
-            int xCellSize = ((breakableObject.hitBoxArea.width + xPadding) / 64) + 1;
-            int yCellSize = ((breakableObject.hitBoxArea.height + yPadding) / 64) + 1;
-            
-            for(int y = 0; y < yCellSize; y++) {
-                chunkY = (breakableObject.hitBoxArea.y + (y * 64)) / Gdx.graphics.getHeight();
-                int cellY = ((breakableObject.hitBoxArea.y + (y * 64)) % Gdx.graphics.getHeight()) / 64;
-                for(int x = 0; x < xCellSize; x++) {
-                    chunkX = (breakableObject.hitBoxArea.x + (x * 64)) / Gdx.graphics.getWidth();
-                    int cellX = ((breakableObject.hitBoxArea.x + (x * 64)) % Gdx.graphics.getWidth()) / 64;
+            for(CellCollidables cellCollidables : getObjectCellCollidables(screenChunks, breakableObject)) {
+                if(!cellCollidables.breakableList.contains(breakableObject)) {
+                    cellCollidables.breakableList.add(breakableObject);
+                }
 
-                    if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
-                        if(breakableObject != null) {
-                            if(!screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].breakableList.contains(breakableObject)) {
-                                screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].breakableList.add(breakableObject);
-                            }
+                if(!screenChunks[cellCollidables.chunkX][cellCollidables.chunkY].breakableList.contains(breakableObject)) {
+                    screenChunks[cellCollidables.chunkX][cellCollidables.chunkY].breakableList.add(breakableObject);
+                }
+            }
+        }
+    }
+
+    public static <T> void removeObjectFromCellCollidables(ScreenChunk[][] screenChunks, T object) {
+        String objectClass = object.getClass().toString().substring(object.getClass().toString().lastIndexOf(".") + 1);
+        
+        if(objectClass.equals("BreakableObject")) {
+            BreakableObject breakableObject = (BreakableObject) object;
+
+            for(CellCollidables cellCollidables : getObjectCellCollidables(screenChunks, object)) {
+                if(cellCollidables.breakableList.contains(breakableObject)) {
+                    cellCollidables.breakableList.remove(breakableObject);
+                }
     
-                            if(!screenChunks[chunkX][chunkY].breakableList.contains(breakableObject)) {
-                                screenChunks[chunkX][chunkY].breakableList.add(breakableObject);
-                            }
-                        }
+                if(screenChunks[cellCollidables.chunkX][cellCollidables.chunkY].breakableList.contains(breakableObject)) {
+                    screenChunks[cellCollidables.chunkX][cellCollidables.chunkY].breakableList.remove(breakableObject);
+                }
+            }
+        }
+    }
+
+    public static <T> ArrayList<CellCollidables> getObjectCellCollidables(ScreenChunk[][] screenChunks, T object) {
+        String objectClass = object.getClass().toString().substring(object.getClass().toString().lastIndexOf(".") + 1);
+        BreakableObject breakableObject = null;
+
+        ArrayList<CellCollidables> objectCellCollidables = new ArrayList<>();
+
+        int xLoc = 0;
+        int yLoc = 0;
+        int chunkX;
+        int chunkY;
+        int xCellStartIndex;
+        int yCellStartIndex;
+        int xPadding;
+        int yPadding;
+        int xCellSize = -1;
+        int yCellSize = -1;
+
+        if(objectClass.equals("BreakableObject")) {
+            breakableObject = (BreakableObject) object;
+
+            xLoc = breakableObject.hitBoxArea.x;
+            yLoc = breakableObject.hitBoxArea.y;
+            chunkX = breakableObject.hitBoxArea.x / Gdx.graphics.getWidth();
+            chunkY = breakableObject.hitBoxArea.y / Gdx.graphics.getHeight();
+            xCellStartIndex = (breakableObject.hitBoxArea.x % Gdx.graphics.getWidth()) / 64;
+            yCellStartIndex = (breakableObject.hitBoxArea.y % Gdx.graphics.getHeight()) / 64;
+            xPadding = breakableObject.hitBoxArea.x - ((chunkX * Gdx.graphics.getWidth()) + (xCellStartIndex * 64));
+            yPadding = breakableObject.hitBoxArea.y - ((chunkY * Gdx.graphics.getHeight()) + (yCellStartIndex * 64));
+            xCellSize = ((breakableObject.hitBoxArea.width + xPadding) / 64) + 1;
+            yCellSize = ((breakableObject.hitBoxArea.height + yPadding) / 64) + 1;
+        }
+
+        if(xCellSize != -1) {
+            for(int y = 0; y < yCellSize; y++) {
+                chunkY = (yLoc + (y * 64)) / Gdx.graphics.getHeight();
+                int cellY = ((yLoc + (y * 64)) % Gdx.graphics.getHeight()) / 64;
+                for(int x = 0; x < xCellSize; x++) {
+                    chunkX = (xLoc + (x * 64)) / Gdx.graphics.getWidth();
+                    int cellX = ((xLoc + (x * 64)) % Gdx.graphics.getWidth()) / 64;
+    
+                    if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
+                        objectCellCollidables.add(screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY]);
                     }
                 }
             }
         }
+
+        return objectCellCollidables;
     }
 }
