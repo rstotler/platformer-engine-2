@@ -19,4 +19,11 @@ public class Rect {
         this.width = width;
         this.height = height;
     }
+
+    public boolean rectCollide(Rect rect) {
+        return x + width >= rect.x
+            && x <= rect.x + rect.width
+            && y + height >= rect.y
+            && y <= rect.y + rect.height;
+    }
 }

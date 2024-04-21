@@ -11,6 +11,7 @@ import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.PointF;
 import com.jbs.platformerengine.gamedata.Rect;
+import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
 
@@ -41,6 +42,7 @@ public class Player {
     public String dashDirection;
 
     public boolean dropKickCheck;
+    public boolean dropKickBounceCheck;
 
     public HashMap<String, AttackData> attackData;
     public int attackCount;
@@ -51,7 +53,7 @@ public class Player {
 
     public Player() {
         shapeRenderer = new ShapeRenderer();
-        hitBoxArea = new Rect(24, 50, 16, 48);
+        hitBoxArea = new Rect(1400, 200, 16, 48);
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
@@ -75,6 +77,7 @@ public class Player {
         dashPercent = 0f;
 
         dropKickCheck = false;
+        dropKickBounceCheck = false;
 
         attackCount = 0;
         attackDecayTimer = 0f;
@@ -87,7 +90,8 @@ public class Player {
     public void update(Keyboard keyboard, ScreenChunk[][] screenChunks) {
         updateInput(keyboard);
         updateAttack();
-        updateCollisions(screenChunks);
+        updateTileCollisions(screenChunks);
+        updateCollidables(screenChunks);
     }
 
     public void updateInput(Keyboard keyboard) {
@@ -110,7 +114,7 @@ public class Player {
         }
 
         // Jump Velocity //
-        if(keyboard.up) {
+        if(keyboard.up || dropKickBounceCheck) {
             if((keyboard.lastDown.equals("Up") || keyboard.lastDown.equals("W"))) {
                 if(jumpCount < getMaxJumpCount() && !jumpButtonPressedCheck) {
                     velocity.y = 8;
@@ -118,6 +122,7 @@ public class Player {
                     jumpButtonPressedCheck = true;
                     jumpTimer = 0;
                     jumpCount += 1;
+                    dropKickBounceCheck = false;
 
                 // Drop Kick (Button Press) //
                 } else {
@@ -130,7 +135,9 @@ public class Player {
                 jumpTimer += 1;
             }
         }
-        if(keyboard.lastUp != null && (keyboard.lastUp.equals("Up") || keyboard.lastUp.equals("W"))) {
+        if(keyboard.lastUp != null
+        && (keyboard.lastUp.equals("Up") || keyboard.lastUp.equals("W"))
+        && dropKickBounceCheck == false) {
             jumpTimer = jumpTimerMax;
             jumpButtonPressedCheck = false;
         }
@@ -177,7 +184,7 @@ public class Player {
         }
     }
 
-    public void updateCollisions(ScreenChunk[][] screenChunks) {
+    public void updateTileCollisions(ScreenChunk[][] screenChunks) {
         
         // Sideways Movement //
         if(velocity.x != 0) {
@@ -629,6 +636,43 @@ public class Player {
                     superJumpCheck = false;
                     if(dropKickCheck) {
                         dropKickCheck = false;
+                    }
+                }
+            }
+        }
+    }
+
+    public void updateCollidables(ScreenChunk[][] screenChunks) {
+        if(dropKickCheck) {
+            Rect attackRect = new Rect(hitBoxArea.x, hitBoxArea.y, hitBoxArea.width, 20);
+
+            int chunkX = attackRect.x / Gdx.graphics.getWidth();
+            int chunkY = attackRect.y / Gdx.graphics.getHeight();
+            int xCellStartIndex = (attackRect.x % Gdx.graphics.getWidth()) / 64;
+            int yCellStartIndex = (attackRect.y % Gdx.graphics.getHeight()) / 64;
+            int xPadding = attackRect.x - ((chunkX * Gdx.graphics.getWidth()) + (xCellStartIndex * 64));
+            int yPadding = attackRect.y - ((chunkY * Gdx.graphics.getHeight()) + (yCellStartIndex * 64));
+            int xCellSize = ((attackRect.width + xPadding) / 64) + 1;
+            int yCellSize = ((attackRect.height + yPadding) / 64) + 1;
+
+            for(int y = 0; y < yCellSize; y++) {
+                chunkY = (attackRect.y + (y * 64)) / Gdx.graphics.getHeight();
+                int cellY = ((attackRect.y + (y * 64)) % Gdx.graphics.getHeight()) / 64;
+                for(int x = 0; x < xCellSize; x++) {
+                    chunkX = (attackRect.x + (x * 64)) / Gdx.graphics.getWidth();
+                    int cellX = ((attackRect.x + (x * 64)) % Gdx.graphics.getWidth()) / 64;
+
+                    if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
+                        for(BreakableObject breakableObject : screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].breakableList) {
+                            if(attackRect.rectCollide(breakableObject.hitBoxArea)) {
+                                velocity.y = 10;
+                                jumpCheck = true;
+                                jumpCount = 1;
+                                jumpTimer = 0;
+                                dropKickCheck = false;
+                                dropKickBounceCheck = true;
+                            }
+                        }
                     }
                 }
             }

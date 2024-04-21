@@ -12,6 +12,7 @@ import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.screen.ImageManager;
+import com.jbs.platformerengine.screen.gamescreen.GameScreen;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
 
@@ -719,7 +720,7 @@ public class AreaData {
                 }
                 
                 BreakableObject breakableObject = new BreakableObject("Torch_01", new Point(torchX, torchY), 3, imageManager);
-                addObjectToTileLists(screenChunks, breakableObject);
+                GameScreen.addObjectToTileCollidables(screenChunks, breakableObject);
             }
         }
         
@@ -728,28 +729,5 @@ public class AreaData {
             texture.dispose();
         }
         stoneBandTexture.dispose();
-    }
-
-    public <T> void addObjectToTileLists(ScreenChunk[][] screenChunks, T object) {
-        String objectClass = object.getClass().toString().substring(object.getClass().toString().lastIndexOf(".") + 1);
-        int chunkX = -1;
-        int chunkY = -1;
-        int xLoc = 0;
-        int yLoc = 0;
-        
-        if(objectClass.equals("BreakableObject")) {
-            BreakableObject breakableObject = (BreakableObject) object;
-
-            chunkX = breakableObject.hitBoxArea.x / Gdx.graphics.getWidth();
-            chunkY = breakableObject.hitBoxArea.y / Gdx.graphics.getHeight();
-            xLoc = breakableObject.hitBoxArea.x % Gdx.graphics.getWidth();
-            yLoc = breakableObject.hitBoxArea.x % Gdx.graphics.getHeight();
-
-            screenChunks[chunkX][chunkY].breakableList.add(breakableObject);
-        }
-
-        if(chunkX != -1) {
-
-        }
     }
 }

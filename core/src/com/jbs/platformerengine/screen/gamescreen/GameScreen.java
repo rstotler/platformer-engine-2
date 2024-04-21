@@ -15,8 +15,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.jbs.platformerengine.components.Keyboard;
+import com.jbs.platformerengine.gamedata.area.Area01;
 import com.jbs.platformerengine.gamedata.area.AreaData;
 import com.jbs.platformerengine.gamedata.area.AreaDebug;
+import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.gamedata.player.Player;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.Screen;
@@ -51,8 +53,7 @@ public class GameScreen extends Screen {
     }
 
     public void loadAreaData() {
-        // AreaData areaData = new Area01();
-        AreaData areaData = new AreaDebug();
+        AreaData areaData = new Area01();
 
         levelName = areaData.levelName;
         screenChunks = new ScreenChunk[areaData.size.width][areaData.size.height];
@@ -224,12 +225,13 @@ public class GameScreen extends Screen {
     public void render(Player player) {
         ScreenUtils.clear(0/255f, 0/255f, 7/255f, 1);
 
-        if(player.hitBoxArea.x < 320) {
+        // Update Camera //
+        if(player.hitBoxArea.x < 312) {
             camera.position.set(320, (player.hitBoxArea.y + 80), 0);
-        } else if(player.hitBoxArea.x > 960 + (Gdx.graphics.getWidth() * (screenChunks.length - 1))) {
+        } else if(player.hitBoxArea.x > 952 + (Gdx.graphics.getWidth() * (screenChunks.length - 1))) {
             camera.position.set(960 + (Gdx.graphics.getWidth() * (screenChunks.length - 1)), (player.hitBoxArea.y + 80), 0);
-        } else if(player.hitBoxArea.x >= 320) {
-            camera.position.set(player.hitBoxArea.x, (player.hitBoxArea.y + 80), 0);
+        } else if(player.hitBoxArea.x >= 312) {
+            camera.position.set(player.getHitBoxMiddle().x, (player.hitBoxArea.y + 80), 0);
         }
         camera.update();
 
@@ -247,7 +249,7 @@ public class GameScreen extends Screen {
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
 
-        float xPercent = (player.hitBoxArea.x - 320.0f) / ((Gdx.graphics.getWidth() * screenChunks.length) - 640);
+        float xPercent = (player.hitBoxArea.x - 312.0f) / ((Gdx.graphics.getWidth() * screenChunks.length) - 640);
         if(frameBufferBackground != null) {
             for(int i = 0; i < frameBufferBackground.size(); i++) {
                 float xMod = 0;
@@ -263,7 +265,7 @@ public class GameScreen extends Screen {
                         xMod = 750 * xPercent;
                     }
                 }
-                int xIndex = (int) ((player.hitBoxArea.x - 320) / (Gdx.graphics.getWidth() + xMod));
+                int xIndex = (int) ((player.hitBoxArea.x - 312) / (Gdx.graphics.getWidth() + xMod));
                 float xLoc = (xIndex * Gdx.graphics.getWidth()) + xMod;
 
                 float yMod = 0;
@@ -328,7 +330,7 @@ public class GameScreen extends Screen {
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
                 if(x >= 0 && y >= 0 && x < screenChunks.length && y < screenChunks[0].length) {
-                    screenChunks[x][y].bufferAnimations(spriteBatch, imageManager);
+                    screenChunks[x][y].bufferAnimations(camera, spriteBatch, imageManager);
 
                     spriteBatch.setProjectionMatrix(camera.combined);
                     spriteBatch.begin();
@@ -374,8 +376,47 @@ public class GameScreen extends Screen {
         if(player.attackCount > 0) {
             attackString = " (" + player.attackDecayTimer + "/" + player.attackData.get(player.getCurrentAttack()).attackDecayTimerMax[player.attackCount - 1] + ")";
         }
-        font.draw(spriteBatch, "Attack: " + player.attackCount + attackString, 3, 705);
+        font.draw(spriteBatch, "Attack: " + player.attackCount + attackString + " - DK: " + player.dropKickCheck + " SJ: " + player.superJumpCheck, 3, 705);
 
         spriteBatch.end();
+    }
+
+    // Utility Functions //
+    public static <T> void addObjectToTileCollidables(ScreenChunk[][] screenChunks, T object) {
+        String objectClass = object.getClass().toString().substring(object.getClass().toString().lastIndexOf(".") + 1);
+        
+        if(objectClass.equals("BreakableObject")) {
+            BreakableObject breakableObject = (BreakableObject) object;
+
+            int chunkX = breakableObject.hitBoxArea.x / Gdx.graphics.getWidth();
+            int chunkY = breakableObject.hitBoxArea.y / Gdx.graphics.getHeight();
+            int xCellStartIndex = (breakableObject.hitBoxArea.x % Gdx.graphics.getWidth()) / 64;
+            int yCellStartIndex = (breakableObject.hitBoxArea.y % Gdx.graphics.getHeight()) / 64;
+            int xPadding = breakableObject.hitBoxArea.x - ((chunkX * Gdx.graphics.getWidth()) + (xCellStartIndex * 64));
+            int yPadding = breakableObject.hitBoxArea.y - ((chunkY * Gdx.graphics.getHeight()) + (yCellStartIndex * 64));
+            int xCellSize = ((breakableObject.hitBoxArea.width + xPadding) / 64) + 1;
+            int yCellSize = ((breakableObject.hitBoxArea.height + yPadding) / 64) + 1;
+            
+            for(int y = 0; y < yCellSize; y++) {
+                chunkY = (breakableObject.hitBoxArea.y + (y * 64)) / Gdx.graphics.getHeight();
+                int cellY = ((breakableObject.hitBoxArea.y + (y * 64)) % Gdx.graphics.getHeight()) / 64;
+                for(int x = 0; x < xCellSize; x++) {
+                    chunkX = (breakableObject.hitBoxArea.x + (x * 64)) / Gdx.graphics.getWidth();
+                    int cellX = ((breakableObject.hitBoxArea.x + (x * 64)) % Gdx.graphics.getWidth()) / 64;
+
+                    if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
+                        if(breakableObject != null) {
+                            if(!screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].breakableList.contains(breakableObject)) {
+                                screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].breakableList.add(breakableObject);
+                            }
+    
+                            if(!screenChunks[chunkX][chunkY].breakableList.contains(breakableObject)) {
+                                screenChunks[chunkX][chunkY].breakableList.add(breakableObject);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

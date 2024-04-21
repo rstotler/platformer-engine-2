@@ -11,7 +11,7 @@ import com.jbs.platformerengine.screen.gamescreen.Tile;
 public class AreaDebug extends AreaData {
     public AreaDebug() {
         levelName = "Debug";
-        size = new Rect(6, 8);
+        size = new Rect(2, 7);
         tileSetList = new ArrayList<>(Arrays.asList("Debug"));
     }
 

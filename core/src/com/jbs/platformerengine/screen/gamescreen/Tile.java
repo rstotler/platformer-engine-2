@@ -11,14 +11,10 @@ public class Tile {
 
     public String tileShape;
 
-    public ArrayList<BreakableObject> breakableObjectList;
-
     public Tile(String tileSet, String tileName, int num){ 
         this.tileSet = tileSet;
         this.tileName = tileName;
         this.num = num;
-
-        breakableObjectList = new ArrayList<>();
 
         initTileShape();
     }
@@ -27,8 +23,6 @@ public class Tile {
         this.tileSet = tileSet;
         this.tileName = tileName;
         num = 1;
-
-        breakableObjectList = new ArrayList<>();
 
         initTileShape();
     }

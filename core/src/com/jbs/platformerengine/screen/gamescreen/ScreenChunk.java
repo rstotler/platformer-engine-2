@@ -23,14 +23,22 @@ public class ScreenChunk {
     public FrameBuffer frameBufferAnimation;
 
     public Point location;
-    public Tile[][] tiles;
+    public Tile[][] tiles;                      // 80 x 48
+    public CellCollidables[][] cellCollidables; // 20 x 12
 
-    public ArrayList<BreakableObject> breakableList;
+    ArrayList<BreakableObject> breakableList;
 
     public ScreenChunk(int x, int y) {
         shapeRenderer = new ShapeRenderer();
         location = new Point(x, y);
         tiles = new Tile[80][48];
+
+        cellCollidables = new CellCollidables[20][12];
+        for(int yIndex = 0; yIndex < cellCollidables[0].length; yIndex++) {
+            for(int xIndex = 0; xIndex < cellCollidables.length; xIndex++) {
+                cellCollidables[xIndex][yIndex] = new CellCollidables();
+            }
+        }
 
         breakableList = new ArrayList<>();
 
@@ -78,23 +86,25 @@ public class ScreenChunk {
         spriteBatch.end();
     }
 
-    public void bufferAnimations(SpriteBatch spriteBatch, ImageManager imageManager) {
-        if(breakableList.size() > 0) {
-            spriteBatch.begin();
+    public void bufferAnimations(OrthographicCamera camera, SpriteBatch spriteBatch, ImageManager imageManager) {
+        spriteBatch.begin();
+        // shapeRenderer.setProjectionMatrix(camera.combined);
+        // shapeRenderer.begin(ShapeType.Filled);
+        // shapeRenderer.setColor(140/255f, 0/255f, 140/255f, 1f);
 
-            for(BreakableObject breakableObject : breakableList) {
-                Texture objectTexture = imageManager.animatedImage.get(breakableObject.imageName).get("Default").get(breakableObject.currentFrameNum);
-                spriteBatch.draw(objectTexture, breakableObject.spriteLocation.x, breakableObject.spriteLocation.y);
-
-                //shapeRenderer.setProjectionMatrix(camera.combined);
-                // shapeRenderer.begin(ShapeType.Filled);
-                // shapeRenderer.setColor(82/255f, 0/255f, 0/255f, 1f);
-                // shapeRenderer.rect(breakableObject.hitBoxArea.x - (breakableObject.hitBoxArea.width / 2), breakableObject.hitBoxArea.y, breakableObject.hitBoxArea.width, breakableObject.hitBoxArea.height);
-        
-                breakableObject.updateAnimation();
-            }
-
-            spriteBatch.end();
+        for(BreakableObject breakableObject : breakableList) {
+            Texture objectTexture = imageManager.animatedImage.get(breakableObject.imageName).get("Default").get(breakableObject.currentFrameNum);
+            int spriteX = breakableObject.spriteLocation.x - ((objectTexture.getWidth() - breakableObject.hitBoxArea.width) / 2);
+            int spriteY = breakableObject.spriteLocation.y - ((objectTexture.getHeight() - breakableObject.hitBoxArea.height) / 2);
+            spriteBatch.draw(objectTexture, spriteX, spriteY);
+            
+            // Hit Box Outline //
+            // shapeRenderer.rect(breakableObject.hitBoxArea.x, breakableObject.hitBoxArea.y, breakableObject.hitBoxArea.width, breakableObject.hitBoxArea.height);
+            
+            breakableObject.updateAnimation();
         }
+
+        // shapeRenderer.end();
+        spriteBatch.end();
     }
 }
