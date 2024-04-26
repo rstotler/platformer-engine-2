@@ -6,14 +6,21 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.jbs.platformerengine.gamedata.Rect;
+import com.jbs.platformerengine.gamedata.entity.Mob;
 import com.jbs.platformerengine.screen.ImageManager;
+import com.jbs.platformerengine.screen.gamescreen.GameScreen;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
 
 public class Area01 extends AreaData {
     public Area01() {
         levelName = "Area01";
-        size = new Rect(5, 2);
+        size = new Rect(3, 2);
+
+        defaultTileSet = "Dirt-Floor";
+        defaultTileName = "Square";
+        defaultTileNum = 2;
+
         tileSetList = new ArrayList<>(Arrays.asList("Dirt-Floor", "Dirt-Platform", "Stone", "Wood"));
         animatedImageList = new ArrayList<>(Arrays.asList("Torch_01"));
     }
@@ -185,7 +192,11 @@ public class Area01 extends AreaData {
             spriteBatch.end();
             screenChunks[chunkX][0].frameBufferWalls.end();
         }
-        
+
+        // Test Mobs //
+        Mob testMob = new Mob();
+        // GameScreen.addObjectToCellCollidables(screenChunks, testMob);
+
         // Dispose Textures //
         for(Texture texture : grassTexture) {
             texture.dispose();

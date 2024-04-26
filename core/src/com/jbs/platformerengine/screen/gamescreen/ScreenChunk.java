@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
+import com.jbs.platformerengine.gamedata.entity.Mob;
 import com.jbs.platformerengine.screen.ImageManager;
 
 public class ScreenChunk {
@@ -26,6 +27,7 @@ public class ScreenChunk {
     public Tile[][] tiles;                      // 80 x 48
     public CellCollidables[][] cellCollidables; // 20 x 12
 
+    ArrayList<Mob> mobList;
     ArrayList<BreakableObject> breakableList;
 
     public ScreenChunk(int x, int y) {
@@ -40,6 +42,7 @@ public class ScreenChunk {
             }
         }
 
+        mobList = new ArrayList<>();
         breakableList = new ArrayList<>();
 
         frameBufferWalls = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
@@ -88,9 +91,9 @@ public class ScreenChunk {
 
     public void bufferAnimations(OrthographicCamera camera, SpriteBatch spriteBatch, ImageManager imageManager) {
         spriteBatch.begin();
-        // shapeRenderer.setProjectionMatrix(camera.combined);
-        // shapeRenderer.begin(ShapeType.Filled);
-        // shapeRenderer.setColor(140/255f, 0/255f, 140/255f, 1f);
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeType.Filled);
+        shapeRenderer.setColor(140/255f, 0/255f, 140/255f, 1f);
 
         for(BreakableObject breakableObject : breakableList) {
             Texture objectTexture = imageManager.animatedImage.get(breakableObject.imageName).get("Default").get(breakableObject.currentFrameNum);
@@ -104,7 +107,11 @@ public class ScreenChunk {
             breakableObject.updateAnimation();
         }
 
-        // shapeRenderer.end();
+        for(Mob mobObject : mobList) {
+            shapeRenderer.rect(mobObject.hitBoxArea.x, mobObject.hitBoxArea.y, mobObject.hitBoxArea.width, mobObject.hitBoxArea.height);
+        }
+
+        shapeRenderer.end();
         spriteBatch.end();
     }
 }

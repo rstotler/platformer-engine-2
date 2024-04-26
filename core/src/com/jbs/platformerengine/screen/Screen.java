@@ -3,7 +3,7 @@ package com.jbs.platformerengine.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.jbs.platformerengine.gamedata.player.Player;
+import com.jbs.platformerengine.gamedata.entity.player.Player;
 
 public class Screen {
     protected SpriteBatch spriteBatch;

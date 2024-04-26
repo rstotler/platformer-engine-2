@@ -1,7 +1,7 @@
 package com.jbs.platformerengine;
 
 import com.badlogic.gdx.ApplicationAdapter;
-import com.jbs.platformerengine.gamedata.player.Player;
+import com.jbs.platformerengine.gamedata.entity.player.Player;
 import com.jbs.platformerengine.screen.Screen;
 import com.jbs.platformerengine.screen.gamescreen.GameScreen;
 

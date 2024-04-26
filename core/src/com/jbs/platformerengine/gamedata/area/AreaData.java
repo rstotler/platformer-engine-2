@@ -19,8 +19,13 @@ import com.jbs.platformerengine.screen.gamescreen.Tile;
 public class AreaData {
     public String levelName;
     public Rect size;
-    public ArrayList<String> tileSetList = new ArrayList<>();;
-    public ArrayList<String> animatedImageList = new ArrayList<>();;
+
+    public String defaultTileSet;
+    public String defaultTileName;
+    public int defaultTileNum;
+
+    public ArrayList<String> tileSetList = new ArrayList<>();
+    public ArrayList<String> animatedImageList = new ArrayList<>();
 
     public void loadArea(ScreenChunk[][] screenChunks, SpriteBatch spriteBatch, ImageManager imageManager) {}
 

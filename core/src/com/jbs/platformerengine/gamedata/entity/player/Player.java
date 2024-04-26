@@ -1,4 +1,4 @@
-package com.jbs.platformerengine.gamedata.player;
+package com.jbs.platformerengine.gamedata.entity.player;
 
 import java.util.*;
 
@@ -51,6 +51,8 @@ public class Player {
 
     public boolean onRamp;
     public boolean onHalfRamp;
+    public boolean ducking;
+    public boolean falling;
 
     public Player() {
         shapeRenderer = new ShapeRenderer();
@@ -86,11 +88,14 @@ public class Player {
 
         onRamp = false;
         onHalfRamp = false;
+        ducking = false;
+        falling = false;
     }
 
     public void update(Keyboard keyboard, ScreenChunk[][] screenChunks) {
         updateInput(keyboard);
         updateAttack();
+        // updateMovement(screenChunks);
         updateTileCollisions(screenChunks);
         updateCollidables(screenChunks);
     }
@@ -100,12 +105,16 @@ public class Player {
         // Sideways Velocity //
         velocity.x = 0;
         if(keyboard.left && !keyboard.right) {
-            velocity.x = -moveSpeed;
+            if(!ducking) {
+                velocity.x = -moveSpeed;
+            }
             if(facingDirection.equals("Right")) {
                 facingDirection = "Left";
             }
         } else if(!keyboard.left && keyboard.right) {
-            velocity.x = moveSpeed;
+            if(!ducking) {
+                velocity.x = moveSpeed;
+            }
             if(facingDirection.equals("Left")) {
                 facingDirection = "Right";
             }
@@ -113,18 +122,24 @@ public class Player {
         if(velocity.x != 0 && keyboard.shift) {
             velocity.x *= 1.5;
         }
-
+        
         // Jump Velocity //
         if(keyboard.up || dropKickBounceCheck) {
             if((keyboard.lastDown.equals("Up") || keyboard.lastDown.equals("W"))) {
                 if(jumpCount < getMaxJumpCount() && !jumpButtonPressedCheck) {
-                    velocity.y = 8;
-                    jumpCheck = true;
-                    jumpButtonPressedCheck = true;
-                    jumpTimer = 0;
-                    jumpCount += 1;
-                    dropKickBounceCheck = false;
+                    if(superJumpPercent < .30) {
+                        velocity.y = 8;
+                        jumpCheck = true;
+                        jumpButtonPressedCheck = true;
+                        jumpTimer = 0;
+                        jumpCount += 1;
 
+                        dropKickBounceCheck = false;
+                        superJumpCheck = false;
+                        superJumpTimer = 0f;
+                        superJumpPercent = 0f;
+                    }
+                    
                 // Drop Kick (Button Press) //
                 } else {
                     if(!dropKickCheck && (superJumpTimer == 0 || superJumpTimer >= superJumpTimerMax)) {
@@ -448,6 +463,9 @@ public class Player {
                 boolean yCollisionCheck = false;
                 boolean inRampTileCell = false;
                 int newYLoc = -9999;
+                if(i == 0) {
+                    falling = true;
+                }
                 
                 // Y Collision Detection (Middle) //
                 if(getHitBoxMiddle().x >= 0) {
@@ -638,6 +656,8 @@ public class Player {
                     if(dropKickCheck) {
                         dropKickCheck = false;
                     }
+
+                    falling = false;
                 }
             }
         }
@@ -719,15 +739,9 @@ public class Player {
             } else {
                 shapeRenderer.setColor(102/255f, 0/255f, 0/255f, 1f);
             }
-            int attackXMod = attackData.get(getCurrentAttack()).attackXMod[attackCount - 1];
-            if(facingDirection.equals("Left")) {
-                attackXMod -= attackData.get(getCurrentAttack()).attackWidth[attackCount - 1] + (attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] * 2);
-            }
-            int attackYMod = attackData.get(getCurrentAttack()).attackYMod[attackCount - 1];
-            int attackWidth = attackData.get(getCurrentAttack()).attackWidth[attackCount - 1];
-            int attackHeight = attackData.get(getCurrentAttack()).attackHeight[attackCount - 1];
-            shapeRenderer.rect(hitBoxArea.x + attackXMod, hitBoxArea.y + attackYMod, attackWidth, attackHeight);
-        
+
+            Rect attackHitBox = getAttackHitBox();
+            shapeRenderer.rect(hitBoxArea.x + (hitBoxArea.width / 2) + attackHitBox.x, hitBoxArea.y + attackHitBox.y, attackHitBox.width, attackHitBox.height);
         }
 
         shapeRenderer.end();
@@ -735,6 +749,21 @@ public class Player {
 
     public Point getHitBoxMiddle() {
         return new Point(hitBoxArea.x + (hitBoxArea.width / 2), hitBoxArea.y + (hitBoxArea.height / 2));
+    }
+
+    public Rect getAttackHitBox() {
+        int attackX = attackData.get(getCurrentAttack()).attackXMod[attackCount - 1];
+        if(facingDirection.equals("Left")) {
+            attackX -= attackData.get(getCurrentAttack()).attackWidth[attackCount - 1] + (attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] * 2);
+        }
+        int attackY = attackData.get(getCurrentAttack()).attackYMod[attackCount - 1];
+        if(ducking) {
+            attackY -= 13;
+        }
+        int attackWidth = attackData.get(getCurrentAttack()).attackWidth[attackCount - 1];
+        int attackHeight = attackData.get(getCurrentAttack()).attackHeight[attackCount - 1];
+        
+        return new Rect(attackX, attackY, attackWidth, attackHeight);
     }
 
     public int getMaxJumpCount() {
@@ -768,5 +797,22 @@ public class Player {
 
     public String getCurrentAttack() {
         return "Sword 01";
+    }
+
+    public void duck(boolean keyDown) {
+        if(keyDown && !inAir()) {
+            int duckHeightDiff = 13;
+            hitBoxArea.height = 48 - duckHeightDiff;
+            ducking = true;
+        }
+
+        else if(ducking && !keyDown) {
+            hitBoxArea.height = 48;
+            ducking = false;
+        }
+    }
+
+    public boolean inAir() {
+        return jumpCount > 0 || falling;
     }
 }

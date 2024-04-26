@@ -1,4 +1,4 @@
-package com.jbs.platformerengine.gamedata.player;
+package com.jbs.platformerengine.gamedata.entity.player;
 
 import java.util.HashMap;
 
@@ -27,9 +27,9 @@ public class AttackData {
         float[] attackDecayTimerMax = new float[] {25f};
         int[] attackFrameStart = new int[] {3};
         int[] attackFrameEnd = new int[] {7};
-        int[] attackXMod = new int[] {26};
+        int[] attackXMod = new int[] {20};
         int[] attackYMod = new int[] {34};
-        int[] attackWidth = new int[] {35};
+        int[] attackWidth = new int[] {44};
         int[] attackHeight = new int[] {4};
         AttackData attackDataSword01 = new AttackData(attackDecayTimerMax, attackFrameStart, attackFrameEnd, attackXMod, attackYMod, attackWidth, attackHeight);
         attackData.put("Sword 01", attackDataSword01);

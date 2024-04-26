@@ -17,9 +17,9 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.area.Area01;
 import com.jbs.platformerengine.gamedata.area.AreaData;
-import com.jbs.platformerengine.gamedata.area.AreaDebug;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
-import com.jbs.platformerengine.gamedata.player.Player;
+import com.jbs.platformerengine.gamedata.entity.Mob;
+import com.jbs.platformerengine.gamedata.entity.player.Player;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.Screen;
 
@@ -28,6 +28,13 @@ import com.jbs.platformerengine.screen.Screen;
  * Wave Filter When Walking Past Grass
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  * fix animation stack order
+ * bridge - top background, top roof, round the pillar sprites, adjust torch height for ground
+ * combat - charged attacks, ducking, combo attacks, no (hold) jump while bouncing
+ * jumps get disabled somehow when holding jump when bouncing?
+ * moon, blending
+ * basic mob
+ * input audit (2 buttons at same time?)
+ * move Player.getHitBoxMiddle() to static Rect function
  */
 
 public class GameScreen extends Screen {
@@ -35,7 +42,7 @@ public class GameScreen extends Screen {
     OrthographicCamera cameraDebug;
     Keyboard keyboard;
 
-    String levelName;
+    AreaData areaData;
     ScreenChunk[][] screenChunks;
     
     ArrayList<FrameBuffer> frameBufferBackground; 
@@ -53,9 +60,8 @@ public class GameScreen extends Screen {
     }
 
     public void loadAreaData() {
-        AreaData areaData = new Area01();
+        areaData = new Area01();
 
-        levelName = areaData.levelName;
         screenChunks = new ScreenChunk[areaData.size.width][areaData.size.height];
         for(int y = 0; y < screenChunks[0].length; y++) {
             for(int x = 0; x < screenChunks.length; x++) {
@@ -75,7 +81,7 @@ public class GameScreen extends Screen {
 
         for(FileHandle directoryHandle : Gdx.files.internal("assets/images/backgrounds").list()) {
             String directoryName = directoryHandle.toString().substring(directoryHandle.toString().lastIndexOf("/") + 1);
-            if(directoryName.equals(levelName)) {
+            if(directoryName.equals(areaData.levelName)) {
                 for(FileHandle fileHandle : Gdx.files.internal(directoryHandle.toString()).list()) {
                     int fileNameIndex = fileHandle.toString().lastIndexOf("/");
                     if(fileHandle.toString().substring(fileNameIndex + 1).length() >= 10 && fileHandle.toString().substring(fileNameIndex + 1, fileNameIndex + 11).equals("Background")) {
@@ -149,14 +155,6 @@ public class GameScreen extends Screen {
             player.jumpTimer = player.jumpTimerMax;
         }
 
-        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            clickScreen(true, "Left");
-        } else if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-            clickScreen(false, "Left");
-        } else if(Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
-            clickScreen(true, "Right");
-        }
-
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             player.superJump();
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
@@ -165,6 +163,19 @@ public class GameScreen extends Screen {
             player.dash("Right");
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
             player.attack();
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+            player.duck(true);
+        } else if(keyboard.lastUp.equals("S") || keyboard.lastUp.equals("Down")) {
+            player.duck(false);
+        }
+
+        // Click Screen //
+        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            clickScreen(true, "Left");
+        } else if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            clickScreen(false, "Left");
+        } else if(Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+            clickScreen(true, "Right");
         }
     }
 
@@ -181,13 +192,13 @@ public class GameScreen extends Screen {
 
             if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
             && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length) {
-                System.out.println(tileX + " " + tileY);
+                // System.out.println(tileX + " " + tileY);
 
                 if(targetButton.equals("Left")) {
                     if(!justClicked && screenChunks[chunkX][chunkY].tiles[tileX][tileY] == null) {
-                        screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Debug", "Square");
+                        screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile(areaData.defaultTileSet, areaData.defaultTileName, areaData.defaultTileNum);
         
-                        Texture texture = new Texture("images/tiles/Debug/Square.png");
+                        Texture texture = new Texture("images/tiles/Debug/Square_01.png");
                         screenChunks[chunkX][chunkY].frameBufferTiles.begin();
                         spriteBatch.begin();
                         spriteBatch.draw(texture, tileX * 16, tileY * 16);
@@ -196,15 +207,21 @@ public class GameScreen extends Screen {
                     }
                     else if(justClicked) {
                         int tileTypeIndex = 0;
-                        ArrayList<String> tileTypeList = new ArrayList<>(Arrays.asList("Square", "Square-Half", "Ramp-Right", "Ramp-Left", "Ramp-Right-Half-Bottom", "Ramp-Left-Half-Bottom", "Ramp-Right-Half-Top", "Ramp-Left-Half-Top", "Ceiling-Ramp-Right", "Ceiling-Ramp-Left"));
+                        ArrayList<String> tileTypeList = new ArrayList<>(Arrays.asList("Square", "Square-Half", "Ramp", "Ramp", "Ramp-Bottom", "Ramp-Bottom", "Ramp-Top", "Ramp-Top", "Ceiling-Ramp", "Ceiling-Ramp"));
+                        ArrayList<String> tileShapeList = new ArrayList<>(Arrays.asList("Square", "Square-Half", "Ramp-Right", "Ramp-Left", "Ramp-Right-Half-Bottom", "Ramp-Left-Half-Bottom", "Ramp-Right-Half-Top", "Ramp-Left-Half-Top", "Ceiling-Ramp-Right", "Ceiling-Ramp-Left"));
                         if(screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
-                            tileTypeIndex = tileTypeList.indexOf(screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileName) + 1;
+                            tileTypeIndex = tileTypeList.indexOf(screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileName) + screenChunks[chunkX][chunkY].tiles[tileX][tileY].num;
                             if(tileTypeIndex >= tileTypeList.size()) {
                                 tileTypeIndex = 0;
                             }
                             screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileName = tileTypeList.get(tileTypeIndex);
+                            screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileShape = tileShapeList.get(tileTypeIndex);
+                            screenChunks[chunkX][chunkY].tiles[tileX][tileY].num = 1;
+                            if(tileShapeList.get(tileTypeIndex).contains("Left")) {
+                                screenChunks[chunkX][chunkY].tiles[tileX][tileY].num = 2;
+                            }
                         } else {
-                            screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile("Debug", "Square");
+                            screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile(areaData.defaultTileSet, areaData.defaultTileName, areaData.defaultTileNum);
                         }
         
                         screenChunks[chunkX][chunkY].bufferTiles(spriteBatch, imageManager);
@@ -286,6 +303,10 @@ public class GameScreen extends Screen {
                 }
                 spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc, yMod, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
                 spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc + Gdx.graphics.getWidth(), yMod, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+
+                if(player.hitBoxArea.x >= 4600) {
+                    spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc + (Gdx.graphics.getWidth() * 2), yMod, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                }
             }
         }
 
@@ -370,7 +391,7 @@ public class GameScreen extends Screen {
         font.draw(spriteBatch, "Player Pos: X - " + player.hitBoxArea.x + " (" + (player.hitBoxArea.x % Gdx.graphics.getWidth()) + ") " + " Y - " + player.hitBoxArea.y + " (" + (player.hitBoxArea.y % Gdx.graphics.getHeight()) + ")", 3, 765);
         font.draw(spriteBatch, "Velocity: X - " + player.velocity.x + " Y - " + player.velocity.y, 3, 750);
         font.draw(spriteBatch, "On Ramp: " + player.onRamp + " - On Half-Ramp: " + player.onHalfRamp, 3, 735);
-        font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount, 3, 720);
+        font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount + " Falling: " + player.falling, 3, 720);
         
         String attackString = " (0)";
         if(player.attackCount > 0) {
@@ -398,6 +419,20 @@ public class GameScreen extends Screen {
                 }
             }
         }
+
+        else if(objectClass.equals("Mob")) {
+            Mob mobObject = (Mob) object;
+
+            for(CellCollidables cellCollidables : getObjectCellCollidables(screenChunks, mobObject)) {
+                if(!cellCollidables.mobList.contains(mobObject)) {
+                    cellCollidables.mobList.add(mobObject);
+                }
+
+                if(!screenChunks[cellCollidables.chunkX][cellCollidables.chunkY].mobList.contains(mobObject)) {
+                    screenChunks[cellCollidables.chunkX][cellCollidables.chunkY].mobList.add(mobObject);
+                }
+            }
+        }
     }
 
     public static <T> void removeObjectFromCellCollidables(ScreenChunk[][] screenChunks, T object) {
@@ -421,11 +456,14 @@ public class GameScreen extends Screen {
     public static <T> ArrayList<CellCollidables> getObjectCellCollidables(ScreenChunk[][] screenChunks, T object) {
         String objectClass = object.getClass().toString().substring(object.getClass().toString().lastIndexOf(".") + 1);
         BreakableObject breakableObject = null;
+        Mob mobObject = null;
 
         ArrayList<CellCollidables> objectCellCollidables = new ArrayList<>();
 
         int xLoc = 0;
         int yLoc = 0;
+        int objectWidth = 0;
+        int objectHeight = 0;
         int chunkX;
         int chunkY;
         int xCellStartIndex;
@@ -435,19 +473,29 @@ public class GameScreen extends Screen {
         int xCellSize = -1;
         int yCellSize = -1;
 
-        if(objectClass.equals("BreakableObject")) {
-            breakableObject = (BreakableObject) object;
+        if(objectClass.equals("BreakableObject") || objectClass.equals("Mob")) {
+            if(objectClass.equals("BreakableObject")) {
+                breakableObject = (BreakableObject) object;
+                xLoc = breakableObject.hitBoxArea.x;
+                yLoc = breakableObject.hitBoxArea.y;
+                objectWidth = breakableObject.hitBoxArea.width;
+                objectHeight = breakableObject.hitBoxArea.height;
+            } else if(objectClass.equals("Mob")) {
+                mobObject = (Mob) object;
+                xLoc = mobObject.hitBoxArea.x;
+                yLoc = mobObject.hitBoxArea.y;
+                objectWidth = mobObject.hitBoxArea.width;
+                objectHeight = mobObject.hitBoxArea.height;
+            }
 
-            xLoc = breakableObject.hitBoxArea.x;
-            yLoc = breakableObject.hitBoxArea.y;
-            chunkX = breakableObject.hitBoxArea.x / Gdx.graphics.getWidth();
-            chunkY = breakableObject.hitBoxArea.y / Gdx.graphics.getHeight();
-            xCellStartIndex = (breakableObject.hitBoxArea.x % Gdx.graphics.getWidth()) / 64;
-            yCellStartIndex = (breakableObject.hitBoxArea.y % Gdx.graphics.getHeight()) / 64;
-            xPadding = breakableObject.hitBoxArea.x - ((chunkX * Gdx.graphics.getWidth()) + (xCellStartIndex * 64));
-            yPadding = breakableObject.hitBoxArea.y - ((chunkY * Gdx.graphics.getHeight()) + (yCellStartIndex * 64));
-            xCellSize = ((breakableObject.hitBoxArea.width + xPadding) / 64) + 1;
-            yCellSize = ((breakableObject.hitBoxArea.height + yPadding) / 64) + 1;
+            chunkX = xLoc / Gdx.graphics.getWidth();
+            chunkY = yLoc / Gdx.graphics.getHeight();
+            xCellStartIndex = (xLoc % Gdx.graphics.getWidth()) / 64;
+            yCellStartIndex = (yLoc % Gdx.graphics.getHeight()) / 64;
+            xPadding = xLoc - ((chunkX * Gdx.graphics.getWidth()) + (xCellStartIndex * 64));
+            yPadding = yLoc - ((chunkY * Gdx.graphics.getHeight()) + (yCellStartIndex * 64));
+            xCellSize = ((objectWidth + xPadding) / 64) + 1;
+            yCellSize = ((objectHeight + yPadding) / 64) + 1;
         }
 
         if(xCellSize != -1) {
