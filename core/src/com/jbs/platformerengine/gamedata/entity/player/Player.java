@@ -57,7 +57,7 @@ public class Player {
 
     public Player() {
         shapeRenderer = new ShapeRenderer();
-        hitBoxArea = new Rect(1400, 200, 16, 48);
+        hitBoxArea = new Rect(1295, 650, 16, 48);
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
@@ -131,17 +131,7 @@ public class Player {
             && !ducking) {
                 if(jumpCount < getMaxJumpCount() && !jumpButtonPressedCheck) {
                     if(superJumpPercent < .30) {
-                        velocity.y = 8;
-                        jumpCheck = true;
-                        jumpButtonPressedCheck = true;
-                        jumpTimer = 0;
-                        jumpCount += 1;
-                        justLanded = false;
-
-                        dropKickBounceCheck = false;
-                        superJumpCheck = false;
-                        superJumpTimer = 0f;
-                        superJumpPercent = 0f;
+                        jump();
                     }
                     
                 // Drop Kick (Button Press) //
@@ -778,23 +768,25 @@ public class Player {
         return new Point(hitBoxArea.x + (hitBoxArea.width / 2), hitBoxArea.y + (hitBoxArea.height / 2));
     }
 
-    public Rect getAttackHitBox() {
-        int attackX = hitBoxArea.x + (hitBoxArea.width / 2) + attackData.get(getCurrentAttack()).attackXMod[attackCount - 1];
-        if(facingDirection.equals("Left")) {
-            attackX -= attackData.get(getCurrentAttack()).attackWidth[attackCount - 1] + (attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] * 2);
+    public void attack() {
+        if(attackCount < attackData.get(getCurrentAttack()).attackDecayTimerMax.length) {
+            attackCount += 1;
+            attackDecayTimer = 0;
         }
-        int attackY = hitBoxArea.y + attackData.get(getCurrentAttack()).attackYMod[attackCount - 1];
-        if(ducking) {
-            attackY -= 13;
-        }
-        int attackWidth = attackData.get(getCurrentAttack()).attackWidth[attackCount - 1];
-        int attackHeight = attackData.get(getCurrentAttack()).attackHeight[attackCount - 1];
-        
-        return new Rect(attackX, attackY, attackWidth, attackHeight);
     }
 
-    public int getMaxJumpCount() {
-        return 2;
+    public void jump() {
+        velocity.y = 8;
+        jumpCheck = true;
+        jumpButtonPressedCheck = true;
+        jumpTimer = 0;
+        jumpCount += 1;
+        justLanded = false;
+
+        dropKickBounceCheck = false;
+        superJumpCheck = false;
+        superJumpTimer = 0f;
+        superJumpPercent = 0f;
     }
 
     public void superJump() {
@@ -817,17 +809,6 @@ public class Player {
         }
     }
 
-    public void attack() {
-        if(attackCount < attackData.get(getCurrentAttack()).attackDecayTimerMax.length) {
-            attackCount += 1;
-            attackDecayTimer = 0;
-        }
-    }
-
-    public String getCurrentAttack() {
-        return "Sword 01";
-    }
-
     public void duck(boolean keyDown) {
         if(keyDown && !inAir()) {
             int duckHeightDiff = 13;
@@ -841,7 +822,30 @@ public class Player {
         }
     }
 
+    public Rect getAttackHitBox() {
+        int attackX = hitBoxArea.x + (hitBoxArea.width / 2) + attackData.get(getCurrentAttack()).attackXMod[attackCount - 1];
+        if(facingDirection.equals("Left")) {
+            attackX -= attackData.get(getCurrentAttack()).attackWidth[attackCount - 1] + (attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] * 2);
+        }
+        int attackY = hitBoxArea.y + attackData.get(getCurrentAttack()).attackYMod[attackCount - 1];
+        if(ducking) {
+            attackY -= 13;
+        }
+        int attackWidth = attackData.get(getCurrentAttack()).attackWidth[attackCount - 1];
+        int attackHeight = attackData.get(getCurrentAttack()).attackHeight[attackCount - 1];
+        
+        return new Rect(attackX, attackY, attackWidth, attackHeight);
+    }
+
+    public String getCurrentAttack() {
+        return "Sword 01";
+    }
+
     public boolean inAir() {
         return jumpCount > 0 || falling;
+    }
+
+    public int getMaxJumpCount() {
+        return 2;
     }
 }

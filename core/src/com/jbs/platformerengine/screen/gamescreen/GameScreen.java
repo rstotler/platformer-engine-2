@@ -28,14 +28,15 @@ import com.jbs.platformerengine.screen.Screen;
  * Wave Filter When Walking Past Grass
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  * fix animation stack order
- * bridge - top background, top roof, round the pillar sprites, adjust torch height for ground
- * combat - charged attacks, ducking, combo attacks, no (hold) jump while bouncing
+ * bridge - top background, round the pillar sprites, adjust torch height for ground
+ * combat - charged attacks, combo attacks, no (hold) jump while bouncing
  * jumps get disabled somehow when holding jump when bouncing?
  * moon, blending
  * basic mob
  * input audit (2 buttons at same time?)
  * move Player.getHitBoxMiddle() to static Rect function
  * separate player movement logic from tile collision function
+ * bug when landing bottom right corner on top corner of right ramp
  */
 
 public class GameScreen extends Screen {

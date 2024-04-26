@@ -31,7 +31,7 @@ public class AttackData {
         int[] attackFrameEnd = new int[] {7};
         int[] attackXMod = new int[] {20};
         int[] attackYMod = new int[] {34};
-        int[] attackWidth = new int[] {44};
+        int[] attackWidth = new int[] {50};
         int[] attackHeight = new int[] {4};
         AttackData attackDataSword01 = new AttackData(attackDecayTimerMax, attackFrameStart, attackFrameEnd, attackXMod, attackYMod, attackWidth, attackHeight);
         attackData.put("Sword 01", attackDataSword01);

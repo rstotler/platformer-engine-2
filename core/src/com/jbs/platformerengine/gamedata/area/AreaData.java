@@ -491,6 +491,13 @@ public class AreaData {
             // Top Walkable Platform //
             screenChunks[chunkX][chunkY].tiles[tileX][yLoc] = new Tile("Stone", "Square-Half");
 
+            // Rooftop //
+            if(x >= 2) {
+                int rooftopYLoc = yLoc + 9;
+                int rooftopChunkY = rooftopYLoc / screenChunks[0][0].tiles[0].length;
+                int rooftopTileY = rooftopYLoc % screenChunks[0][0].tiles[0].length;
+                screenChunks[chunkX][rooftopChunkY].tiles[tileX][rooftopTileY] = new Tile("Stone", "Square-Half");
+            }
             // Area Below Top Walkable Platform //
             for(int y = 0; y < 4; y++) {
                 if(y == 1 || (y < 3 && x > 0) || x > 1) {
@@ -631,6 +638,47 @@ public class AreaData {
             screenChunks[chunkX][chunkY].frameBufferForeground.end();
         }
 
+        // Rooftop //
+        Texture rooftopTextureLeft = new Texture("images/objects/Rooftop_01.png");
+        Texture rooftopTextureMiddle = new Texture("images/objects/Rooftop_02.png");
+        
+        int rooftopXMod = 25;
+        int rooftopYMod = 104;
+        int previousChunkX = -1;
+        int rooftopCount = (((width * 16) - rooftopXMod - 16) / rooftopTextureMiddle.getWidth()) + 2;
+        for(int rooftopIndex = 0; rooftopIndex < rooftopCount; rooftopIndex++) {
+            int rooftopX = -1;
+            Texture rooftopTexture = null;
+            if(rooftopIndex == 0) {
+                rooftopX = (xLoc * 16) + rooftopXMod;
+                rooftopTexture = rooftopTextureLeft;
+            } else {
+                rooftopX = (xLoc * 16) + rooftopXMod + 16 + (rooftopTextureMiddle.getWidth() * (rooftopIndex - 1));
+                rooftopTexture = rooftopTextureMiddle;
+            }
+
+            int rooftopY = (yLoc * 16) + rooftopYMod;
+            int chunkX = rooftopX / Gdx.graphics.getWidth();
+            int chunkY = rooftopY / Gdx.graphics.getHeight();
+            int rooftopDrawX = rooftopX % Gdx.graphics.getWidth();
+            int rooftopDrawY = rooftopY % Gdx.graphics.getHeight();
+
+            if(chunkX < screenChunks.length && chunkY < screenChunks[0].length) {
+                screenChunks[chunkX][chunkY].frameBufferForeground.begin();
+                spriteBatch.begin();
+                if(previousChunkX != -1 && previousChunkX != chunkX) {
+                    spriteBatch.draw(rooftopTexture, rooftopDrawX - rooftopTextureMiddle.getWidth(), rooftopDrawY);
+                }
+                spriteBatch.draw(rooftopTexture, rooftopDrawX, rooftopDrawY);
+                spriteBatch.end();
+                screenChunks[chunkX][chunkY].frameBufferForeground.end();
+            }
+
+            if(previousChunkX == -1 || previousChunkX != chunkX) {
+                previousChunkX = chunkX;
+            }
+        }
+        
         // Stone Band (Above Pillars) //
         int bandCount = ((width * 16) / 96) + 1;
         for(int bandIndex = 0; bandIndex < bandCount; bandIndex++) {
@@ -747,5 +795,7 @@ public class AreaData {
             texture.dispose();
         }
         stoneBandTexture.dispose();
+        rooftopTextureLeft.dispose();
+        rooftopTextureMiddle.dispose();
     }
 }
