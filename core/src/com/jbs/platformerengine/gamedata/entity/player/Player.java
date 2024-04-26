@@ -53,6 +53,7 @@ public class Player {
     public boolean onHalfRamp;
     public boolean ducking;
     public boolean falling;
+    public boolean justLanded;
 
     public Player() {
         shapeRenderer = new ShapeRenderer();
@@ -90,6 +91,7 @@ public class Player {
         onHalfRamp = false;
         ducking = false;
         falling = false;
+        justLanded = false;
     }
 
     public void update(Keyboard keyboard, ScreenChunk[][] screenChunks) {
@@ -104,14 +106,14 @@ public class Player {
 
         // Sideways Velocity //
         velocity.x = 0;
-        if(keyboard.left && !keyboard.right) {
+        if(keyboard.left && !keyboard.right && (attackCount == 0 || inAir())) {
             if(!ducking) {
                 velocity.x = -moveSpeed;
             }
             if(facingDirection.equals("Right")) {
                 facingDirection = "Left";
             }
-        } else if(!keyboard.left && keyboard.right) {
+        } else if(!keyboard.left && keyboard.right && (attackCount == 0 || inAir())) {
             if(!ducking) {
                 velocity.x = moveSpeed;
             }
@@ -125,7 +127,8 @@ public class Player {
         
         // Jump Velocity //
         if(keyboard.up || dropKickBounceCheck) {
-            if((keyboard.lastDown.equals("Up") || keyboard.lastDown.equals("W"))) {
+            if(((keyboard.lastDown.equals("Up") || keyboard.lastDown.equals("W")))
+            && !ducking) {
                 if(jumpCount < getMaxJumpCount() && !jumpButtonPressedCheck) {
                     if(superJumpPercent < .30) {
                         velocity.y = 8;
@@ -133,6 +136,7 @@ public class Player {
                         jumpButtonPressedCheck = true;
                         jumpTimer = 0;
                         jumpCount += 1;
+                        justLanded = false;
 
                         dropKickBounceCheck = false;
                         superJumpCheck = false;
@@ -651,22 +655,32 @@ public class Player {
                     jumpCheck = false;
                     jumpTimer = jumpTimerMax;
                     jumpCount = 0;
+                    falling = false;
 
                     superJumpCheck = false;
                     if(dropKickCheck) {
                         dropKickCheck = false;
                     }
 
-                    falling = false;
+                    if(!justLanded) {
+                        justLanded = true;
+                        attackCount = 0;
+                        attackDecayTimer = 0f;
+                    }
                 }
             }
         }
     }
 
     public void updateCollidables(ScreenChunk[][] screenChunks) {
+        Rect attackRect = null;
         if(dropKickCheck) {
-            Rect attackRect = new Rect(hitBoxArea.x, hitBoxArea.y, hitBoxArea.width, 20);
+            attackRect = new Rect(hitBoxArea.x, hitBoxArea.y, hitBoxArea.width, 20);
+        } else if(attackCount > 0) {
+            attackRect = getAttackHitBox();
+        }
 
+        if(attackRect != null) {
             int chunkX = attackRect.x / Gdx.graphics.getWidth();
             int chunkY = attackRect.y / Gdx.graphics.getHeight();
             int xCellStartIndex = (attackRect.x % Gdx.graphics.getWidth()) / 64;
@@ -684,19 +698,32 @@ public class Player {
                     int cellX = ((attackRect.x + (x * 64)) % Gdx.graphics.getWidth()) / 64;
 
                     if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
+                        ArrayList<BreakableObject> deleteObjectList = new ArrayList<>();
                         for(BreakableObject breakableObject : screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].breakableList) {
-                            if(attackRect.rectCollide(breakableObject.hitBoxArea)) {
-                                velocity.y = 10;
-                                jumpCheck = true;
-                                jumpCount = 1;
-                                jumpTimer = 0;
-                                dropKickCheck = false;
-                                dropKickBounceCheck = true;
+                            if(dropKickCheck ||
+                            (attackCount > 0 && attackDecayTimer >= attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1] && attackDecayTimer < attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1])) {
+                                if(attackRect.rectCollide(breakableObject.hitBoxArea)) {
+                                    deleteObjectList.add(breakableObject);
+                                    
+                                    if(dropKickCheck) {
+                                        velocity.y = 10;
+                                        jumpCheck = true;
+                                        jumpCount = 1;
+                                        jumpTimer = 0;
+                                        dropKickCheck = false;
+                                        dropKickBounceCheck = true;
+                                    }
 
-                                GameScreen.removeObjectFromCellCollidables(screenChunks, breakableObject);
-                                
-                                break;
-                            }
+                                    if(dropKickCheck
+                                    || breakableObject.imageName.contains("Torch")) {
+                                        break;
+                                    }
+                                }     
+                            }             
+                        }
+
+                        for(BreakableObject deleteObject : deleteObjectList) {
+                            GameScreen.removeObjectFromCellCollidables(screenChunks, deleteObject);
                         }
                     }
                 }
@@ -731,7 +758,7 @@ public class Player {
         // Attack Hit Box //
         if(attackCount > 0
         && attackDecayTimer >= attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1]
-        && attackDecayTimer <= attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1]) {
+        && attackDecayTimer < attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1]) {
             if(attackCount == 1) {
                 shapeRenderer.setColor(82/255f, 0/255f, 0/255f, 1f);
             } else if(attackCount == 2) {
@@ -741,7 +768,7 @@ public class Player {
             }
 
             Rect attackHitBox = getAttackHitBox();
-            shapeRenderer.rect(hitBoxArea.x + (hitBoxArea.width / 2) + attackHitBox.x, hitBoxArea.y + attackHitBox.y, attackHitBox.width, attackHitBox.height);
+            shapeRenderer.rect(attackHitBox.x, attackHitBox.y, attackHitBox.width, attackHitBox.height);
         }
 
         shapeRenderer.end();
@@ -752,11 +779,11 @@ public class Player {
     }
 
     public Rect getAttackHitBox() {
-        int attackX = attackData.get(getCurrentAttack()).attackXMod[attackCount - 1];
+        int attackX = hitBoxArea.x + (hitBoxArea.width / 2) + attackData.get(getCurrentAttack()).attackXMod[attackCount - 1];
         if(facingDirection.equals("Left")) {
             attackX -= attackData.get(getCurrentAttack()).attackWidth[attackCount - 1] + (attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] * 2);
         }
-        int attackY = attackData.get(getCurrentAttack()).attackYMod[attackCount - 1];
+        int attackY = hitBoxArea.y + attackData.get(getCurrentAttack()).attackYMod[attackCount - 1];
         if(ducking) {
             attackY -= 13;
         }
@@ -777,6 +804,8 @@ public class Player {
             if(jumpCount == 0) {
                 jumpCount = 1;
             }
+
+            justLanded = false;
         }
     }
 

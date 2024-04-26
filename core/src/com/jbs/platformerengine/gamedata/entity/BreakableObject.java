@@ -11,6 +11,6 @@ public class BreakableObject extends AnimatedObject {
     public BreakableObject(String objectName, Point spriteLocation, int frameLength, ImageManager imageManager) {
         super(objectName, spriteLocation, frameLength, imageManager);
 
-        hitBoxArea = new Rect(spriteLocation.x, spriteLocation.y, 5, 5);
+        hitBoxArea = new Rect(spriteLocation.x, spriteLocation.y, 5, 12);
     }
 }

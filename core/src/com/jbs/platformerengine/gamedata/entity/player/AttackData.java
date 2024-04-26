@@ -6,6 +6,7 @@ public class AttackData {
     public float[] attackDecayTimerMax;
     public int[] attackFrameStart;
     public int[] attackFrameEnd;
+
     public int[] attackXMod;
     public int[] attackYMod;
     public int[] attackWidth;
@@ -15,6 +16,7 @@ public class AttackData {
         this.attackDecayTimerMax = attackDecayTimerMax;
         this.attackFrameStart = attackFrameStart;
         this.attackFrameEnd = attackFrameEnd;
+        
         this.attackXMod = attackXMod;
         this.attackYMod = attackYMod;
         this.attackWidth = attackWidth;

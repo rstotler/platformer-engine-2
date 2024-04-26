@@ -35,6 +35,7 @@ import com.jbs.platformerengine.screen.Screen;
  * basic mob
  * input audit (2 buttons at same time?)
  * move Player.getHitBoxMiddle() to static Rect function
+ * separate player movement logic from tile collision function
  */
 
 public class GameScreen extends Screen {
