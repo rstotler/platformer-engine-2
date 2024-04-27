@@ -26,7 +26,7 @@ public class AttackData {
     public static HashMap<String, AttackData> loadAttackData() {
         HashMap<String, AttackData> attackData = new HashMap<>();
 
-        float[] attackDecayTimerMax = new float[] {25f};
+        float[] attackDecayTimerMax = new float[] {22f};
         int[] attackFrameStart = new int[] {3};
         int[] attackFrameEnd = new int[] {7};
         int[] attackXMod = new int[] {20};

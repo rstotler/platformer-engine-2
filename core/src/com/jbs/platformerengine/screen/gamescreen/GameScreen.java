@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.area.Area01;
+import com.jbs.platformerengine.gamedata.area.Area02;
 import com.jbs.platformerengine.gamedata.area.AreaData;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.gamedata.entity.Mob;
@@ -25,18 +26,18 @@ import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
  * Fix Ceiling Ramp Collisions
- * Wave Filter When Walking Past Grass
+ * Wave Shader When Walking Past Grass
+ * Fix animation stack order
+ * Bridge - top background, round the pillar sprites
+ * Combat - charged attacks, combo attacks
+ * Moon, blending
+ * Basic mob
+ * Input audit (2 buttons at same time?)
+ * 
+ * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
- * fix animation stack order
- * bridge - top background, round the pillar sprites, adjust torch height for ground
- * combat - charged attacks, combo attacks, no (hold) jump while bouncing
- * jumps get disabled somehow when holding jump when bouncing?
- * moon, blending
- * basic mob
- * input audit (2 buttons at same time?)
- * move Player.getHitBoxMiddle() to static Rect function
- * separate player movement logic from tile collision function
- * bug when landing bottom right corner on top corner of right ramp
+ * Jumps get disabled somehow when holding jump when bouncing?
+ * Bug when landing bottom right corner on top corner of right ramp
  */
 
 public class GameScreen extends Screen {
@@ -194,11 +195,12 @@ public class GameScreen extends Screen {
 
             if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
             && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length) {
-                // System.out.println(tileX + " " + tileY);
-
+                String tileType = "None";
+                
                 if(targetButton.equals("Left")) {
                     if(!justClicked && screenChunks[chunkX][chunkY].tiles[tileX][tileY] == null) {
                         screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile(areaData.defaultTileSet, areaData.defaultTileName, areaData.defaultTileNum);
+                        tileType = screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileShape;
         
                         Texture texture = new Texture("images/tiles/Debug/Square_01.png");
                         screenChunks[chunkX][chunkY].frameBufferTiles.begin();
@@ -228,11 +230,15 @@ public class GameScreen extends Screen {
         
                         screenChunks[chunkX][chunkY].bufferTiles(spriteBatch, imageManager);
                     }
+
+                    tileType = screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileShape;
                 }
                 else if(targetButton.equals("Right")) {
                     screenChunks[chunkX][chunkY].tiles[tileX][tileY] = null;
                     screenChunks[chunkX][chunkY].bufferTiles(spriteBatch, imageManager);
                 }
+
+                System.out.println(tileX + " " + tileY + " " + tileType);
             }
         }
     }
@@ -250,7 +256,7 @@ public class GameScreen extends Screen {
         } else if(player.hitBoxArea.x > 952 + (Gdx.graphics.getWidth() * (screenChunks.length - 1))) {
             camera.position.set(960 + (Gdx.graphics.getWidth() * (screenChunks.length - 1)), (player.hitBoxArea.y + 80), 0);
         } else if(player.hitBoxArea.x >= 312) {
-            camera.position.set(player.getHitBoxMiddle().x, (player.hitBoxArea.y + 80), 0);
+            camera.position.set(player.hitBoxArea.getMiddle().x, (player.hitBoxArea.y + 80), 0);
         }
         camera.update();
 

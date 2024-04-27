@@ -778,11 +778,28 @@ public class AreaData {
             if(yLoc >= 25) {
                 torchYCount = 4;
             }
+
+            int tileX = (torchX % Gdx.graphics.getWidth()) / 16;
+            int tileY = 7;
+            int chunkX = torchX / Gdx.graphics.getWidth();
+            int chunkY = 0;
+            int yMod = 0;
+            for(int y = 2; y >= 0; y--) {
+                if(chunkX < screenChunks.length && chunkY < screenChunks[0].length) {
+                    Tile targetTile = screenChunks[chunkX][chunkY].tiles[tileX][tileY + y];
+                    if(targetTile != null) {
+                        yMod = y + 1;
+                        break;
+                    }
+                }
+            }
             
             for(int y = 0; y < torchYCount; y++) {
                 int torchY = 175 + (30 * y);
                 if(y == 3) {
                     torchY += ((yLoc - 23) * 16);
+                } else {
+                    torchY += (yMod * 16);
                 }
                 
                 BreakableObject breakableObject = new BreakableObject("Torch_01", new Point(torchX, torchY), 3, imageManager);
