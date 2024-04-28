@@ -46,7 +46,6 @@ public class GameScreen extends Screen {
     Keyboard keyboard;
 
     AreaData areaData;
-    ScreenChunk[][] screenChunks;
     
     ArrayList<FrameBuffer> frameBufferBackground; 
     ImageManager imageManager;
@@ -65,15 +64,8 @@ public class GameScreen extends Screen {
     public void loadAreaData() {
         areaData = new Area01();
 
-        screenChunks = new ScreenChunk[areaData.size.width][areaData.size.height];
-        for(int y = 0; y < screenChunks[0].length; y++) {
-            for(int x = 0; x < screenChunks.length; x++) {
-                screenChunks[x][y] = new ScreenChunk(x, y);
-            }
-        }
-
         imageManager = new ImageManager(areaData.tileSetList, areaData.animatedImageList);
-        areaData.loadArea(screenChunks, spriteBatch, imageManager);
+        areaData.loadArea(spriteBatch, imageManager);
 
         loadBackgroundFrameBuffers();
         bufferChunks();
@@ -113,9 +105,9 @@ public class GameScreen extends Screen {
     }
 
     public void bufferChunks() {
-        for(int y = 0; y < screenChunks[0].length; y++) {
-            for(int x = 0; x < screenChunks.length; x++) {
-                screenChunks[x][y].bufferTiles(spriteBatch, imageManager);
+        for(int y = 0; y < areaData.screenChunks[0].length; y++) {
+            for(int x = 0; x < areaData.screenChunks.length; x++) {
+                areaData.screenChunks[x][y].bufferTiles(spriteBatch, imageManager);
             }
         }
     }
@@ -188,54 +180,54 @@ public class GameScreen extends Screen {
         int yLoc = (int) (camera.position.y - (camera.viewportHeight / 2) + ((Gdx.graphics.getHeight() - Gdx.input.getY()) * cameraZoomPercent));
         
         if(xLoc >= 0 && yLoc >= 0) {
-            int chunkX = (xLoc / 16) / screenChunks[0][0].tiles.length;
-            int chunkY = (yLoc / 16) / screenChunks[0][0].tiles[0].length;
-            int tileX = (xLoc / 16) % screenChunks[0][0].tiles.length;
-            int tileY = (yLoc / 16) % screenChunks[0][0].tiles[0].length;
+            int chunkX = (xLoc / 16) / areaData.screenChunks[0][0].tiles.length;
+            int chunkY = (yLoc / 16) / areaData.screenChunks[0][0].tiles[0].length;
+            int tileX = (xLoc / 16) % areaData.screenChunks[0][0].tiles.length;
+            int tileY = (yLoc / 16) % areaData.screenChunks[0][0].tiles[0].length;
 
-            if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
-            && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length) {
+            if(chunkX >= 0 && chunkX < areaData.screenChunks.length && chunkY >= 0 && chunkY < areaData.screenChunks[0].length
+            && tileX >= 0 && tileX < areaData.screenChunks[0][0].tiles.length && tileY >= 0 && tileY < areaData.screenChunks[0][0].tiles[0].length) {
                 String tileType = "None";
                 
                 if(targetButton.equals("Left")) {
-                    if(!justClicked && screenChunks[chunkX][chunkY].tiles[tileX][tileY] == null) {
-                        screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile(areaData.defaultTileSet, areaData.defaultTileName, areaData.defaultTileNum);
-                        tileType = screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileShape;
+                    if(!justClicked && areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY] == null) {
+                        areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile(areaData.defaultTileSet, areaData.defaultTileName, areaData.defaultTileNum);
+                        tileType = areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileShape;
         
                         Texture texture = new Texture("images/tiles/Debug/Square_01.png");
-                        screenChunks[chunkX][chunkY].frameBufferTiles.begin();
+                        areaData.screenChunks[chunkX][chunkY].frameBufferTiles.begin();
                         spriteBatch.begin();
                         spriteBatch.draw(texture, tileX * 16, tileY * 16);
                         spriteBatch.end();
-                        screenChunks[chunkX][chunkY].frameBufferTiles.end();
+                        areaData.screenChunks[chunkX][chunkY].frameBufferTiles.end();
                     }
                     else if(justClicked) {
                         int tileTypeIndex = 0;
                         ArrayList<String> tileTypeList = new ArrayList<>(Arrays.asList("Square", "Square-Half", "Ramp", "Ramp", "Ramp-Bottom", "Ramp-Bottom", "Ramp-Top", "Ramp-Top", "Ceiling-Ramp", "Ceiling-Ramp"));
                         ArrayList<String> tileShapeList = new ArrayList<>(Arrays.asList("Square", "Square-Half", "Ramp-Right", "Ramp-Left", "Ramp-Right-Half-Bottom", "Ramp-Left-Half-Bottom", "Ramp-Right-Half-Top", "Ramp-Left-Half-Top", "Ceiling-Ramp-Right", "Ceiling-Ramp-Left"));
-                        if(screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
-                            tileTypeIndex = tileTypeList.indexOf(screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileName) + screenChunks[chunkX][chunkY].tiles[tileX][tileY].num;
+                        if(areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
+                            tileTypeIndex = tileTypeList.indexOf(areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileName) + areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY].num;
                             if(tileTypeIndex >= tileTypeList.size()) {
                                 tileTypeIndex = 0;
                             }
-                            screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileName = tileTypeList.get(tileTypeIndex);
-                            screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileShape = tileShapeList.get(tileTypeIndex);
-                            screenChunks[chunkX][chunkY].tiles[tileX][tileY].num = 1;
+                            areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileName = tileTypeList.get(tileTypeIndex);
+                            areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileShape = tileShapeList.get(tileTypeIndex);
+                            areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY].num = 1;
                             if(tileShapeList.get(tileTypeIndex).contains("Left")) {
-                                screenChunks[chunkX][chunkY].tiles[tileX][tileY].num = 2;
+                                areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY].num = 2;
                             }
                         } else {
-                            screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile(areaData.defaultTileSet, areaData.defaultTileName, areaData.defaultTileNum);
+                            areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile(areaData.defaultTileSet, areaData.defaultTileName, areaData.defaultTileNum);
                         }
         
-                        screenChunks[chunkX][chunkY].bufferTiles(spriteBatch, imageManager);
+                        areaData.screenChunks[chunkX][chunkY].bufferTiles(spriteBatch, imageManager);
                     }
 
-                    tileType = screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileShape;
+                    tileType = areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileShape;
                 }
                 else if(targetButton.equals("Right")) {
-                    screenChunks[chunkX][chunkY].tiles[tileX][tileY] = null;
-                    screenChunks[chunkX][chunkY].bufferTiles(spriteBatch, imageManager);
+                    areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY] = null;
+                    areaData.screenChunks[chunkX][chunkY].bufferTiles(spriteBatch, imageManager);
                 }
 
                 System.out.println(tileX + " " + tileY + " " + tileType);
@@ -244,7 +236,7 @@ public class GameScreen extends Screen {
     }
 
     public void update(Player player) {
-        player.update(keyboard, screenChunks);
+        player.update(keyboard, areaData.screenChunks);
     }
 
     public void render(Player player) {
@@ -253,8 +245,8 @@ public class GameScreen extends Screen {
         // Update Camera //
         if(player.hitBoxArea.x < 312) {
             camera.position.set(320, (player.hitBoxArea.y + 80), 0);
-        } else if(player.hitBoxArea.x > 952 + (Gdx.graphics.getWidth() * (screenChunks.length - 1))) {
-            camera.position.set(960 + (Gdx.graphics.getWidth() * (screenChunks.length - 1)), (player.hitBoxArea.y + 80), 0);
+        } else if(player.hitBoxArea.x > 952 + (Gdx.graphics.getWidth() * (areaData.screenChunks.length - 1))) {
+            camera.position.set(960 + (Gdx.graphics.getWidth() * (areaData.screenChunks.length - 1)), (player.hitBoxArea.y + 80), 0);
         } else if(player.hitBoxArea.x >= 312) {
             camera.position.set(player.hitBoxArea.getMiddle().x, (player.hitBoxArea.y + 80), 0);
         }
@@ -274,7 +266,7 @@ public class GameScreen extends Screen {
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
 
-        float xPercent = (player.hitBoxArea.x - 312.0f) / ((Gdx.graphics.getWidth() * screenChunks.length) - 640);
+        float xPercent = (player.hitBoxArea.x - 312.0f) / ((Gdx.graphics.getWidth() * areaData.screenChunks.length) - 640);
         if(frameBufferBackground != null) {
             for(int i = 0; i < frameBufferBackground.size(); i++) {
                 float xMod = 0;
@@ -327,12 +319,12 @@ public class GameScreen extends Screen {
 
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
-                if(x >= 0 && y >= 0 && x < screenChunks.length && y < screenChunks[0].length) {
+                if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
                     spriteBatch.setProjectionMatrix(camera.combined);
                     spriteBatch.begin();
                     int xLoc = x * Gdx.graphics.getWidth();
                     int yLoc = y * Gdx.graphics.getHeight();
-                    spriteBatch.draw(screenChunks[x][y].frameBufferWalls.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                    spriteBatch.draw(areaData.screenChunks[x][y].frameBufferWalls.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
                     spriteBatch.end();
                 }
             }
@@ -345,8 +337,8 @@ public class GameScreen extends Screen {
 
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
-                if(x >= 0 && y >= 0 && x < screenChunks.length && y < screenChunks[0].length) {
-                    screenChunks[x][y].renderTiles(camera, spriteBatch);
+                if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
+                    areaData.screenChunks[x][y].renderTiles(camera, spriteBatch);
                 }
             }
         }
@@ -358,14 +350,14 @@ public class GameScreen extends Screen {
 
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
-                if(x >= 0 && y >= 0 && x < screenChunks.length && y < screenChunks[0].length) {
-                    screenChunks[x][y].bufferAnimations(camera, spriteBatch, imageManager);
+                if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
+                    areaData.screenChunks[x][y].bufferAnimations(camera, spriteBatch, imageManager);
 
                     spriteBatch.setProjectionMatrix(camera.combined);
                     spriteBatch.begin();
                     int xLoc = x * Gdx.graphics.getWidth();
                     int yLoc = y * Gdx.graphics.getHeight();
-                    spriteBatch.draw(screenChunks[x][y].frameBufferAnimation.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                    spriteBatch.draw(areaData.screenChunks[x][y].frameBufferAnimation.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
                     spriteBatch.end();
                 }
             }
@@ -378,12 +370,12 @@ public class GameScreen extends Screen {
 
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
-                if(x >= 0 && y >= 0 && x < screenChunks.length && y < screenChunks[0].length) {
+                if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
                     spriteBatch.setProjectionMatrix(camera.combined);
                     spriteBatch.begin();
                     int xLoc = x * Gdx.graphics.getWidth();
                     int yLoc = y * Gdx.graphics.getHeight();
-                    spriteBatch.draw(screenChunks[x][y].frameBufferForeground.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                    spriteBatch.draw(areaData.screenChunks[x][y].frameBufferForeground.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
                     spriteBatch.end();
                 }
             }

@@ -20,6 +20,8 @@ public class AreaData {
     public String levelName;
     public Rect size;
 
+    public ScreenChunk[][] screenChunks;
+
     public String defaultTileSet;
     public String defaultTileName;
     public int defaultTileNum;
@@ -27,9 +29,18 @@ public class AreaData {
     public ArrayList<String> tileSetList = new ArrayList<>();
     public ArrayList<String> animatedImageList = new ArrayList<>();
 
-    public void loadArea(ScreenChunk[][] screenChunks, SpriteBatch spriteBatch, ImageManager imageManager) {}
+    public void loadScreenChunks() {
+        screenChunks = new ScreenChunk[size.width][size.height];
+        for(int y = 0; y < screenChunks[0].length; y++) {
+            for(int x = 0; x < screenChunks.length; x++) {
+                screenChunks[x][y] = new ScreenChunk(x, y);
+            }
+        }
+    }
 
-    public void createFloor(ScreenChunk[][] screenChunks, String tileSetName, boolean createHills) {
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {}
+
+    public void createFloor(String tileSetName, boolean createHills) {
 
         // Base Floor //
         int baseFloorThickness = 7;
@@ -377,7 +388,7 @@ public class AreaData {
         }
     }
 
-    public void createPlatform(ScreenChunk[][] screenChunks, String tileSetName, int xLoc, int yLoc, int width, int height) {
+    public void createPlatform(String tileSetName, int xLoc, int yLoc, int width, int height) {
         int chunkX = xLoc / screenChunks[0][0].tiles.length;
         int chunkY = yLoc / screenChunks[0][0].tiles[0].length;
 
@@ -465,7 +476,7 @@ public class AreaData {
         }
     }
 
-    public void createBridge(ScreenChunk[][] screenChunks, SpriteBatch spriteBatch, ImageManager imageManager, int xLoc, int yLoc, int width, int pillarWidth, int pillarSpace) {
+    public void createBridge(SpriteBatch spriteBatch, ImageManager imageManager, int xLoc, int yLoc, int width, int pillarWidth, int pillarSpace) {
         ArrayList<Texture> archTexture = new ArrayList<>();
         archTexture.add(new Texture("images/objects/Stone-Arch_01.png"));
         archTexture.add(new Texture("images/objects/Stone-Arch_02.png"));

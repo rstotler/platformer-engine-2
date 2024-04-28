@@ -23,12 +23,14 @@ public class Area01 extends AreaData {
 
         tileSetList = new ArrayList<>(Arrays.asList("Dirt-Floor", "Dirt-Platform", "Stone", "Wood"));
         animatedImageList = new ArrayList<>(Arrays.asList("Torch_01"));
+
+        loadScreenChunks();
     }
 
-    public void loadArea(ScreenChunk[][] screenChunks, SpriteBatch spriteBatch, ImageManager imageManager) {
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {
 
         // Base Floor //
-        createFloor(screenChunks, "Dirt-Floor", true);
+        createFloor("Dirt-Floor", true);
 
         // Floating Platforms (Vertical) //
         for(int platformNum = 0; platformNum < 0; platformNum++) {
@@ -38,14 +40,14 @@ public class Area01 extends AreaData {
             if(platformNum % 2 == 1) {
                 xMod *= -1;
             }
-            createPlatform(screenChunks, "Dirt-Platform", 60 + xMod, 12 + (platformNum * 6), platformWidth, platformHeight);
+            createPlatform("Dirt-Platform", 60 + xMod, 12 + (platformNum * 6), platformWidth, platformHeight);
         }
 
         // Floating Platforms (Horizontal) //
         for(int platformNum = 0; platformNum < 20; platformNum++) {
             int platformWidth = new Random().nextInt(6) + 5;
             int platformHeight = new Random().nextInt(3) + 3;
-            createPlatform(screenChunks, "Dirt-Platform", 4 + (platformNum * 13), 66 + (new Random().nextInt(3) - 1), platformWidth, platformHeight);
+            createPlatform("Dirt-Platform", 4 + (platformNum * 13), 66 + (new Random().nextInt(3) - 1), platformWidth, platformHeight);
         }
 
         // Trees //
@@ -155,7 +157,7 @@ public class Area01 extends AreaData {
         }
 
         // Bridge //
-        createBridge(screenChunks, spriteBatch, imageManager, 80, 37, 160, 4, 11);
+        createBridge(spriteBatch, imageManager, 80, 37, 160, 4, 11);
 
         // Rocks & Tombstones //
         Texture rockTexture = new Texture("images/objects/Rock_01.png");

@@ -18,9 +18,11 @@ public class Area02 extends AreaData {
     
         tileSetList = new ArrayList<>(Arrays.asList("Debug"));
         // animatedImageList = new ArrayList<>(Arrays.asList());
+
+        loadScreenChunks();
     }
     
-    public void loadArea(ScreenChunk[][] screenChunks, SpriteBatch spriteBatch, ImageManager imageManager) {
-        createFloor(screenChunks, "Debug", false);
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {
+        createFloor("Debug", false);
     }
 }

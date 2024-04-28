@@ -18,9 +18,11 @@ public class AreaDebug extends AreaData {
         defaultTileNum = 1;
         
         tileSetList = new ArrayList<>(Arrays.asList("Debug"));
+
+        loadScreenChunks();
     }
 
-    public void loadArea(ScreenChunk[][] screenChunks, SpriteBatch spriteBatch, ImageManager imageManager) {
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {
 
         // Bottom Floor //
         for(int i = 0; i < screenChunks.length; i++) {
