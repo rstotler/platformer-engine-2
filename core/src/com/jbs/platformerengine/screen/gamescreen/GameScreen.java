@@ -5,14 +5,10 @@ import java.util.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.area.Area01;
@@ -47,7 +43,6 @@ public class GameScreen extends Screen {
 
     AreaData areaData;
     
-    ArrayList<FrameBuffer> frameBufferBackground; 
     ImageManager imageManager;
     
     public GameScreen() {
@@ -66,42 +61,9 @@ public class GameScreen extends Screen {
 
         imageManager = new ImageManager(areaData.tileSetList, areaData.animatedImageList);
         areaData.loadArea(spriteBatch, imageManager);
+        areaData.loadBackgroundFrameBuffers(spriteBatch);
 
-        loadBackgroundFrameBuffers();
         bufferChunks();
-    }
-
-    public void loadBackgroundFrameBuffers() {
-        frameBufferBackground = new ArrayList<>();
-
-        for(FileHandle directoryHandle : Gdx.files.internal("assets/images/backgrounds").list()) {
-            String directoryName = directoryHandle.toString().substring(directoryHandle.toString().lastIndexOf("/") + 1);
-            if(directoryName.equals(areaData.levelName)) {
-                for(FileHandle fileHandle : Gdx.files.internal(directoryHandle.toString()).list()) {
-                    int fileNameIndex = fileHandle.toString().lastIndexOf("/");
-                    if(fileHandle.toString().substring(fileNameIndex + 1).length() >= 10 && fileHandle.toString().substring(fileNameIndex + 1, fileNameIndex + 11).equals("Background")) {
-                        FrameBuffer frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
-                    
-                        frameBuffer.begin();
-                        spriteBatch.begin();
-    
-                        Gdx.graphics.getGL20().glClearColor(0f, 0f, 0f, 0f);
-                        Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
-    
-                        Texture texture = new Texture(fileHandle.toString().substring(fileHandle.toString().indexOf("/") + 1));
-                        spriteBatch.draw(texture, 0, 0);
-                        
-                        spriteBatch.end();
-                        frameBuffer.end();
-    
-                        texture.dispose();
-                        frameBufferBackground.add(frameBuffer);
-                    }
-                }
-
-                break;
-            }
-        }
     }
 
     public void bufferChunks() {
@@ -267,8 +229,8 @@ public class GameScreen extends Screen {
         spriteBatch.begin();
 
         float xPercent = (player.hitBoxArea.x - 312.0f) / ((Gdx.graphics.getWidth() * areaData.screenChunks.length) - 640);
-        if(frameBufferBackground != null) {
-            for(int i = 0; i < frameBufferBackground.size(); i++) {
+        if(areaData.frameBufferBackground != null) {
+            for(int i = 0; i < areaData.frameBufferBackground.size(); i++) {
                 float xMod = 0;
                 if(xPercent >= 0) {
                     if(xPercent > 1) {
@@ -299,13 +261,13 @@ public class GameScreen extends Screen {
                 }
 
                 if(i == 0 || i == 2) {
-                    spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc - Gdx.graphics.getWidth(), yMod, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                    spriteBatch.draw(areaData.frameBufferBackground.get(i).getColorBufferTexture(), xLoc - Gdx.graphics.getWidth(), yMod, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
                 }
-                spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc, yMod, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
-                spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc + Gdx.graphics.getWidth(), yMod, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                spriteBatch.draw(areaData.frameBufferBackground.get(i).getColorBufferTexture(), xLoc, yMod, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                spriteBatch.draw(areaData.frameBufferBackground.get(i).getColorBufferTexture(), xLoc + Gdx.graphics.getWidth(), yMod, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
 
                 if(player.hitBoxArea.x >= 4600) {
-                    spriteBatch.draw(frameBufferBackground.get(i).getColorBufferTexture(), xLoc + (Gdx.graphics.getWidth() * 2), yMod, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                    spriteBatch.draw(areaData.frameBufferBackground.get(i).getColorBufferTexture(), xLoc + (Gdx.graphics.getWidth() * 2), yMod, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
                 }
             }
         }

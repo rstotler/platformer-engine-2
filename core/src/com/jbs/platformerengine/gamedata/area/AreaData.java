@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -21,6 +22,7 @@ public class AreaData {
     public Rect size;
 
     public ScreenChunk[][] screenChunks;
+    public ArrayList<FrameBuffer> frameBufferBackground; 
 
     public String defaultTileSet;
     public String defaultTileName;
@@ -825,5 +827,38 @@ public class AreaData {
         stoneBandTexture.dispose();
         rooftopTextureLeft.dispose();
         rooftopTextureMiddle.dispose();
+    }
+
+    public void loadBackgroundFrameBuffers(SpriteBatch spriteBatch) {
+        frameBufferBackground = new ArrayList<>();
+
+        for(FileHandle directoryHandle : Gdx.files.internal("assets/images/backgrounds").list()) {
+            String directoryName = directoryHandle.toString().substring(directoryHandle.toString().lastIndexOf("/") + 1);
+            if(directoryName.equals(levelName)) {
+                for(FileHandle fileHandle : Gdx.files.internal(directoryHandle.toString()).list()) {
+                    int fileNameIndex = fileHandle.toString().lastIndexOf("/");
+                    if(fileHandle.toString().substring(fileNameIndex + 1).length() >= 10 && fileHandle.toString().substring(fileNameIndex + 1, fileNameIndex + 11).equals("Background")) {
+                        FrameBuffer frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+                    
+                        frameBuffer.begin();
+                        spriteBatch.begin();
+    
+                        Gdx.graphics.getGL20().glClearColor(0f, 0f, 0f, 0f);
+                        Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+    
+                        Texture texture = new Texture(fileHandle.toString().substring(fileHandle.toString().indexOf("/") + 1));
+                        spriteBatch.draw(texture, 0, 0);
+                        
+                        spriteBatch.end();
+                        frameBuffer.end();
+    
+                        texture.dispose();
+                        frameBufferBackground.add(frameBuffer);
+                    }
+                }
+
+                break;
+            }
+        }
     }
 }
