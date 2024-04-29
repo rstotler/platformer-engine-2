@@ -37,33 +37,29 @@ import com.jbs.platformerengine.screen.Screen;
  */
 
 public class GameScreen extends Screen {
-    OrthographicCamera camera;
     OrthographicCamera cameraDebug;
     Keyboard keyboard;
 
     AreaData areaData;
+    HashMap<String, AreaData> unusedAreaData;
     
     ImageManager imageManager;
     
     public GameScreen() {
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
         cameraDebug = new OrthographicCamera();
         cameraDebug.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
+        
         keyboard = new Keyboard();
-
-        loadAreaData();
-    }
-
-    public void loadAreaData() {
+        
         areaData = new Area01();
-
         imageManager = new ImageManager(areaData.tileSetList, areaData.animatedImageList);
-        areaData.loadArea(spriteBatch, imageManager);
+        areaData.loadArea(spriteBatch, imageManager, true);
         areaData.loadBackgroundFrameBuffers(spriteBatch);
 
         bufferChunks();
+
+        unusedAreaData = new HashMap<>();
+        unusedAreaData.put("Area02", new Area02());
     }
 
     public void bufferChunks() {
@@ -199,17 +195,57 @@ public class GameScreen extends Screen {
 
     public void update(Player player) {
         player.update(keyboard, areaData.screenChunks);
+        
+        // Change Area Check //
+        int chunkX = player.hitBoxArea.getMiddle().x / Gdx.graphics.getWidth();
+        int chunkY = player.hitBoxArea.getMiddle().y / Gdx.graphics.getHeight();
+        int tileX = (player.hitBoxArea.getMiddle().x % Gdx.graphics.getWidth()) / 16;
+        int tileY = (player.hitBoxArea.getMiddle().y % Gdx.graphics.getHeight()) / 16;
+        if(areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null
+        && !areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY].changeArea.equals("None")) {
+            changeArea(player, areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY]);
+        }
+    }
+
+    public void changeArea(Player player, Tile targetTile) {
+        if(unusedAreaData.containsKey(targetTile.changeArea)) {
+            areaData.dispose();
+
+            // Create RemoveTileSetList & RemoveAnimatedImageList //
+            ArrayList<String> removeTileSetList = new ArrayList<>();
+            for(String tileSet : areaData.tileSetList) {
+                if(!unusedAreaData.get(targetTile.changeArea).tileSetList.contains(tileSet)) {
+                    removeTileSetList.add(tileSet);
+                }
+            }
+            ArrayList<String> removeAnimatedImageList = new ArrayList<>();
+            for(String animatedImageName : areaData.animatedImageList) {
+                if(!unusedAreaData.get(targetTile.changeArea).animatedImageList.contains(animatedImageName)) {
+                    removeAnimatedImageList.add(animatedImageName);
+                }
+            }
+            imageManager.removeImages(removeTileSetList, removeAnimatedImageList);
+            
+            unusedAreaData.put(areaData.levelName, areaData);
+            areaData = unusedAreaData.get(targetTile.changeArea);
+            unusedAreaData.remove(targetTile.changeArea);
+
+            areaData.initArea(spriteBatch, imageManager);
+
+            player.hitBoxArea.x = targetTile.changeLocation.x;
+            player.hitBoxArea.y = targetTile.changeLocation.y;
+        }
     }
 
     public void render(Player player) {
         ScreenUtils.clear(0/255f, 0/255f, 7/255f, 1);
 
         // Update Camera //
-        if(player.hitBoxArea.x < 312) {
-            camera.position.set(320, (player.hitBoxArea.y + 80), 0);
-        } else if(player.hitBoxArea.x > 952 + (Gdx.graphics.getWidth() * (areaData.screenChunks.length - 1))) {
-            camera.position.set(960 + (Gdx.graphics.getWidth() * (areaData.screenChunks.length - 1)), (player.hitBoxArea.y + 80), 0);
-        } else if(player.hitBoxArea.x >= 312) {
+        if(player.hitBoxArea.x < 328) {
+            camera.position.set(336, (player.hitBoxArea.y + 80), 0);
+        } else if(player.hitBoxArea.x > 936 + (Gdx.graphics.getWidth() * (areaData.screenChunks.length - 1))) {
+            camera.position.set(944 + (Gdx.graphics.getWidth() * (areaData.screenChunks.length - 1)), (player.hitBoxArea.y + 80), 0);
+        } else if(player.hitBoxArea.x >= 328) {
             camera.position.set(player.hitBoxArea.getMiddle().x, (player.hitBoxArea.y + 80), 0);
         }
         camera.update();
@@ -228,7 +264,7 @@ public class GameScreen extends Screen {
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
 
-        float xPercent = (player.hitBoxArea.x - 312.0f) / ((Gdx.graphics.getWidth() * areaData.screenChunks.length) - 640);
+        float xPercent = (player.hitBoxArea.x - 328.0f) / ((Gdx.graphics.getWidth() * areaData.screenChunks.length) - 640 - 32);
         if(areaData.frameBufferBackground != null) {
             for(int i = 0; i < areaData.frameBufferBackground.size(); i++) {
                 float xMod = 0;
@@ -244,7 +280,7 @@ public class GameScreen extends Screen {
                         xMod = 750 * xPercent;
                     }
                 }
-                int xIndex = (int) ((player.hitBoxArea.x - 312) / (Gdx.graphics.getWidth() + xMod));
+                int xIndex = (int) ((player.hitBoxArea.x - 328) / (Gdx.graphics.getWidth() + xMod));
                 float xLoc = (xIndex * Gdx.graphics.getWidth()) + xMod;
 
                 float yMod = 0;

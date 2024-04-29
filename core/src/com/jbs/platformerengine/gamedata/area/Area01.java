@@ -5,6 +5,7 @@ import java.util.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.Mob;
 import com.jbs.platformerengine.screen.ImageManager;
@@ -25,27 +26,29 @@ public class Area01 extends AreaData {
         loadScreenChunks();
     }
 
-    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager, boolean initCheck) {
+        if(initCheck) {
 
-        // Base Floor //
-        createFloor("Dirt-Floor", true);
+            // Base Floor //
+            createFloor("Dirt-Floor", true);
 
-        // Floating Platforms (Vertical) //
-        for(int platformNum = 0; platformNum < 0; platformNum++) {
-            int platformWidth = new Random().nextInt(4) + 4;
-            int platformHeight = new Random().nextInt(3) + 3;
-            int xMod = 4 + new Random().nextInt(6);
-            if(platformNum % 2 == 1) {
-                xMod *= -1;
+            // Floating Platforms (Vertical) //
+            for(int platformNum = 0; platformNum < 0; platformNum++) {
+                int platformWidth = new Random().nextInt(4) + 4;
+                int platformHeight = new Random().nextInt(3) + 3;
+                int xMod = 4 + new Random().nextInt(6);
+                if(platformNum % 2 == 1) {
+                    xMod *= -1;
+                }
+                createPlatform("Dirt-Platform", 60 + xMod, 12 + (platformNum * 6), platformWidth, platformHeight);
             }
-            createPlatform("Dirt-Platform", 60 + xMod, 12 + (platformNum * 6), platformWidth, platformHeight);
-        }
 
-        // Floating Platforms (Horizontal) //
-        for(int platformNum = 0; platformNum < 20; platformNum++) {
-            int platformWidth = new Random().nextInt(6) + 5;
-            int platformHeight = new Random().nextInt(3) + 3;
-            createPlatform("Dirt-Platform", 4 + (platformNum * 13), 66 + (new Random().nextInt(3) - 1), platformWidth, platformHeight);
+            // Floating Platforms (Horizontal) //
+            for(int platformNum = 0; platformNum < 20; platformNum++) {
+                int platformWidth = new Random().nextInt(6) + 5;
+                int platformHeight = new Random().nextInt(3) + 3;
+                createPlatform("Dirt-Platform", 4 + (platformNum * 13), 66 + (new Random().nextInt(3) - 1), platformWidth, platformHeight);
+            }
         }
 
         // Trees //
@@ -155,7 +158,15 @@ public class Area01 extends AreaData {
         }
 
         // Bridge //
-        createBridge(spriteBatch, imageManager, 80, 37, 160, 4, 11);
+        int bridgeYLoc = 37;
+        createBridge(spriteBatch, imageManager, 80, bridgeYLoc, 160, 4, 11, initCheck);
+
+        // Bridge Exit To Area02 //
+        for(int y = 0; y < 7; y++) {
+            int chunkY = (bridgeYLoc + 1 + y) / 48;
+            int tileY = (bridgeYLoc + 1 + y) % 48;
+            screenChunks[size.width - 1][chunkY].tiles[79][tileY] = new Tile("Area02", new Point(16, 112));
+        }
 
         // Rocks & Tombstones //
         Texture rockTexture = new Texture("images/objects/Rock_01.png");

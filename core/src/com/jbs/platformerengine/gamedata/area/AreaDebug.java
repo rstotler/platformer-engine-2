@@ -21,7 +21,7 @@ public class AreaDebug extends AreaData {
         loadScreenChunks();
     }
 
-    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager, boolean initCheck) {
 
         // Bottom Floor //
         for(int i = 0; i < screenChunks.length; i++) {

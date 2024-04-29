@@ -22,7 +22,7 @@ public class AreaData {
     public Rect size;
 
     public ScreenChunk[][] screenChunks;
-    public ArrayList<FrameBuffer> frameBufferBackground; 
+    public ArrayList<FrameBuffer> frameBufferBackground;
 
     public String defaultTileSet;
     public String defaultTileName;
@@ -40,7 +40,7 @@ public class AreaData {
         }
     }
 
-    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {}
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager, boolean initCheck) {}
 
     public void createFloor(String tileSetName, boolean createHills) {
 
@@ -478,7 +478,7 @@ public class AreaData {
         }
     }
 
-    public void createBridge(SpriteBatch spriteBatch, ImageManager imageManager, int xLoc, int yLoc, int width, int pillarWidth, int pillarSpace) {
+    public void createBridge(SpriteBatch spriteBatch, ImageManager imageManager, int xLoc, int yLoc, int width, int pillarWidth, int pillarSpace, boolean initCheck) {
         ArrayList<Texture> archTexture = new ArrayList<>();
         archTexture.add(new Texture("images/objects/Stone-Arch_01.png"));
         archTexture.add(new Texture("images/objects/Stone-Arch_02.png"));
@@ -502,15 +502,18 @@ public class AreaData {
             spriteBatch.begin();
 
             // Top Walkable Platform //
-            screenChunks[chunkX][chunkY].tiles[tileX][yLoc] = new Tile("Stone", "Square-Half");
-
+            if(initCheck) {
+                screenChunks[chunkX][chunkY].tiles[tileX][yLoc] = new Tile("Stone", "Square-Half");
+            }
+            
             // Rooftop //
-            if(x >= 2) {
+            if(initCheck && x >= 2) {
                 int rooftopYLoc = yLoc + 9;
                 int rooftopChunkY = rooftopYLoc / screenChunks[0][0].tiles[0].length;
                 int rooftopTileY = rooftopYLoc % screenChunks[0][0].tiles[0].length;
                 screenChunks[chunkX][rooftopChunkY].tiles[tileX][rooftopTileY] = new Tile("Stone", "Square-Half");
             }
+
             // Area Below Top Walkable Platform //
             for(int y = 0; y < 4; y++) {
                 if(y == 1 || (y < 3 && x > 0) || x > 1) {
@@ -785,38 +788,40 @@ public class AreaData {
         }
 
         // Torches (Breakable Object) //
-        for(int x = 0; x < archCount; x++) {
-            int torchX = (xLoc * 16) + (((pillarWidth + pillarSpace) * 16) * (x + 1)) - (pillarWidth * 8) - 5;
-            int torchYCount = 3;
-            if(yLoc >= 25) {
-                torchYCount = 4;
-            }
-
-            int tileX = (torchX % Gdx.graphics.getWidth()) / 16;
-            int tileY = 7;
-            int chunkX = torchX / Gdx.graphics.getWidth();
-            int chunkY = 0;
-            int yMod = 0;
-            for(int y = 2; y >= 0; y--) {
-                if(chunkX < screenChunks.length && chunkY < screenChunks[0].length) {
-                    Tile targetTile = screenChunks[chunkX][chunkY].tiles[tileX][tileY + y];
-                    if(targetTile != null) {
-                        yMod = y + 1;
-                        break;
+        if(initCheck) {
+            for(int x = 0; x < archCount; x++) {
+                int torchX = (xLoc * 16) + (((pillarWidth + pillarSpace) * 16) * (x + 1)) - (pillarWidth * 8) - 5;
+                int torchYCount = 3;
+                if(yLoc >= 25) {
+                    torchYCount = 4;
+                }
+    
+                int tileX = (torchX % Gdx.graphics.getWidth()) / 16;
+                int tileY = 7;
+                int chunkX = torchX / Gdx.graphics.getWidth();
+                int chunkY = 0;
+                int yMod = 0;
+                for(int y = 2; y >= 0; y--) {
+                    if(chunkX < screenChunks.length && chunkY < screenChunks[0].length) {
+                        Tile targetTile = screenChunks[chunkX][chunkY].tiles[tileX][tileY + y];
+                        if(targetTile != null) {
+                            yMod = y + 1;
+                            break;
+                        }
                     }
                 }
-            }
-            
-            for(int y = 0; y < torchYCount; y++) {
-                int torchY = 175 + (30 * y);
-                if(y == 3) {
-                    torchY += ((yLoc - 23) * 16);
-                } else {
-                    torchY += (yMod * 16);
-                }
                 
-                BreakableObject breakableObject = new BreakableObject("Torch_01", new Point(torchX, torchY), 3, imageManager);
-                GameScreen.addObjectToCellCollidables(screenChunks, breakableObject);
+                for(int y = 0; y < torchYCount; y++) {
+                    int torchY = 175 + (30 * y);
+                    if(y == 3) {
+                        torchY += ((yLoc - 23) * 16);
+                    } else {
+                        torchY += (yMod * 16);
+                    }
+                    
+                    BreakableObject breakableObject = new BreakableObject("Torch_01", new Point(torchX, torchY), 3, imageManager);
+                    GameScreen.addObjectToCellCollidables(screenChunks, breakableObject);
+                }
             }
         }
         
@@ -859,6 +864,50 @@ public class AreaData {
 
                 break;
             }
+        }
+    }
+
+    public void initArea(SpriteBatch spriteBatch, ImageManager imageManager) {
+        for(int y = 0; y < screenChunks[0].length; y++) {
+            for(int x = 0; x < screenChunks.length; x++) {
+                screenChunks[x][y].initChunk();
+            }
+        }
+
+        // Create AddTileSetList & AddAnimationImageList //
+        ArrayList<String> addTileSetList = new ArrayList<>();
+        for(String tileSet : tileSetList) {
+            if(!imageManager.tile.containsKey(tileSet)) {
+                addTileSetList.add(tileSet);
+            }
+        }
+        ArrayList<String> addAnimatedImageList = new ArrayList<>();
+        for(String animatedImageName : animatedImageList) {
+            if(!imageManager.animatedImage.containsKey(animatedImageName)) {
+                addAnimatedImageList.add(animatedImageName);
+            }
+        }
+        imageManager.loadImages(addTileSetList, addAnimatedImageList);
+
+        loadArea(spriteBatch, imageManager, false);
+        loadBackgroundFrameBuffers(spriteBatch);
+
+        for(int y = 0; y < screenChunks[0].length; y++) {
+            for(int x = 0; x < screenChunks.length; x++) {
+                screenChunks[x][y].bufferTiles(spriteBatch, imageManager);
+            }
+        }
+    }
+
+    public void dispose() {
+        for(int y = 0; y < screenChunks[0].length; y++) {
+            for(int x = 0; x < screenChunks.length; x++) {
+                screenChunks[x][y].dispose();
+            }
+        }
+
+        for(FrameBuffer frameBuffer : frameBufferBackground) {
+            frameBuffer.dispose();
         }
     }
 }

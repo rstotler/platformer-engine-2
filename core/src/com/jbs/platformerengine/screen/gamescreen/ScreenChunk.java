@@ -20,8 +20,8 @@ public class ScreenChunk {
     ShapeRenderer shapeRenderer;
     FrameBuffer frameBufferTiles;
     public FrameBuffer frameBufferWalls;
-    public FrameBuffer frameBufferForeground;
     public FrameBuffer frameBufferAnimation;
+    public FrameBuffer frameBufferForeground;
 
     public Point location;
     public Tile[][] tiles;                      // 80 x 48
@@ -46,11 +46,14 @@ public class ScreenChunk {
         breakableList = new ArrayList<>();
 
         frameBufferWalls = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
-        frameBufferForeground = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
         frameBufferAnimation = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+        frameBufferForeground = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
     }
 
     public void bufferTiles(SpriteBatch spriteBatch, ImageManager imageManager) {
+        if(frameBufferTiles != null) {
+            frameBufferTiles.dispose();
+        }
         frameBufferTiles = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
         frameBufferTiles.begin();
         spriteBatch.begin();
@@ -113,5 +116,35 @@ public class ScreenChunk {
 
         shapeRenderer.end();
         spriteBatch.end();
+    }
+
+    public void initChunk() {
+        shapeRenderer = new ShapeRenderer();
+        frameBufferWalls = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+        frameBufferAnimation = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+        frameBufferForeground = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+        
+        frameBufferWalls.begin();
+        Gdx.graphics.getGL20().glClearColor(0f, 0f, 0f, 0f);
+        Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+        frameBufferWalls.end();
+
+        frameBufferAnimation.begin();
+        Gdx.graphics.getGL20().glClearColor(0f, 0f, 0f, 0f);
+        Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+        frameBufferAnimation.end();
+
+        frameBufferForeground.begin();
+        Gdx.graphics.getGL20().glClearColor(0f, 0f, 0f, 0f);
+        Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+        frameBufferForeground.end();
+    }
+
+    public void dispose() {
+        shapeRenderer.dispose();
+        frameBufferTiles.dispose();
+        frameBufferWalls.dispose();
+        frameBufferAnimation.dispose();
+        frameBufferForeground.dispose();
     }
 }

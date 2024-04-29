@@ -1,5 +1,7 @@
 package com.jbs.platformerengine.screen.gamescreen;
 
+import com.jbs.platformerengine.gamedata.Point;
+
 public class Tile {
     public String tileSet;
     public String tileName;
@@ -7,12 +9,17 @@ public class Tile {
 
     public String tileShape;
 
+    public String changeArea;
+    public Point changeLocation;
+
     public Tile(String tileSet, String tileName, int num){ 
         this.tileSet = tileSet;
         this.tileName = tileName;
         this.num = num;
 
         initTileShape();
+
+        changeArea = "None";
     }
 
     public Tile(String tileSet, String tileName){ 
@@ -21,6 +28,19 @@ public class Tile {
         num = 1;
 
         initTileShape();
+
+        changeArea = "None";
+    }
+
+    public Tile(String changeArea, Point changeLocation) {
+        tileSet = "None";
+        tileName = "None";
+        num = 1;
+        
+        tileShape = "None";
+
+        this.changeArea = changeArea;
+        this.changeLocation = changeLocation;
     }
 
     public void initTileShape() {

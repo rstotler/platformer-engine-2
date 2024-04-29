@@ -56,7 +56,7 @@ public class Player {
 
     public Player() {
         shapeRenderer = new ShapeRenderer();
-        hitBoxArea = new Rect(1295, 650, 16, 48);
+        hitBoxArea = new Rect(3770, 650, 16, 48);
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
@@ -76,7 +76,7 @@ public class Player {
 
         dashCheck = false;
         dashTimer = 0f;
-        dashTimerMax = 20f;
+        dashTimerMax = 25f;
         dashPercent = 0f;
 
         dropKickCheck = false;

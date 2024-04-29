@@ -12,6 +12,12 @@ public class ImageManager {
     public HashMap<String, HashMap<String, ArrayList<Texture>>> animatedImage;
     
     public ImageManager(ArrayList<String> tileSetList, ArrayList<String> animatedImageList) {
+        loadImages(tileSetList, animatedImageList);
+    }
+
+    public void loadImages(ArrayList<String> tileSetList, ArrayList<String> animatedImageList) {
+
+        // Tiles //
         tile = new HashMap<String, HashMap<String, ArrayList<Texture>>>();
         for(FileHandle directoryHandle : Gdx.files.internal("assets/images/tiles").list()) {
             String tileSetName = directoryHandle.toString().substring(directoryHandle.toString().lastIndexOf("/") + 1);
@@ -40,6 +46,7 @@ public class ImageManager {
             }
         }
     
+        // Animated Sprites //
         animatedImage = new HashMap<String, HashMap<String, ArrayList<Texture>>>();
         for(FileHandle directoryHandle : Gdx.files.internal("assets/images/animated").list()) {
             String animatedImageName = directoryHandle.toString().substring(directoryHandle.toString().lastIndexOf("/") + 1);
@@ -57,6 +64,32 @@ public class ImageManager {
                             animatedImage.get(animatedImageName).get(animationName).add(animationTexture);
                         }
                     }                    
+                }
+            }
+        }
+    }
+
+    public void removeImages(ArrayList<String> removeTileSetList, ArrayList<String> removeAnimatedImageList) {
+        for(String removeTileSetName : removeTileSetList) {
+            if(tile.containsKey(removeTileSetName)) {
+                for(String removeTileName : tile.get(removeTileSetName).keySet()) {
+                    // int i = 0;
+                    for(Texture texture : tile.get(removeTileSetName).get(removeTileName)) {
+                        texture.dispose();
+                        // System.out.println("Disposing TileSet: " + removeTileSetName + " " + removeTileName + " " + i++);
+                    }
+                }
+            }
+        }
+
+        for(String removeAnimatedImageName : removeAnimatedImageList) {
+            if(animatedImage.containsKey(removeAnimatedImageName)) {
+                for(String removeAnimationName : animatedImage.get(removeAnimatedImageName).keySet()) {
+                    // int i = 0;
+                    for(Texture texture : animatedImage.get(removeAnimatedImageName).get(removeAnimationName)) {
+                        texture.dispose();
+                        // System.out.println("Disposing Animation: " + removeAnimatedImageName + " " + removeAnimationName + " " + i++);
+                    }
                 }
             }
         }
