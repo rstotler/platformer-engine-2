@@ -23,6 +23,8 @@ public class Area01 extends AreaData {
         tileSetList = new ArrayList<>(Arrays.asList("Dirt-Floor", "Dirt-Platform", "Stone", "Wood"));
         animatedImageList = new ArrayList<>(Arrays.asList("Torch_01"));
 
+        outside = true;
+
         loadScreenChunks();
     }
 

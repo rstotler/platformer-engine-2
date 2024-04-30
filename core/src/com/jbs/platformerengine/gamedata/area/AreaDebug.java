@@ -18,6 +18,8 @@ public class AreaDebug extends AreaData {
         
         tileSetList = new ArrayList<>(Arrays.asList("Debug"));
 
+        outside = false;
+
         loadScreenChunks();
     }
 

@@ -24,16 +24,16 @@ import com.jbs.platformerengine.screen.Screen;
  * Fix Ceiling Ramp Collisions
  * Wave Shader When Walking Past Grass
  * Fix animation stack order
- * Bridge - top background, round the pillar sprites
+ * Bridge - top background (tinting?)
  * Combat - charged attacks, combo attacks
- * Moon, blending
+ * Moon movement, glow (blending)
  * Basic mob
- * Input audit (2 buttons at same time?)
+ * Moon texture location
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  * Jumps get disabled somehow when holding jump when bouncing?
- * Bug when landing bottom right corner on top corner of right ramp
+ * Bug when landing bottom right corner on top corner of right ramp (again?)
  */
 
 public class GameScreen extends Screen {
@@ -50,6 +50,7 @@ public class GameScreen extends Screen {
         cameraDebug.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         
         keyboard = new Keyboard();
+        initInputAdapter();
         
         areaData = new Area01();
         imageManager = new ImageManager(areaData.tileSetList, areaData.animatedImageList);
@@ -62,15 +63,7 @@ public class GameScreen extends Screen {
         unusedAreaData.put("Area02", new Area02());
     }
 
-    public void bufferChunks() {
-        for(int y = 0; y < areaData.screenChunks[0].length; y++) {
-            for(int x = 0; x < areaData.screenChunks.length; x++) {
-                areaData.screenChunks[x][y].bufferTiles(spriteBatch, imageManager);
-            }
-        }
-    }
-
-    public void handleInput(Player player) {
+    public void initInputAdapter() {
         Gdx.input.setInputProcessor(new InputAdapter() {
 
             @Override
@@ -103,7 +96,17 @@ public class GameScreen extends Screen {
                 return true;
             }
         });
+    }
 
+    public void bufferChunks() {
+        for(int y = 0; y < areaData.screenChunks[0].length; y++) {
+            for(int x = 0; x < areaData.screenChunks.length; x++) {
+                areaData.screenChunks[x][y].bufferTiles(spriteBatch, imageManager);
+            }
+        }
+    }
+
+    public void handleInput(Player player) {
         if(player.jumpButtonPressedCheck && (!Gdx.input.isKeyPressed(Keys.UP) && !Gdx.input.isKeyPressed(Input.Keys.W))) {
             player.jumpTimer = player.jumpTimerMax;
         }
@@ -118,7 +121,7 @@ public class GameScreen extends Screen {
             player.attack();
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
             player.duck(true);
-        } else if(keyboard.lastUp.equals("S") || keyboard.lastUp.equals("Down")) {
+        } else if(keyboard.lastUp.contains("S") || keyboard.lastUp.contains("Down")) {
             player.duck(false);
         }
 
@@ -261,17 +264,26 @@ public class GameScreen extends Screen {
     }
 
     public void renderBackground(Player player) {
+        float xPercent = (player.hitBoxArea.x - 328.0f) / ((Gdx.graphics.getWidth() * areaData.screenChunks.length) - 640 - 32);
+        float yPercent = (player.hitBoxArea.y - 0.0f) / ((Gdx.graphics.getHeight() * areaData.screenChunks[0].length));
+        if(xPercent > 1) {
+            xPercent = 1;
+        }
+        if(yPercent > 1) {
+            yPercent = 1;
+        }
+
+        if(areaData.outside) {
+            renderOutside(xPercent, yPercent);
+        }
+
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
 
-        float xPercent = (player.hitBoxArea.x - 328.0f) / ((Gdx.graphics.getWidth() * areaData.screenChunks.length) - 640 - 32);
         if(areaData.frameBufferBackground != null) {
             for(int i = 0; i < areaData.frameBufferBackground.size(); i++) {
                 float xMod = 0;
                 if(xPercent >= 0) {
-                    if(xPercent > 1) {
-                        xPercent = 1;
-                    }
                     if(i == 0) {
                         xMod = 1750 * xPercent;
                     } else if(i == 1) {
@@ -309,6 +321,27 @@ public class GameScreen extends Screen {
         }
 
         spriteBatch.end();
+    }
+
+    public void renderOutside(float xPercent, float yPercent) {
+        spriteBatch.setProjectionMatrix(camera.combined);
+        spriteBatch.begin();
+
+        Texture textureMoon = new Texture("images/objects/Moon_01.png"); // temp
+        float moonXMod = 0f;
+        float moonYMod = 0f;
+        if(xPercent >= 0) {
+            moonXMod = 2800 * xPercent;
+        }
+        if(yPercent >= 0) {
+            moonYMod = 1400 * yPercent;
+        }
+        float moonX = 500 + moonXMod;
+        float moonY = 250 + moonYMod;
+        spriteBatch.draw(textureMoon, moonX, moonY);
+
+        spriteBatch.end();
+        textureMoon.dispose();
     }
 
     public void renderWalls(Player player) {

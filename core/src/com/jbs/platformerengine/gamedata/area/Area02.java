@@ -21,6 +21,8 @@ public class Area02 extends AreaData {
         tileSetList = new ArrayList<>(Arrays.asList("Debug"));
         // animatedImageList = new ArrayList<>(Arrays.asList());
 
+        outside = false;
+
         loadScreenChunks();
     }
     

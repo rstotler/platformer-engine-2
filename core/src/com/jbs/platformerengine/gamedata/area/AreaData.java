@@ -31,6 +31,8 @@ public class AreaData {
     public ArrayList<String> tileSetList = new ArrayList<>();
     public ArrayList<String> animatedImageList = new ArrayList<>();
 
+    public boolean outside;
+
     public void loadScreenChunks() {
         screenChunks = new ScreenChunk[size.width][size.height];
         for(int y = 0; y < screenChunks[0].length; y++) {
@@ -534,8 +536,10 @@ public class AreaData {
             int tileNum = 10;
             for(int y = 0; y < 2; y++) {
                 if((y == 0 && x > 2) || (y == 1 && x > 4)) {
-                    if((y == 0 && x == 3) || (y == 1 && x == 5)) {
+                    if(y == 0 && x == 3) {
                         tileNum = 8;
+                    } else if(y == 1 && x == 5) {
+                        tileNum = 12;
                     }
                     spriteBatch.draw(imageManager.tile.get("Stone").get("Square").get(tileNum), tileX * 16, (yLoc - 5 - y) * 16);
                 }
@@ -569,6 +573,11 @@ public class AreaData {
                             tileNum = 1;
                         }
                     }
+                    if(y == 2 && x <= pillarSpace) {
+                        tileName = "Square";
+                        tileNum = 12;
+                    }
+                    
                     spriteBatch.draw(imageManager.tile.get("Stone").get(tileName).get(tileNum), tileX * 16, (yLoc - 7 - y) * 16);
                 }
             }
@@ -588,6 +597,11 @@ public class AreaData {
                             tileNum = 1;
                         }
                     }
+                    if(y == 1 && x <= pillarSpace) {
+                        tileName = "Square";
+                        tileNum = 12;
+                    }
+
                     spriteBatch.draw(imageManager.tile.get("Stone").get(tileName).get(tileNum), tileX * 16, (yLoc - 7 - y) * 16);
                 }
             }
@@ -607,6 +621,11 @@ public class AreaData {
                             tileNum = 1;
                         }
                     }
+                    if(x <= pillarSpace) {
+                        tileName = "Square";
+                        tileNum = 12;
+                    }
+
                     spriteBatch.draw(imageManager.tile.get("Stone").get(tileName).get(tileNum), tileX * 16, (yLoc - 7 - y) * 16);
                 }
             }
@@ -658,7 +677,7 @@ public class AreaData {
         Texture rooftopTextureLeft = new Texture("images/objects/Rooftop_01.png");
         Texture rooftopTextureMiddle = new Texture("images/objects/Rooftop_02.png");
         
-        int rooftopXMod = 25;
+        int rooftopXMod = 32;
         int rooftopYMod = 104;
         int previousChunkX = -1;
         int rooftopCount = (((width * 16) - rooftopXMod - 16) / rooftopTextureMiddle.getWidth()) + 2;

@@ -56,7 +56,7 @@ public class Player {
 
     public Player() {
         shapeRenderer = new ShapeRenderer();
-        hitBoxArea = new Rect(3770, 650, 16, 48);
+        hitBoxArea = new Rect(1296, 600, 16, 48);
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
@@ -125,7 +125,7 @@ public class Player {
         
         // Jump Velocity //
         if(keyboard.up || dropKickBounceCheck) {
-            if(((keyboard.lastDown.equals("Up") || keyboard.lastDown.equals("W")))
+            if(((keyboard.lastDown.contains("Up") || keyboard.lastDown.contains("W")))
             && !ducking) {
                 if(jumpCount < getMaxJumpCount() && !jumpButtonPressedCheck) {
                     if(superJumpPercent < .30) {
@@ -143,8 +143,7 @@ public class Player {
                 jumpTimer += 1;
             }
         }
-        if(keyboard.lastUp != null
-        && (keyboard.lastUp.equals("Up") || keyboard.lastUp.equals("W"))
+        if((keyboard.lastUp.contains("Up") || keyboard.lastUp.contains("W"))
         && dropKickBounceCheck == false) {
             jumpTimer = jumpTimerMax;
             jumpButtonPressedCheck = false;
@@ -178,8 +177,8 @@ public class Player {
             }
         }
 
-        keyboard.lastDown = "";
-        keyboard.lastUp = "";
+        keyboard.lastDown.clear();
+        keyboard.lastUp.clear();
     }
 
     public void updateTileCollisions(ScreenChunk[][] screenChunks) {

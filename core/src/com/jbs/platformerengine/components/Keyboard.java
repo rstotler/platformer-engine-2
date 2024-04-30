@@ -1,5 +1,7 @@
 package com.jbs.platformerengine.components;
 
+import java.util.ArrayList;
+
 public class Keyboard {
     public boolean left;
     public boolean right;
@@ -7,8 +9,8 @@ public class Keyboard {
     public boolean down;
     public boolean shift;
 
-    public String lastDown;
-    public String lastUp;
+    public ArrayList<String> lastDown;
+    public ArrayList<String> lastUp;
 
     public Keyboard() {
         left = false;
@@ -17,8 +19,8 @@ public class Keyboard {
         down = false;
         shift = false;
 
-        lastDown = "";
-        lastUp = "";
+        lastDown = new ArrayList<>();
+        lastUp = new ArrayList<>();
     }
 
     public void keyDown(String key) {
@@ -34,7 +36,7 @@ public class Keyboard {
             shift = true;
         }
 
-        lastDown = key;
+        lastDown.add(key);
     }
 
     public void keyUp(String key) {
@@ -50,6 +52,6 @@ public class Keyboard {
             shift = false;
         }
 
-        lastUp = key;
+        lastUp.add(key);
     }
 }
