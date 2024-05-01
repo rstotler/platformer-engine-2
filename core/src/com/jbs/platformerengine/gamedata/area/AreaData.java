@@ -32,6 +32,8 @@ public class AreaData {
     public ArrayList<String> animatedImageList = new ArrayList<>();
 
     public boolean outside;
+    public float nightTimer;
+    public float nightTimerMax;
 
     public void loadScreenChunks() {
         screenChunks = new ScreenChunk[size.width][size.height];
@@ -915,6 +917,15 @@ public class AreaData {
             for(int x = 0; x < screenChunks.length; x++) {
                 screenChunks[x][y].bufferTiles(spriteBatch, imageManager);
             }
+        }
+
+        // Other Properties //
+        nightTimer = 0;
+    }
+
+    public void update() {
+        if(outside && nightTimer < nightTimerMax) {
+            nightTimer += 1;
         }
     }
 

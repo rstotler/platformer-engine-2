@@ -24,6 +24,8 @@ public class Area01 extends AreaData {
         animatedImageList = new ArrayList<>(Arrays.asList("Torch_01"));
 
         outside = true;
+        nightTimer = 0;
+        nightTimerMax = 60 * 100;
 
         loadScreenChunks();
     }

@@ -26,9 +26,10 @@ import com.jbs.platformerengine.screen.Screen;
  * Fix animation stack order
  * Bridge - top background (tinting?)
  * Combat - charged attacks, combo attacks
- * Moon movement, glow (blending)
+ * Moon glow (blending)
  * Basic mob
  * Moon texture location
+ * Fix Parralax Background
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
@@ -197,6 +198,7 @@ public class GameScreen extends Screen {
     }
 
     public void update(Player player) {
+        areaData.update();
         player.update(keyboard, areaData.screenChunks);
         
         // Change Area Check //
@@ -331,13 +333,18 @@ public class GameScreen extends Screen {
         float moonXMod = 0f;
         float moonYMod = 0f;
         if(xPercent >= 0) {
-            moonXMod = 2800 * xPercent;
+            moonXMod = ((Gdx.graphics.getWidth() * areaData.screenChunks.length) - (Gdx.graphics.getWidth() * .60f)) * xPercent;
         }
         if(yPercent >= 0) {
             moonYMod = 1400 * yPercent;
         }
-        float moonX = 500 + moonXMod;
-        float moonY = 250 + moonYMod;
+
+        float nightPercent = areaData.nightTimer / areaData.nightTimerMax;
+        float xPercentMod = (float) (1 - Math.cos(Math.toRadians(nightPercent * 180))) * 225;
+        float yPercentMod = (float) (1 - Math.cos(Math.toRadians(nightPercent * 90))) * 20;
+
+        float moonX = 550 + moonXMod - xPercentMod;
+        float moonY = 240 + moonYMod - yPercentMod;
         spriteBatch.draw(textureMoon, moonX, moonY);
 
         spriteBatch.end();

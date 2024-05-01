@@ -56,7 +56,7 @@ public class Player {
 
     public Player() {
         shapeRenderer = new ShapeRenderer();
-        hitBoxArea = new Rect(1296, 600, 16, 48);
+        hitBoxArea = new Rect(129, 100, 16, 48);
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
