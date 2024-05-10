@@ -763,8 +763,11 @@ public class Player {
 
     public void attack() {
         if(attackCount < attackData.get(getCurrentAttack()).attackDecayTimerMax.length) {
-            attackCount += 1;
-            attackDecayTimer = 0;
+            if(attackCount == 0
+            || attackDecayTimer >= attackData.get(getCurrentAttack()).attackComboStartFrame[attackCount - 1]) {
+                attackCount += 1;
+                attackDecayTimer = 0;
+            }
         }
     }
 
@@ -816,11 +819,25 @@ public class Player {
     }
 
     public Rect getAttackHitBox() {
-        int attackX = hitBoxArea.x + (hitBoxArea.width / 2) + attackData.get(getCurrentAttack()).attackXMod[attackCount - 1];
-        if(facingDirection.equals("Left")) {
-            attackX -= attackData.get(getCurrentAttack()).attackWidth[attackCount - 1] + (attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] * 2);
+        float movePercent = 0f;
+        int xMove = 0;
+        int yMove = 0;
+        if(attackDecayTimer > attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1]
+        && attackDecayTimer < attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1]) {
+            movePercent = (attackDecayTimer - attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1] - 1) / (attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1] - attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1] - 2);
+            if(attackData.get(getCurrentAttack()).attackMoveWidth[attackCount - 1] != -1) {
+                xMove = (int) (movePercent * attackData.get(getCurrentAttack()).attackMoveWidth[attackCount - 1]);
+            }
+            if(attackData.get(getCurrentAttack()).attackMoveHeight[attackCount - 1] != -1) {
+                yMove = (int) (movePercent * attackData.get(getCurrentAttack()).attackMoveHeight[attackCount - 1]);
+            }
         }
-        int attackY = hitBoxArea.y + attackData.get(getCurrentAttack()).attackYMod[attackCount - 1];
+
+        int attackX = hitBoxArea.x + (hitBoxArea.width / 2) + attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] + xMove;
+        if(facingDirection.equals("Left")) {
+            attackX -= attackData.get(getCurrentAttack()).attackWidth[attackCount - 1] + (attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] * 2) + xMove;
+        }
+        int attackY = hitBoxArea.y + attackData.get(getCurrentAttack()).attackYMod[attackCount - 1] + yMove;
         if(ducking) {
             attackY -= 13;
         }

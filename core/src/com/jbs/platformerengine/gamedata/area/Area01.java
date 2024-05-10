@@ -25,7 +25,7 @@ public class Area01 extends AreaData {
 
         outside = true;
         nightTimer = 0;
-        nightTimerMax = 60 * 100;
+        nightTimerMax = 60 * 500;
 
         loadScreenChunks();
     }

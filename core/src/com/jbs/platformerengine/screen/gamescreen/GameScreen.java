@@ -24,12 +24,10 @@ import com.jbs.platformerengine.screen.Screen;
  * Fix Ceiling Ramp Collisions
  * Wave Shader When Walking Past Grass
  * Fix animation stack order
- * Bridge - top background (tinting?)
- * Combat - charged attacks, combo attacks
- * Moon glow (blending)
+ * Move frameBuffers to AreaData?
+ * Combat - charged attacks
  * Basic mob
- * Moon texture location
- * Fix Parralax Background
+ * Moon texture & glow location
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
@@ -304,9 +302,9 @@ public class GameScreen extends Screen {
                     yMod = heightPercent * 400;
 
                     if(i == 1) {
-                        yMod += heightPercent * 14;
+                        yMod -= heightPercent * 14;
                     } else if(i == 2) {
-                        yMod += heightPercent * 50;
+                        yMod -= heightPercent * 50;
                     }
                 }
 
@@ -330,6 +328,7 @@ public class GameScreen extends Screen {
         spriteBatch.begin();
 
         Texture textureMoon = new Texture("images/objects/Moon_01.png"); // temp
+        Texture textureMoonGlow = new Texture("images/objects/Moon_02.png"); // temp
         float moonXMod = 0f;
         float moonYMod = 0f;
         if(xPercent >= 0) {
@@ -340,15 +339,17 @@ public class GameScreen extends Screen {
         }
 
         float nightPercent = areaData.nightTimer / areaData.nightTimerMax;
-        float xPercentMod = (float) (1 - Math.cos(Math.toRadians(nightPercent * 180))) * 225;
+        float xPercentMod = nightPercent * 225;
         float yPercentMod = (float) (1 - Math.cos(Math.toRadians(nightPercent * 90))) * 20;
 
         float moonX = 550 + moonXMod - xPercentMod;
         float moonY = 240 + moonYMod - yPercentMod;
+        spriteBatch.draw(textureMoonGlow, moonX - 46, moonY - 46);
         spriteBatch.draw(textureMoon, moonX, moonY);
 
         spriteBatch.end();
         textureMoon.dispose();
+        textureMoonGlow.dispose();
     }
 
     public void renderWalls(Player player) {

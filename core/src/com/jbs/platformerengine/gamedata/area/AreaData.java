@@ -7,6 +7,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.jbs.platformerengine.gamedata.Point;
@@ -640,6 +641,7 @@ public class AreaData {
 
             // Top Wall //
             int topWallIndent = 3;
+            boolean drawTopWallBackground = false;
 
             if(x >= topWallIndent) {
                 tileNum = 8;
@@ -664,6 +666,7 @@ public class AreaData {
                     }
 
                     spriteBatch.draw(imageManager.tile.get("Wood").get(tileName).get(tileNum), tileX * 16, (yLoc + y) * 16);
+                    drawTopWallBackground = true;
                 }
                 else if(x > (topWallIndent - 1) && y == 5) {
                     spriteBatch.draw(imageManager.tile.get("Wood").get("Horizontal").get(0), tileX * 16, (yLoc + y) * 16);
@@ -673,6 +676,21 @@ public class AreaData {
 
             spriteBatch.end();
             screenChunks[chunkX][chunkY].frameBufferForeground.end();
+
+            // Top Wall Background (Tinted) //
+            if(drawTopWallBackground) {
+                Sprite sprite = new Sprite(imageManager.tile.get("Wood").get("Vertical-Middle").get(1));
+                sprite.setColor(0, 0, 1, 1);
+                for(int y = 0; y < 6; y++) {
+                    screenChunks[chunkX][chunkY].frameBufferWalls.begin();
+                    spriteBatch.begin();
+                    spriteBatch.setColor(100/255f, 100/255f, 100/255f, 1);
+                    spriteBatch.draw(sprite, (tileX + 1) * 16, (yLoc + y) * 16);
+                    spriteBatch.setColor(1, 1, 1, 1);
+                    spriteBatch.end();
+                    screenChunks[chunkX][chunkY].frameBufferWalls.end();
+                }
+            }
         }
 
         // Rooftop //
@@ -920,7 +938,9 @@ public class AreaData {
         }
 
         // Other Properties //
-        nightTimer = 0;
+        if(outside) {
+            nightTimer = 0;
+        }
     }
 
     public void update() {
