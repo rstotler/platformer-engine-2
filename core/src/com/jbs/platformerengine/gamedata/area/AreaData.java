@@ -926,7 +926,7 @@ public class AreaData {
                 addAnimatedImageList.add(animatedImageName);
             }
         }
-        imageManager.loadImages(addTileSetList, addAnimatedImageList);
+        imageManager.loadImages(addTileSetList, addAnimatedImageList, outside);
 
         loadArea(spriteBatch, imageManager, false);
         loadBackgroundFrameBuffers(spriteBatch);
