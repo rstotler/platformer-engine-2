@@ -33,7 +33,7 @@ public class AttackData {
         HashMap<String, AttackData> attackData = new HashMap<>();
 
         float[] attackDecayTimerMax = new float[] {24f, 24f, 20f};
-        int[] attackFrameStart = new int[] {3, 3, 2};
+        int[] attackFrameStart = new int[] {3, 3, 0};
         int[] attackFrameEnd = new int[] {7, 7, 7};
         int[] attackComboStartFrame = new int[] {12, 12, -1};
         int[] attackXMod = new int[] {20, 25, 25};

@@ -23,8 +23,6 @@ import com.jbs.platformerengine.screen.Screen;
 /* To-Do List:
  * Fix Ceiling Ramp Collisions
  * Wave Shader When Walking Past Grass
- * Fix animation stack order
- * Move frameBuffers to AreaData?
  * Combat - charged attacks
  * Basic mob
  * Moon texture & glow location
@@ -254,11 +252,37 @@ public class GameScreen extends Screen {
         camera.update();
 
         renderBackground(player);
-        renderWalls(player);
-        renderTiles(player);
-        renderAnimations(player);
-        player.render(camera);
-        renderForeground(player);
+
+        int chunkStartX = player.hitBoxArea.x / Gdx.graphics.getWidth() - 1;
+        int chunkStartY = player.hitBoxArea.y / Gdx.graphics.getHeight() - 1;
+
+        for(int y = chunkStartY; y < chunkStartY + 3; y++) {
+            for(int x = chunkStartX; x < chunkStartX + 3; x++) {
+                if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
+                    int xLoc = x * Gdx.graphics.getWidth();
+                    int yLoc = y * Gdx.graphics.getHeight();
+                    
+                    spriteBatch.setProjectionMatrix(camera.combined);
+
+                    spriteBatch.begin();
+                    spriteBatch.draw(areaData.screenChunks[x][y].frameBufferWalls.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                    spriteBatch.draw(areaData.screenChunks[x][y].frameBufferTiles.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                    spriteBatch.end();
+
+                    areaData.screenChunks[x][y].bufferAnimations(camera, spriteBatch, imageManager);
+
+                    spriteBatch.begin();
+                    spriteBatch.draw(areaData.screenChunks[x][y].frameBufferAnimation.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                    
+                    if(x == chunkStartX + 1 && y == chunkStartY + 1) {
+                        player.render(camera);
+                    }
+                    
+                    spriteBatch.draw(areaData.screenChunks[x][y].frameBufferForeground.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                    spriteBatch.end();
+                }
+            }
+        }
 
         renderDebugData(player);
     }
@@ -350,75 +374,6 @@ public class GameScreen extends Screen {
         spriteBatch.end();
         textureMoon.dispose();
         textureMoonGlow.dispose();
-    }
-
-    public void renderWalls(Player player) {
-        int chunkStartX = player.hitBoxArea.x / Gdx.graphics.getWidth() - 1;
-        int chunkStartY = player.hitBoxArea.y / Gdx.graphics.getHeight() - 1;
-
-        for(int y = chunkStartY; y < chunkStartY + 3; y++) {
-            for(int x = chunkStartX; x < chunkStartX + 3; x++) {
-                if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
-                    spriteBatch.setProjectionMatrix(camera.combined);
-                    spriteBatch.begin();
-                    int xLoc = x * Gdx.graphics.getWidth();
-                    int yLoc = y * Gdx.graphics.getHeight();
-                    spriteBatch.draw(areaData.screenChunks[x][y].frameBufferWalls.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
-                    spriteBatch.end();
-                }
-            }
-        }
-    }
-
-    public void renderTiles(Player player) {
-        int chunkStartX = player.hitBoxArea.x / Gdx.graphics.getWidth() - 1;
-        int chunkStartY = player.hitBoxArea.y / Gdx.graphics.getHeight() - 1;
-
-        for(int y = chunkStartY; y < chunkStartY + 3; y++) {
-            for(int x = chunkStartX; x < chunkStartX + 3; x++) {
-                if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
-                    areaData.screenChunks[x][y].renderTiles(camera, spriteBatch);
-                }
-            }
-        }
-    }
-
-    public void renderAnimations(Player player) {
-        int chunkStartX = player.hitBoxArea.x / Gdx.graphics.getWidth() - 1;
-        int chunkStartY = player.hitBoxArea.y / Gdx.graphics.getHeight() - 1;
-
-        for(int y = chunkStartY; y < chunkStartY + 3; y++) {
-            for(int x = chunkStartX; x < chunkStartX + 3; x++) {
-                if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
-                    areaData.screenChunks[x][y].bufferAnimations(camera, spriteBatch, imageManager);
-
-                    spriteBatch.setProjectionMatrix(camera.combined);
-                    spriteBatch.begin();
-                    int xLoc = x * Gdx.graphics.getWidth();
-                    int yLoc = y * Gdx.graphics.getHeight();
-                    spriteBatch.draw(areaData.screenChunks[x][y].frameBufferAnimation.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
-                    spriteBatch.end();
-                }
-            }
-        }
-    }
-
-    public void renderForeground(Player player) {
-        int chunkStartX = player.hitBoxArea.x / Gdx.graphics.getWidth() - 1;
-        int chunkStartY = player.hitBoxArea.y / Gdx.graphics.getHeight() - 1;
-
-        for(int y = chunkStartY; y < chunkStartY + 3; y++) {
-            for(int x = chunkStartX; x < chunkStartX + 3; x++) {
-                if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
-                    spriteBatch.setProjectionMatrix(camera.combined);
-                    spriteBatch.begin();
-                    int xLoc = x * Gdx.graphics.getWidth();
-                    int yLoc = y * Gdx.graphics.getHeight();
-                    spriteBatch.draw(areaData.screenChunks[x][y].frameBufferForeground.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
-                    spriteBatch.end();
-                }
-            }
-        }
     }
 
     public void renderDebugData(Player player) {
