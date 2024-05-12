@@ -13,7 +13,10 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
+import com.jbs.platformerengine.gamedata.entity.Mob;
+import com.jbs.platformerengine.gamedata.entity.player.Player;
 import com.jbs.platformerengine.screen.ImageManager;
+import com.jbs.platformerengine.screen.gamescreen.CellCollidables;
 import com.jbs.platformerengine.screen.gamescreen.GameScreen;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
@@ -21,6 +24,7 @@ import com.jbs.platformerengine.screen.gamescreen.Tile;
 public class AreaData {
     public String levelName;
     public Rect size;
+    public boolean initCheck = false;
 
     public ScreenChunk[][] screenChunks;
     public ArrayList<FrameBuffer> frameBufferBackground;
@@ -45,7 +49,7 @@ public class AreaData {
         }
     }
 
-    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager, boolean initCheck) {}
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {}
 
     public void createFloor(String tileSetName, boolean createHills) {
 
@@ -507,12 +511,12 @@ public class AreaData {
             spriteBatch.begin();
 
             // Top Walkable Platform //
-            if(initCheck) {
+            if(!initCheck) {
                 screenChunks[chunkX][chunkY].tiles[tileX][yLoc] = new Tile("Stone", "Square-Half");
             }
             
             // Rooftop //
-            if(initCheck && x >= 2) {
+            if(!initCheck && x >= 2) {
                 int rooftopYLoc = yLoc + 9;
                 int rooftopChunkY = rooftopYLoc / screenChunks[0][0].tiles[0].length;
                 int rooftopTileY = rooftopYLoc % screenChunks[0][0].tiles[0].length;
@@ -827,7 +831,7 @@ public class AreaData {
         }
 
         // Torches (Breakable Object) //
-        if(initCheck) {
+        if(!initCheck) {
             for(int x = 0; x < archCount; x++) {
                 int torchX = (xLoc * 16) + (((pillarWidth + pillarSpace) * 16) * (x + 1)) - (pillarWidth * 8) - 5;
                 int torchYCount = 3;
@@ -906,7 +910,7 @@ public class AreaData {
         }
     }
 
-    public void initArea(SpriteBatch spriteBatch, ImageManager imageManager) {
+    public void changeArea(SpriteBatch spriteBatch, ImageManager imageManager) {
         for(int y = 0; y < screenChunks[0].length; y++) {
             for(int x = 0; x < screenChunks.length; x++) {
                 screenChunks[x][y].initChunk();
@@ -928,7 +932,7 @@ public class AreaData {
         }
         imageManager.loadImages(addTileSetList, addAnimatedImageList, outside);
 
-        loadArea(spriteBatch, imageManager, false);
+        loadArea(spriteBatch, imageManager);
         loadBackgroundFrameBuffers(spriteBatch);
 
         for(int y = 0; y < screenChunks[0].length; y++) {
@@ -943,9 +947,42 @@ public class AreaData {
         }
     }
 
-    public void update() {
+    public void update(Player player) {
         if(outside && nightTimer < nightTimerMax) {
             nightTimer += 1;
+        }
+
+        // Update Mobs //
+        int chunkStartX = player.hitBoxArea.x / Gdx.graphics.getWidth() - 1;
+        int chunkStartY = player.hitBoxArea.y / Gdx.graphics.getHeight() - 1;
+
+        for(int y = chunkStartY; y < chunkStartY + 3; y++) {
+            for(int x = chunkStartX; x < chunkStartX + 3; x++) {
+                if(x >= 0 && y >= 0 && x < screenChunks.length && y < screenChunks[0].length) {
+                    HashMap<Mob, ArrayList<CellCollidables>> updateMobScreenChunkMap = new HashMap<>();
+                    for(Mob mob : screenChunks[x][y].mobList) {
+                        ArrayList<CellCollidables> oldCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, mob);
+                        
+                        mob.updateAI();
+                        mob.updateTileCollisions(screenChunks);
+
+                        // Update Mob Cell Collidables //
+                        ArrayList<CellCollidables> newCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, mob);
+                        if(!oldCellCollidables.equals(newCellCollidables)) {
+                            ArrayList<CellCollidables> removeFromScreenChunkList = GameScreen.updateObjectCellCollidables(screenChunks, mob, oldCellCollidables, newCellCollidables);
+                            if(removeFromScreenChunkList.size() > 0) {
+                                updateMobScreenChunkMap.put(mob, removeFromScreenChunkList);
+                            }
+                        }
+                    }
+
+                    for(Mob mob : updateMobScreenChunkMap.keySet()) {
+                        if(screenChunks[x][y].mobList.contains(mob)) {
+                            screenChunks[x][y].mobList.remove(mob);
+                        }
+                    }
+                }
+            }
         }
     }
 

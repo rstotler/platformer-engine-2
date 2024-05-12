@@ -23,7 +23,7 @@ public class AreaDebug extends AreaData {
         loadScreenChunks();
     }
 
-    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager, boolean initCheck) {
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {
 
         // Bottom Floor //
         for(int i = 0; i < screenChunks.length; i++) {
@@ -119,5 +119,7 @@ public class AreaDebug extends AreaData {
                 screenChunks[0][1].tiles[i][0] = new Tile("Debug", "Square");
             }
         }
+
+        initCheck = true;
     }
 }

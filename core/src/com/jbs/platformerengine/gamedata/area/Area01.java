@@ -30,8 +30,8 @@ public class Area01 extends AreaData {
         loadScreenChunks();
     }
 
-    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager, boolean initCheck) {
-        if(initCheck) {
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {
+        if(!initCheck) {
 
             // Base Floor //
             createFloor("Dirt-Floor", true);
@@ -208,15 +208,13 @@ public class Area01 extends AreaData {
             screenChunks[chunkX][0].frameBufferWalls.end();
         }
 
-        // Test Mobs //
-        Mob testMob = new Mob();
-        // GameScreen.addObjectToCellCollidables(screenChunks, testMob);
-
         // Dispose Textures //
         for(Texture texture : grassTexture) {
             texture.dispose();
         }
         rockTexture.dispose();
         tombstoneTexture.dispose();
+
+        initCheck = true;
     }
 }

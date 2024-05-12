@@ -6,13 +6,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
+import com.jbs.platformerengine.gamedata.entity.Mob;
 import com.jbs.platformerengine.screen.ImageManager;
+import com.jbs.platformerengine.screen.gamescreen.GameScreen;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
 
 public class Area02 extends AreaData {
     public Area02() {
         levelName = "Area02";
-        size = new Rect(3, 3);
+        size = new Rect(2, 3);
     
         defaultTileSet = "Debug";
         defaultTileName = "Square";
@@ -26,7 +28,7 @@ public class Area02 extends AreaData {
         loadScreenChunks();
     }
     
-    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager, boolean initCheck) {
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {
         createFloor("Debug", false);
 
         // Exit To Area01 Bridge //
@@ -37,5 +39,13 @@ public class Area02 extends AreaData {
             int exitX = (screenChunks.length * Gdx.graphics.getWidth()) - 32;
             screenChunks[0][chunkY].tiles[0][tileY] = new Tile("Area01", new Point(exitX, 600));
         }
+
+        // Test Mobs //
+        if(!initCheck) {
+            Mob testMob = new Mob();
+            GameScreen.addObjectToCellCollidables(screenChunks, testMob);
+        }
+        
+        initCheck = true;
     }
 }

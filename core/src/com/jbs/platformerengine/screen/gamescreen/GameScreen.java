@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.jbs.platformerengine.components.Keyboard;
+import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.area.Area01;
 import com.jbs.platformerengine.gamedata.area.Area02;
 import com.jbs.platformerengine.gamedata.area.AreaData;
@@ -23,9 +24,11 @@ import com.jbs.platformerengine.screen.Screen;
 /* To-Do List:
  * Fix Ceiling Ramp Collisions
  * Wave Shader When Walking Past Grass
- * Combat - Charged Attacks
- * Basic Mob
- * Moon Texture & Glow Location
+ * Combat - Charged Attacks, Air Combo Variable
+ * Spells - Player, Mob
+ * Background - Clouds, Stars
+ * Tighten Up Y Down Collision For Mobs?
+ * Areas - Throne Room, Underground, Tower?
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
@@ -49,15 +52,15 @@ public class GameScreen extends Screen {
         keyboard = new Keyboard();
         initInputAdapter();
         
-        areaData = new Area01();
+        areaData = new Area02();
         imageManager = new ImageManager(areaData.tileSetList, areaData.animatedImageList, areaData.outside);
-        areaData.loadArea(spriteBatch, imageManager, true);
+        areaData.loadArea(spriteBatch, imageManager);
         areaData.loadBackgroundFrameBuffers(spriteBatch);
 
         bufferChunks();
 
         unusedAreaData = new HashMap<>();
-        unusedAreaData.put("Area02", new Area02());
+        unusedAreaData.put("Area01", new Area01());
     }
 
     public void initInputAdapter() {
@@ -194,7 +197,7 @@ public class GameScreen extends Screen {
     }
 
     public void update(Player player) {
-        areaData.update();
+        areaData.update(player);
         player.update(keyboard, areaData.screenChunks);
         
         // Change Area Check //
@@ -231,7 +234,7 @@ public class GameScreen extends Screen {
             areaData = unusedAreaData.get(targetTile.changeArea);
             unusedAreaData.remove(targetTile.changeArea);
 
-            areaData.initArea(spriteBatch, imageManager);
+            areaData.changeArea(spriteBatch, imageManager);
 
             player.hitBoxArea.x = targetTile.changeLocation.x;
             player.hitBoxArea.y = targetTile.changeLocation.y;
@@ -456,6 +459,41 @@ public class GameScreen extends Screen {
                 }
             }
         }
+    }
+
+    public static <T> ArrayList<CellCollidables> updateObjectCellCollidables(ScreenChunk[][] screenChunks, T object, ArrayList<CellCollidables> oldCellCollidables, ArrayList<CellCollidables> newCellCollidables) {
+        // Function Still Needs To Be Updated For Other Object Types //
+        
+        ArrayList<ScreenChunk> newChunkList = new ArrayList<>();
+        for(CellCollidables newCell : newCellCollidables) {
+            if(!oldCellCollidables.contains(newCell)) {
+                newCell.mobList.add((Mob) object);
+                
+                if(!screenChunks[newCell.chunkX][newCell.chunkY].mobList.contains((Mob) object)) {
+                    screenChunks[newCell.chunkX][newCell.chunkY].mobList.add((Mob) object);
+                }
+            }
+
+            if(!newChunkList.contains(screenChunks[newCell.chunkX][newCell.chunkY])) {
+                newChunkList.add(screenChunks[newCell.chunkX][newCell.chunkY]);
+            }
+        }
+
+        ArrayList<CellCollidables> removeFromScreenChunkList = new ArrayList<>();
+        for(CellCollidables oldCell : oldCellCollidables) {
+            if(!newCellCollidables.contains(oldCell)) {
+                if(oldCell.mobList.contains(object)) {
+                    oldCell.mobList.remove(object);
+                }
+
+                if(!newChunkList.contains(screenChunks[oldCell.chunkX][oldCell.chunkY])
+                && !removeFromScreenChunkList.contains(oldCell)) {
+                    removeFromScreenChunkList.add(oldCell);
+                }
+            }
+        }
+        
+        return removeFromScreenChunkList;
     }
 
     public static <T> ArrayList<CellCollidables> getObjectCellCollidables(ScreenChunk[][] screenChunks, T object) {

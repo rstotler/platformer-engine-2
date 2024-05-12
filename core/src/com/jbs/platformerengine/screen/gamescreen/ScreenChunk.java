@@ -27,7 +27,7 @@ public class ScreenChunk {
     public Tile[][] tiles;                      // 80 x 48
     public CellCollidables[][] cellCollidables; // 20 x 12
 
-    ArrayList<Mob> mobList;
+    public ArrayList<Mob> mobList;
     ArrayList<BreakableObject> breakableList;
 
     public ScreenChunk(int x, int y) {
@@ -38,7 +38,7 @@ public class ScreenChunk {
         cellCollidables = new CellCollidables[20][12];
         for(int yIndex = 0; yIndex < cellCollidables[0].length; yIndex++) {
             for(int xIndex = 0; xIndex < cellCollidables.length; xIndex++) {
-                cellCollidables[xIndex][yIndex] = new CellCollidables(x, y);
+                cellCollidables[xIndex][yIndex] = new CellCollidables(x, y, xIndex, yIndex);
             }
         }
 
