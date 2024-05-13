@@ -40,8 +40,8 @@ public class GameScreen extends Screen {
     OrthographicCamera cameraDebug;
     Keyboard keyboard;
 
-    AreaData areaData;
-    HashMap<String, AreaData> unusedAreaData;
+    public static AreaData areaData;
+    public static HashMap<String, AreaData> unusedAreaData;
     
     ImageManager imageManager;
     
@@ -53,14 +53,15 @@ public class GameScreen extends Screen {
         initInputAdapter();
         
         areaData = new Area02();
+        unusedAreaData = new HashMap<>();
+        unusedAreaData.put("Area01", new Area01());
+
         imageManager = new ImageManager(areaData.tileSetList, areaData.animatedImageList, areaData.outside);
+        
         areaData.loadArea(spriteBatch, imageManager);
         areaData.loadBackgroundFrameBuffers(spriteBatch);
 
         bufferChunks();
-
-        unusedAreaData = new HashMap<>();
-        unusedAreaData.put("Area01", new Area01());
     }
 
     public void initInputAdapter() {
@@ -205,7 +206,11 @@ public class GameScreen extends Screen {
         int chunkY = player.hitBoxArea.getMiddle().y / Gdx.graphics.getHeight();
         int tileX = (player.hitBoxArea.getMiddle().x % Gdx.graphics.getWidth()) / 16;
         int tileY = (player.hitBoxArea.getMiddle().y % Gdx.graphics.getHeight()) / 16;
-        if(areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null
+        if(chunkX >= 0 && chunkX < areaData.screenChunks.length
+        && chunkY >= 0 && chunkY < areaData.screenChunks[0].length
+        && tileX >= 0 && tileX < areaData.screenChunks[chunkX][chunkY].tiles.length
+        && tileY >= 0 && tileY < areaData.screenChunks[chunkX][chunkY].tiles[0].length
+        && areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null
         && !areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY].changeArea.equals("None")) {
             changeArea(player, areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY]);
         }
@@ -557,5 +562,15 @@ public class GameScreen extends Screen {
         }
 
         return objectCellCollidables;
+    }
+
+    public static AreaData getAreaData(String targetAreaName) {
+        if(areaData != null && areaData.levelName.equals(targetAreaName)) {
+            return areaData;
+        } else if(unusedAreaData != null && unusedAreaData.containsKey(targetAreaName)) {
+            return unusedAreaData.get(targetAreaName);
+        }
+
+        return null;
     }
 }

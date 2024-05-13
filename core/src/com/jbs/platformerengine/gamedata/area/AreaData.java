@@ -36,6 +36,8 @@ public class AreaData {
     public ArrayList<String> tileSetList = new ArrayList<>();
     public ArrayList<String> animatedImageList = new ArrayList<>();
 
+    public int areaTimer = 0;
+
     public boolean outside;
     public float nightTimer;
     public float nightTimerMax;
@@ -948,6 +950,8 @@ public class AreaData {
     }
 
     public void update(Player player) {
+        areaTimer++;
+
         if(outside && nightTimer < nightTimerMax) {
             nightTimer += 1;
         }
@@ -961,17 +965,20 @@ public class AreaData {
                 if(x >= 0 && y >= 0 && x < screenChunks.length && y < screenChunks[0].length) {
                     HashMap<Mob, ArrayList<CellCollidables>> updateMobScreenChunkMap = new HashMap<>();
                     for(Mob mob : screenChunks[x][y].mobList) {
-                        ArrayList<CellCollidables> oldCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, mob);
+                        if(mob.updateTimer != areaTimer) {
+                            ArrayList<CellCollidables> oldCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, mob);
                         
-                        mob.updateAI();
-                        mob.updateTileCollisions(screenChunks);
-
-                        // Update Mob Cell Collidables //
-                        ArrayList<CellCollidables> newCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, mob);
-                        if(!oldCellCollidables.equals(newCellCollidables)) {
-                            ArrayList<CellCollidables> removeFromScreenChunkList = GameScreen.updateObjectCellCollidables(screenChunks, mob, oldCellCollidables, newCellCollidables);
-                            if(removeFromScreenChunkList.size() > 0) {
-                                updateMobScreenChunkMap.put(mob, removeFromScreenChunkList);
+                            mob.updateAI(this);
+                            mob.updateTileCollisions(screenChunks);
+                            mob.updateTimer = areaTimer;
+    
+                            // Update Mob Cell Collidables //
+                            ArrayList<CellCollidables> newCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, mob);
+                            if(!oldCellCollidables.equals(newCellCollidables)) {
+                                ArrayList<CellCollidables> removeFromScreenChunkList = GameScreen.updateObjectCellCollidables(screenChunks, mob, oldCellCollidables, newCellCollidables);
+                                if(removeFromScreenChunkList.size() > 0) {
+                                    updateMobScreenChunkMap.put(mob, removeFromScreenChunkList);
+                                }
                             }
                         }
                     }
