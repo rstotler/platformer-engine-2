@@ -13,6 +13,8 @@ public class AnimatedObject {
     public int maxFrameNum;
     public int frameLength;
 
+    public AnimatedObject() {}
+
     public AnimatedObject(String imageName, Point spriteLocation, int frameLength, ImageManager imageManager) {
         this.imageName = imageName;
         this.spriteLocation = spriteLocation;

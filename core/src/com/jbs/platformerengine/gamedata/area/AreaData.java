@@ -951,6 +951,9 @@ public class AreaData {
 
     public void update(Player player) {
         areaTimer++;
+        if(areaTimer >= 999999) {
+            areaTimer = 0;
+        }
 
         if(outside && nightTimer < nightTimerMax) {
             nightTimer += 1;

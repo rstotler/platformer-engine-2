@@ -3,6 +3,7 @@ package com.jbs.platformerengine.gamedata.entity;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
+import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.area.AreaData;
 import com.jbs.platformerengine.gamedata.entity.player.Player;
 
@@ -19,8 +20,7 @@ public class Mob extends Player {
         updateTimer = -1;
 
         facingDirection = "Left";
-        hitBoxArea.x += 250;
-        hitBoxArea.y += 50;
+        hitBoxArea = new Rect(250, 50, 16, 48);
     }
 
     public void updateAI(AreaData areaData) {

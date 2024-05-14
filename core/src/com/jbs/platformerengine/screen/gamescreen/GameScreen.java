@@ -464,6 +464,20 @@ public class GameScreen extends Screen {
                 }
             }
         }
+
+        else if(objectClass.equals("Mob")) {
+            Mob mob = (Mob) object;
+
+            for(CellCollidables cellCollidables : getObjectCellCollidables(screenChunks, object)) {
+                if(cellCollidables.mobList.contains(mob)) {
+                    cellCollidables.mobList.remove(mob);
+                }
+    
+                if(screenChunks[cellCollidables.chunkX][cellCollidables.chunkY].mobList.contains(mob)) {
+                    screenChunks[cellCollidables.chunkX][cellCollidables.chunkY].mobList.remove(mob);
+                }
+            }
+        }
     }
 
     public static <T> ArrayList<CellCollidables> updateObjectCellCollidables(ScreenChunk[][] screenChunks, T object, ArrayList<CellCollidables> oldCellCollidables, ArrayList<CellCollidables> newCellCollidables) {

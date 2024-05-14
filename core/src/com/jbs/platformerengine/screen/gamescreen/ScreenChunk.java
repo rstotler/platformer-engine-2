@@ -94,9 +94,6 @@ public class ScreenChunk {
 
     public void bufferAnimations(OrthographicCamera camera, SpriteBatch spriteBatch, ImageManager imageManager) {
         spriteBatch.begin();
-        shapeRenderer.setProjectionMatrix(camera.combined);
-        shapeRenderer.begin(ShapeType.Filled);
-        shapeRenderer.setColor(140/255f, 0/255f, 140/255f, 1f);
 
         for(BreakableObject breakableObject : breakableList) {
             Texture objectTexture = imageManager.animatedImage.get(breakableObject.imageName).get("Default").get(breakableObject.currentFrameNum);
@@ -111,10 +108,9 @@ public class ScreenChunk {
         }
 
         for(Mob mobObject : mobList) {
-            shapeRenderer.rect(mobObject.hitBoxArea.x, mobObject.hitBoxArea.y, mobObject.hitBoxArea.width, mobObject.hitBoxArea.height);
+            mobObject.render(camera);
         }
 
-        shapeRenderer.end();
         spriteBatch.end();
     }
 

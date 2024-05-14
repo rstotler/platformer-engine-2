@@ -8,18 +8,17 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.jbs.platformerengine.components.Keyboard;
-import com.jbs.platformerengine.gamedata.Point;
+import com.jbs.platformerengine.gamedata.CollidableObject;
 import com.jbs.platformerengine.gamedata.PointF;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
-import com.jbs.platformerengine.screen.gamescreen.CellCollidables;
+import com.jbs.platformerengine.gamedata.entity.Mob;
 import com.jbs.platformerengine.screen.gamescreen.GameScreen;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
 
-public class Player {
+public class Player extends CollidableObject {
     ShapeRenderer shapeRenderer;
-    public Rect hitBoxArea;
 
     public PointF velocity;
     public int moveSpeed;
@@ -49,6 +48,7 @@ public class Player {
 
     public HashMap<String, AttackData> attackData;
     public int attackCount;
+    public ArrayList<CollidableObject> hitObjectList;
     public float attackDecayTimer;
 
     public boolean onRamp;
@@ -57,7 +57,11 @@ public class Player {
     public boolean falling;
     public boolean justLanded;
 
+    public int healthPoints;
+
     public Player() {
+        super();
+
         shapeRenderer = new ShapeRenderer();
         hitBoxArea = new Rect(100, 175, 16, 48);
 
@@ -88,6 +92,7 @@ public class Player {
 
         attackCount = 0;
         attackDecayTimer = 0f;
+        hitObjectList = new ArrayList<>();
         attackData = AttackData.loadAttackData();
 
         onRamp = false;
@@ -95,6 +100,8 @@ public class Player {
         ducking = false;
         falling = false;
         justLanded = false;
+
+        healthPoints = 3;
     }
 
     public void update(Keyboard keyboard, ScreenChunk[][] screenChunks) {
@@ -688,36 +695,60 @@ public class Player {
                     int cellX = ((attackRect.x + (x * 64)) % Gdx.graphics.getWidth()) / 64;
 
                     if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
-                        ArrayList<BreakableObject> deleteObjectList = new ArrayList<>();
-                        for(BreakableObject breakableObject : screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].breakableList) {
-                            if(dropKickCheck ||
-                            (attackCount > 0 && attackDecayTimer >= attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1] && attackDecayTimer < attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1])) {
-                                if(attackRect.rectCollide(breakableObject.hitBoxArea)) {
-                                    deleteObjectList.add(breakableObject);
-                                    
-                                    if(dropKickCheck) {
-                                        velocity.y = 10;
-                                        jumpCheck = true;
-                                        jumpCount = 1;
-                                        jumpTimer = 0;
-                                        dropKickCheck = false;
-                                        dropKickBounceCheck = true;
-                                    }
-
-                                    if(dropKickCheck
-                                    || breakableObject.imageName.contains("Torch")) {
-                                        break;
-                                    }
-                                }     
-                            }             
-                        }
-
-                        for(BreakableObject deleteObject : deleteObjectList) {
-                            GameScreen.removeObjectFromCellCollidables(screenChunks, deleteObject);
-                        }
+                        attackCollidableObject(screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].breakableList, screenChunks, attackRect);
+                        attackCollidableObject(screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].mobList, screenChunks, attackRect);
                     }
                 }
             }
+        }
+    }
+
+    public <T> void attackCollidableObject(ArrayList<T> objectList, ScreenChunk[][] screenChunks, Rect attackRect) {
+        ArrayList<T> deleteObjectList = new ArrayList<>();
+        for(T object : objectList) {
+            if(dropKickCheck ||
+            (attackCount > 0 && attackDecayTimer >= attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1] && attackDecayTimer < attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1])) {
+                String objectType = object.getClass().toString().substring(object.getClass().toString().lastIndexOf(".") + 1);
+                CollidableObject collidableObject = null;
+                if(objectType.equals("BreakableObject")) {
+                    collidableObject = (BreakableObject) object;
+                } else if(objectType.equals("Mob")) {
+                    collidableObject = (Mob) object;
+                }
+
+                if(collidableObject != null
+                && attackRect.rectCollide(collidableObject.hitBoxArea)
+                && !hitObjectList.contains(collidableObject)) {
+                    if(objectType.equals("Mob")) {
+                        ((Mob) object).healthPoints -= 1;
+                    }
+
+                    if(objectType.equals("BreakableObject")
+                    || (objectType.equals("Mob") && ((Mob) object).healthPoints <= 0)) {
+                        deleteObjectList.add(object);
+                    } else if(!dropKickCheck && !hitObjectList.contains(collidableObject)) {
+                        hitObjectList.add(collidableObject);
+                    }
+
+                    if(dropKickCheck
+                    || (collidableObject.imageName != null && collidableObject.imageName.contains("Torch"))) {
+                        if(dropKickCheck) {
+                            velocity.y = 10;
+                            jumpCheck = true;
+                            jumpCount = 1;
+                            jumpTimer = 0;
+                            dropKickCheck = false;
+                            dropKickBounceCheck = true;
+                        }
+                        
+                        break;
+                    }
+                }     
+            }             
+        }
+
+        for(T deleteObject : deleteObjectList) {
+            GameScreen.removeObjectFromCellCollidables(screenChunks, deleteObject);
         }
     }
 
@@ -726,7 +757,13 @@ public class Player {
         // Area Rectangle //
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeType.Filled);
-        shapeRenderer.setColor(82/255f, 0/255f, 0/255f, 1f);
+
+        if(getClass().toString().substring(getClass().toString().lastIndexOf(".") + 1).equals("Player")) {
+            shapeRenderer.setColor(82/255f, 0/255f, 0/255f, 1f);
+        } else {
+            shapeRenderer.setColor(140/255f, 0/255f, 140/255f, 1f);
+        }
+
         shapeRenderer.rect(hitBoxArea.x, hitBoxArea.y, hitBoxArea.width, hitBoxArea.height);
         
         // X & Y (Location) //
@@ -770,6 +807,7 @@ public class Player {
             || attackDecayTimer >= attackData.get(getCurrentAttack()).attackComboStartFrame[attackCount - 1]) {
                 attackCount += 1;
                 attackDecayTimer = 0;
+                hitObjectList.clear();
             }
         }
     }
