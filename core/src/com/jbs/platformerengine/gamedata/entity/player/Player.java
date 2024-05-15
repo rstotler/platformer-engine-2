@@ -13,6 +13,7 @@ import com.jbs.platformerengine.gamedata.PointF;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.gamedata.entity.Mob;
+import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.GameScreen;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
@@ -56,11 +57,12 @@ public class Player extends CollidableObject {
     public boolean ducking;
     public boolean falling;
     public boolean justLanded;
+    public boolean flying;
 
     public int healthPoints;
 
-    public Player() {
-        super();
+    public Player(String imageName, ImageManager imageManager) {
+        super(imageName, imageManager);
 
         shapeRenderer = new ShapeRenderer();
         hitBoxArea = new Rect(100, 175, 16, 48);
@@ -100,8 +102,9 @@ public class Player extends CollidableObject {
         ducking = false;
         falling = false;
         justLanded = false;
+        flying = false;
 
-        healthPoints = 3;
+        healthPoints = 5;
     }
 
     public void update(Keyboard keyboard, ScreenChunk[][] screenChunks) {
@@ -376,7 +379,7 @@ public class Player extends CollidableObject {
         if(dropKickCheck) {
             velocity.y = -15;
         }
-        else if(velocity.y > maxFallVelocity) {
+        else if(!flying && velocity.y > maxFallVelocity) {
             if(jumpTimer == jumpTimerMax) {
                 velocity.y -= .7;
             } else {
@@ -802,10 +805,19 @@ public class Player extends CollidableObject {
     }
 
     public void attack() {
+        // If Combo: Can Attack After Combo Start Frame //
+        // Else: Can Attack After DecayTimerMax //
+        // Combos Disabled While In The Air //
+
         if(attackCount < attackData.get(getCurrentAttack()).attackDecayTimerMax.length) {
-            if(attackCount == 0
-            || attackDecayTimer >= attackData.get(getCurrentAttack()).attackComboStartFrame[attackCount - 1]) {
-                attackCount += 1;
+            if((inAir() && attackCount == 0)
+            || (!inAir() && (attackCount == 0 || (attackCount < attackData.get(getCurrentAttack()).attackDecayTimerMax.length && attackDecayTimer >= attackData.get(getCurrentAttack()).attackComboStartFrame[attackCount - 1])))) {
+                if(!inAir()) {
+                    attackCount += 1;
+                } else {
+                    attackCount = 1;
+                }
+                
                 attackDecayTimer = 0;
                 hitObjectList.clear();
             }

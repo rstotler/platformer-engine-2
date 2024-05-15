@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.gamedata.entity.Mob;
@@ -93,25 +92,47 @@ public class ScreenChunk {
     }
 
     public void bufferAnimations(OrthographicCamera camera, SpriteBatch spriteBatch, ImageManager imageManager) {
-        spriteBatch.begin();
-
         for(BreakableObject breakableObject : breakableList) {
-            Texture objectTexture = imageManager.animatedImage.get(breakableObject.imageName).get("Default").get(breakableObject.currentFrameNum);
-            int spriteX = breakableObject.spriteLocation.x - ((objectTexture.getWidth() - breakableObject.hitBoxArea.width) / 2);
-            int spriteY = breakableObject.spriteLocation.y - ((objectTexture.getHeight() - breakableObject.hitBoxArea.height) / 2);
+            
+            // Sprite //
+            Texture objectTexture = imageManager.breakableImage.get(breakableObject.imageName).get("Default").get(breakableObject.currentFrameNum);
+            int spriteX = breakableObject.hitBoxArea.x - ((objectTexture.getWidth() - breakableObject.hitBoxArea.width) / 2);
+            int spriteY = breakableObject.hitBoxArea.y - ((objectTexture.getHeight() - breakableObject.hitBoxArea.height) / 2);
+            
+            spriteBatch.begin();
             spriteBatch.draw(objectTexture, spriteX, spriteY);
-            
+            spriteBatch.end();
+
             // Hit Box Outline //
+            // shapeRenderer.setProjectionMatrix(camera.combined);
+            // shapeRenderer.begin(ShapeType.Filled);
+            // shapeRenderer.setColor(140/255f, 0/255f, 140/255f, 1f);
             // shapeRenderer.rect(breakableObject.hitBoxArea.x, breakableObject.hitBoxArea.y, breakableObject.hitBoxArea.width, breakableObject.hitBoxArea.height);
-            
+            // shapeRenderer.end();
+
             breakableObject.updateAnimation();
         }
-
+        
         for(Mob mobObject : mobList) {
-            mobObject.render(camera);
-        }
 
-        spriteBatch.end();
+            // Sprite //
+            if(imageManager.mobImage.containsKey(mobObject.imageName)) {
+                Texture mobTexture = imageManager.mobImage.get(mobObject.imageName).get("Default").get(mobObject.currentFrameNum);
+                int spriteX = mobObject.hitBoxArea.x - ((mobTexture.getWidth() - mobObject.hitBoxArea.width) / 2);
+                int spriteY = mobObject.hitBoxArea.y - ((mobTexture.getHeight() - mobObject.hitBoxArea.height) / 2);
+
+                spriteBatch.begin();
+                spriteBatch.draw(mobTexture, spriteX, spriteY);
+                spriteBatch.end();
+                
+                mobObject.updateAnimation();
+            }
+
+            // Hit Box Outline //
+            if(!imageManager.mobImage.containsKey(mobObject.imageName)) {
+                mobObject.render(camera);
+            }
+        }
     }
 
     public void initChunk() {

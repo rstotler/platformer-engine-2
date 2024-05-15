@@ -6,26 +6,27 @@ import com.jbs.platformerengine.gamedata.Point;
 
 public class AnimatedObject {
     public String imageName;
-    public Point spriteLocation;
 
     public int currentFrameTick;
     public int currentFrameNum;
     public int maxFrameNum;
     public int frameLength;
 
-    public AnimatedObject() {}
-
-    public AnimatedObject(String imageName, Point spriteLocation, int frameLength, ImageManager imageManager) {
+    public AnimatedObject(String imageName, ImageManager imageManager) {
         this.imageName = imageName;
-        this.spriteLocation = spriteLocation;
 
         this.currentFrameTick = 0;
-        this.frameLength = frameLength;
+        frameLength = 1;
 
         maxFrameNum = 0;
-        if(imageManager.animatedImage.containsKey(imageName)) {
-            maxFrameNum = imageManager.animatedImage.get(imageName).get("Default").size();
-            currentFrameNum = new Random().nextInt(maxFrameNum);
+        if(imageManager != null) {
+            if(imageManager.breakableImage.containsKey(imageName)) {
+                maxFrameNum = imageManager.breakableImage.get(imageName).get("Default").size();
+                currentFrameNum = new Random().nextInt(maxFrameNum);
+            } else if(imageManager.mobImage.containsKey(imageName)) {
+                maxFrameNum = imageManager.mobImage.get(imageName).get("Default").size();
+                currentFrameNum = new Random().nextInt(maxFrameNum);
+            }
         }
     }
 

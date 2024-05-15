@@ -6,11 +6,13 @@ import com.jbs.platformerengine.screen.ImageManager;
 public class CollidableObject extends AnimatedObject {
     public Rect hitBoxArea;
 
-    public CollidableObject() {
-        super();
+    public CollidableObject(String imageName, ImageManager imageManager) {
+        this(imageName, new Point(-1, -1), imageManager);
     }
 
-    public CollidableObject(String objectName, Point spriteLocation, int frameLength, ImageManager imageManager) {
-        super(objectName, spriteLocation, frameLength, imageManager);
+    public CollidableObject(String objectName, Point spriteLocation, ImageManager imageManager) {
+        super(objectName, imageManager);
+
+        hitBoxArea = new Rect(spriteLocation.x, spriteLocation.y, 0, 0);
     }
 }

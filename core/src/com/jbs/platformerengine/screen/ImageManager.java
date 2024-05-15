@@ -9,18 +9,20 @@ import com.badlogic.gdx.graphics.Texture;
 
 public class ImageManager {
     public HashMap<String, HashMap<String, ArrayList<Texture>>> tile;
-    public HashMap<String, HashMap<String, ArrayList<Texture>>> animatedImage;
+    public HashMap<String, HashMap<String, ArrayList<Texture>>> breakableImage;
+    public HashMap<String, HashMap<String, ArrayList<Texture>>> mobImage;
     public HashMap<String, ArrayList<Texture>> outsideImage;
     
-    public ImageManager(ArrayList<String> tileSetList, ArrayList<String> animatedImageList, boolean areaHasOutsideImages) {
+    public ImageManager(ArrayList<String> tileSetList, ArrayList<String> breakableImageList, ArrayList<String> mobImageList, boolean areaHasOutsideImages) {
         tile = new HashMap<String, HashMap<String, ArrayList<Texture>>>();
-        animatedImage = new HashMap<String, HashMap<String, ArrayList<Texture>>>();
+        breakableImage = new HashMap<String, HashMap<String, ArrayList<Texture>>>();
+        mobImage = new HashMap<String, HashMap<String, ArrayList<Texture>>>();
         outsideImage = new HashMap<String, ArrayList<Texture>>();
 
-        loadImages(tileSetList, animatedImageList, areaHasOutsideImages);
+        loadImages(tileSetList, breakableImageList, mobImageList, areaHasOutsideImages);
     }
 
-    public void loadImages(ArrayList<String> tileSetList, ArrayList<String> animatedImageList, boolean areaHasOutsideImages) {
+    public void loadImages(ArrayList<String> tileSetList, ArrayList<String> breakableImageList, ArrayList<String> mobImageList, boolean areaHasOutsideImages) {
 
         // Tiles //
         for(FileHandle directoryHandle : Gdx.files.internal("assets/images/tiles").list()) {
@@ -50,21 +52,42 @@ public class ImageManager {
             }
         }
     
-        // Animated Sprites //
-        for(FileHandle directoryHandle : Gdx.files.internal("assets/images/animated").list()) {
-            String animatedImageName = directoryHandle.toString().substring(directoryHandle.toString().lastIndexOf("/") + 1);
+        // Breakable Object Sprites //
+        for(FileHandle directoryHandle : Gdx.files.internal("assets/images/breakable").list()) {
+            String breakableImageName = directoryHandle.toString().substring(directoryHandle.toString().lastIndexOf("/") + 1);
 
-            if(animatedImageList.contains(animatedImageName)) {
-                animatedImage.put(animatedImageName, new HashMap<String, ArrayList<Texture>>());
+            if(breakableImageList.contains(breakableImageName)) {
+                breakableImage.put(breakableImageName, new HashMap<String, ArrayList<Texture>>());
 
-                for(FileHandle animationHandle : Gdx.files.internal(directoryHandle.toString()).list()) {
-                    String animationName = animationHandle.toString().substring(animationHandle.toString().lastIndexOf("/") + 1);
-                    animatedImage.get(animatedImageName).put(animationName, new ArrayList<Texture>());
+                for(FileHandle breakableHandle : Gdx.files.internal(directoryHandle.toString()).list()) {
+                    String breakableName = breakableHandle.toString().substring(breakableHandle.toString().lastIndexOf("/") + 1);
+                    breakableImage.get(breakableImageName).put(breakableName, new ArrayList<Texture>());
 
-                    for(FileHandle fileHandle : Gdx.files.internal(animationHandle.toString()).list()) {
+                    for(FileHandle fileHandle : Gdx.files.internal(breakableHandle.toString()).list()) {
                         if(fileHandle.toString().contains(".png")) {
-                            Texture animationTexture = new Texture(fileHandle.toString());
-                            animatedImage.get(animatedImageName).get(animationName).add(animationTexture);
+                            Texture breakableTexture = new Texture(fileHandle.toString());
+                            breakableImage.get(breakableImageName).get(breakableName).add(breakableTexture);
+                        }
+                    }                    
+                }
+            }
+        }
+    
+        // Mob Sprites //
+        for(FileHandle directoryHandle : Gdx.files.internal("assets/images/mob").list()) {
+            String mobImageName = directoryHandle.toString().substring(directoryHandle.toString().lastIndexOf("/") + 1);
+
+            if(mobImageList.contains(mobImageName)) {
+                mobImage.put(mobImageName, new HashMap<String, ArrayList<Texture>>());
+
+                for(FileHandle mobHandle : Gdx.files.internal(directoryHandle.toString()).list()) {
+                    String mobName = mobHandle.toString().substring(mobHandle.toString().lastIndexOf("/") + 1);
+                    mobImage.get(mobImageName).put(mobName, new ArrayList<Texture>());
+
+                    for(FileHandle fileHandle : Gdx.files.internal(mobHandle.toString()).list()) {
+                        if(fileHandle.toString().contains(".png")) {
+                            Texture mobTexture = new Texture(fileHandle.toString());
+                            mobImage.get(mobImageName).get(mobName).add(mobTexture);
                         }
                     }                    
                 }
@@ -87,7 +110,7 @@ public class ImageManager {
         }
     }
 
-    public void removeImages(ArrayList<String> removeTileSetList, ArrayList<String> removeAnimatedImageList, boolean areaHasOutsideImages) {
+    public void removeImages(ArrayList<String> removeTileSetList, ArrayList<String> removeBreakableImageList, ArrayList<String> removeMobImageList, boolean areaHasOutsideImages) {
         for(String removeTileSetName : removeTileSetList) {
             if(tile.containsKey(removeTileSetName)) {
                 for(String removeTileName : tile.get(removeTileSetName).keySet()) {
@@ -101,16 +124,29 @@ public class ImageManager {
             }
         }
 
-        for(String removeAnimatedImageName : removeAnimatedImageList) {
-            if(animatedImage.containsKey(removeAnimatedImageName)) {
-                for(String removeAnimationName : animatedImage.get(removeAnimatedImageName).keySet()) {
+        for(String removeBreakableImageName : removeMobImageList) {
+            if(breakableImage.containsKey(removeBreakableImageName)) {
+                for(String removeBreakableName : breakableImage.get(removeBreakableImageName).keySet()) {
                     // int i = 0;
-                    for(Texture texture : animatedImage.get(removeAnimatedImageName).get(removeAnimationName)) {
+                    for(Texture texture : breakableImage.get(removeBreakableImageName).get(removeBreakableName)) {
                         texture.dispose();
-                        // System.out.println("Disposing Animation: " + removeAnimatedImageName + " " + removeAnimationName + " " + i++);
+                        // System.out.println("Disposing Animation: " + removeBreakableImageName + " " + removeBreakableName + " " + i++);
                     }
                 }
-                animatedImage.remove(removeAnimatedImageName);
+                breakableImage.remove(removeBreakableImageName);
+            }
+        }
+
+        for(String removeMobImageName : removeMobImageList) {
+            if(mobImage.containsKey(removeMobImageName)) {
+                for(String removeMobName : mobImage.get(removeMobImageName).keySet()) {
+                    // int i = 0;
+                    for(Texture texture : mobImage.get(removeMobImageName).get(removeMobName)) {
+                        texture.dispose();
+                        // System.out.println("Disposing Animation: " + removeMobImageName + " " + removeMobName + " " + i++);
+                    }
+                }
+                mobImage.remove(removeMobImageName);
             }
         }
 

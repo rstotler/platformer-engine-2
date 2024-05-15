@@ -6,10 +6,17 @@ import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.screen.ImageManager;
 
 public class BreakableObject extends CollidableObject {
-    public BreakableObject(String objectName, Point spriteLocation, int frameLength, ImageManager imageManager) {
-        super(objectName, spriteLocation, frameLength, imageManager);
+    public BreakableObject(String objectName, Point spriteLocation, ImageManager imageManager) {
+        super(objectName, spriteLocation, imageManager);
 
-        // Load Breakable Object Hit Box Size //
-        hitBoxArea = new Rect(spriteLocation.x, spriteLocation.y, 5, 12);
+        loadBreakableObject(objectName);
+    }
+
+    public void loadBreakableObject(String objectName) {
+        if(objectName.equals("Torch_01")) {
+            hitBoxArea.width = 5;
+            hitBoxArea.height = 12;
+            frameLength = 3;
+        }
     }
 }

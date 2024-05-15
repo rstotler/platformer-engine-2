@@ -34,7 +34,8 @@ public class AreaData {
     public int defaultTileNum;
 
     public ArrayList<String> tileSetList = new ArrayList<>();
-    public ArrayList<String> animatedImageList = new ArrayList<>();
+    public ArrayList<String> breakableImageList = new ArrayList<>();
+    public ArrayList<String> mobImageList = new ArrayList<>();
 
     public int areaTimer = 0;
 
@@ -864,7 +865,7 @@ public class AreaData {
                         torchY += (yMod * 16);
                     }
                     
-                    BreakableObject breakableObject = new BreakableObject("Torch_01", new Point(torchX, torchY), 3, imageManager);
+                    BreakableObject breakableObject = new BreakableObject("Torch_01", new Point(torchX, torchY), imageManager);
                     GameScreen.addObjectToCellCollidables(screenChunks, breakableObject);
                 }
             }
@@ -926,13 +927,19 @@ public class AreaData {
                 addTileSetList.add(tileSet);
             }
         }
-        ArrayList<String> addAnimatedImageList = new ArrayList<>();
-        for(String animatedImageName : animatedImageList) {
-            if(!imageManager.animatedImage.containsKey(animatedImageName)) {
-                addAnimatedImageList.add(animatedImageName);
+        ArrayList<String> addBreakableImageList = new ArrayList<>();
+        for(String breakableImageName : breakableImageList) {
+            if(!imageManager.breakableImage.containsKey(breakableImageName)) {
+                addBreakableImageList.add(breakableImageName);
             }
         }
-        imageManager.loadImages(addTileSetList, addAnimatedImageList, outside);
+        ArrayList<String> addMobImageList = new ArrayList<>();
+        for(String mobImageName : mobImageList) {
+            if(!imageManager.mobImage.containsKey(mobImageName)) {
+                addMobImageList.add(mobImageName);
+            }
+        }
+        imageManager.loadImages(addTileSetList, addBreakableImageList, addMobImageList, outside);
 
         loadArea(spriteBatch, imageManager);
         loadBackgroundFrameBuffers(spriteBatch);

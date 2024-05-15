@@ -22,7 +22,7 @@ public class Area02 extends AreaData {
         defaultTileNum = 1;
     
         tileSetList = new ArrayList<>(Arrays.asList("Debug"));
-        // animatedImageList = new ArrayList<>(Arrays.asList());
+        mobImageList = new ArrayList<>(Arrays.asList("Bat"));
 
         outside = false;
 
@@ -102,16 +102,17 @@ public class Area02 extends AreaData {
             int pillarSize = pillarYBottom + pillarYTop;
             String pillarType;
 
-            if(new Random().nextInt(3) == 0) {
+            if(new Random().nextInt(4) == 0) {
                 pillarType = "Unbroken";
-            } else if(new Random().nextInt(2) == 0) {
-                pillarType = "Broken With Top";
-                pillarYBottom -= new Random().nextInt(pillarYBottom - 1);
-                pillarYTop -= new Random().nextInt(pillarYTop / 2) + (pillarYTop / 2);
             } else {
                 pillarType = "Broken No Top";
                 pillarYBottom -= new Random().nextInt(pillarYBottom - 1);
+                pillarYTop -= new Random().nextInt(pillarYTop / 2) + (pillarYTop / 2);
             }
+            // else {
+            //     pillarType = "Broken No Top";
+            //     pillarYBottom -= new Random().nextInt(pillarYBottom - 1);
+            // }
 
             screenChunks[chunkX][chunkY].frameBufferWalls.begin();
             spriteBatch.begin();
@@ -149,8 +150,8 @@ public class Area02 extends AreaData {
 
         // Test Mobs //
         if(!initCheck) {
-            Mob testMob = new Mob();
-            GameScreen.addObjectToCellCollidables(screenChunks, testMob);
+            GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Default", new Point(250, 250), imageManager));
+            GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Bat", new Point(150, 300), imageManager));
         }
         
         // Exit To Area01 Bridge //

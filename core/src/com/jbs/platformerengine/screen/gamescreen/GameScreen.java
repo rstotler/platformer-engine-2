@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.jbs.platformerengine.components.Keyboard;
-import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.area.Area01;
 import com.jbs.platformerengine.gamedata.area.Area02;
 import com.jbs.platformerengine.gamedata.area.AreaData;
@@ -24,16 +23,15 @@ import com.jbs.platformerengine.screen.Screen;
 /* To-Do List:
  * Fix Ceiling Ramp Collisions
  * Wave Shader When Walking Past Grass
- * Combat - Charged Attacks, Air Combo Variable
- * Spells - Player, Mob
+ * Combat - Charged Attacks
+ * Spells/Abilities - Player, Mob
  * Background - Clouds, Stars
- * Tighten Up Y Down Collision For Mobs?
- * Areas - Throne Room, Underground, Tower?
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
  * Bug When Landing Bottom Right Corner On Top Corner Of Right Ramp (Again?)
+ * CollidableObject Audit
  */
 
 public class GameScreen extends Screen {
@@ -56,7 +54,7 @@ public class GameScreen extends Screen {
         unusedAreaData = new HashMap<>();
         unusedAreaData.put("Area01", new Area01());
 
-        imageManager = new ImageManager(areaData.tileSetList, areaData.animatedImageList, areaData.outside);
+        imageManager = new ImageManager(areaData.tileSetList, areaData.breakableImageList, areaData.mobImageList, areaData.outside);
         
         areaData.loadArea(spriteBatch, imageManager);
         areaData.loadBackgroundFrameBuffers(spriteBatch);
@@ -220,20 +218,26 @@ public class GameScreen extends Screen {
         if(unusedAreaData.containsKey(targetTile.changeArea)) {
             areaData.dispose();
 
-            // Create RemoveTileSetList & RemoveAnimatedImageList //
+            // Create RemoveTileSetList & RemoveBreakableImageList //
             ArrayList<String> removeTileSetList = new ArrayList<>();
             for(String tileSet : areaData.tileSetList) {
                 if(!unusedAreaData.get(targetTile.changeArea).tileSetList.contains(tileSet)) {
                     removeTileSetList.add(tileSet);
                 }
             }
-            ArrayList<String> removeAnimatedImageList = new ArrayList<>();
-            for(String animatedImageName : areaData.animatedImageList) {
-                if(!unusedAreaData.get(targetTile.changeArea).animatedImageList.contains(animatedImageName)) {
-                    removeAnimatedImageList.add(animatedImageName);
+            ArrayList<String> removeBreakableImageList = new ArrayList<>();
+            for(String breakableImageName : areaData.breakableImageList) {
+                if(!unusedAreaData.get(targetTile.changeArea).breakableImageList.contains(breakableImageName)) {
+                    removeBreakableImageList.add(breakableImageName);
                 }
             }
-            imageManager.removeImages(removeTileSetList, removeAnimatedImageList, unusedAreaData.get(targetTile.changeArea).outside);
+            ArrayList<String> removeMobImageList = new ArrayList<>();
+            for(String mobImageName : areaData.mobImageList) {
+                if(!unusedAreaData.get(targetTile.changeArea).mobImageList.contains(mobImageName)) {
+                    removeMobImageList.add(mobImageName);
+                }
+            }
+            imageManager.removeImages(removeTileSetList, removeBreakableImageList, removeMobImageList, unusedAreaData.get(targetTile.changeArea).outside);
             
             unusedAreaData.put(areaData.levelName, areaData);
             areaData = unusedAreaData.get(targetTile.changeArea);
@@ -282,10 +286,17 @@ public class GameScreen extends Screen {
                     spriteBatch.begin();
                     spriteBatch.draw(areaData.screenChunks[x][y].frameBufferAnimation.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
                     spriteBatch.end();
+                }
+            }
+        }
 
-                    if(x == chunkStartX + 1 && y == chunkStartY + 1) {
-                        player.render(camera);
-                    }
+        player.render(camera);
+
+        for(int y = chunkStartY; y < chunkStartY + 3; y++) {
+            for(int x = chunkStartX; x < chunkStartX + 3; x++) {
+                if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
+                    int xLoc = x * Gdx.graphics.getWidth();
+                    int yLoc = y * Gdx.graphics.getHeight();
                     
                     spriteBatch.begin();
                     spriteBatch.draw(areaData.screenChunks[x][y].frameBufferForeground.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
@@ -358,41 +369,32 @@ public class GameScreen extends Screen {
     }
 
     public void renderOutside(float xPercent, float yPercent) {
-        Texture textureMoon = null;
-        Texture textureMoonGlow = null;
+        Texture textureMoon = imageManager.outsideImage.get("Moon").get(0);;
+        Texture textureMoonGlow = imageManager.outsideImage.get("Moon-Glow").get(0);
 
-        if(imageManager.outsideImage.containsKey("Moon")) {
-            textureMoon = imageManager.outsideImage.get("Moon").get(0);
+        spriteBatch.setProjectionMatrix(camera.combined);
+        spriteBatch.begin();
+
+        float moonXMod = 0f;
+        float moonYMod = 0f;
+        if(xPercent >= 0) {
+            moonXMod = ((Gdx.graphics.getWidth() * areaData.screenChunks.length) - (Gdx.graphics.getWidth() * .60f)) * xPercent;
         }
-        if(imageManager.outsideImage.containsKey("Moon-Glow")) {
-            textureMoonGlow = imageManager.outsideImage.get("Moon-Glow").get(0);
+        if(yPercent >= 0) {
+            moonYMod = 1400 * yPercent;
         }
 
-        if(textureMoon != null & textureMoonGlow != null) {
-            float moonXMod = 0f;
-            float moonYMod = 0f;
-            if(xPercent >= 0) {
-                moonXMod = ((Gdx.graphics.getWidth() * areaData.screenChunks.length) - (Gdx.graphics.getWidth() * .60f)) * xPercent;
-            }
-            if(yPercent >= 0) {
-                moonYMod = 1400 * yPercent;
-            }
-    
-            float nightPercent = areaData.nightTimer / areaData.nightTimerMax;
-            float xPercentMod = nightPercent * 225;
-            float yPercentMod = (float) (1 - Math.cos(Math.toRadians(nightPercent * 90))) * 20;
-    
-            float moonX = 550 + moonXMod - xPercentMod;
-            float moonY = 240 + moonYMod - yPercentMod;
+        float nightPercent = areaData.nightTimer / areaData.nightTimerMax;
+        float xPercentMod = nightPercent * 225;
+        float yPercentMod = (float) (1 - Math.cos(Math.toRadians(nightPercent * 90))) * 20;
 
-            spriteBatch.setProjectionMatrix(camera.combined);
-            spriteBatch.begin();
+        float moonX = 550 + moonXMod;
+        float moonY = 240 + moonYMod;
 
-            spriteBatch.draw(textureMoonGlow, moonX - 46, moonY - 46);
-            spriteBatch.draw(textureMoon, moonX, moonY);
-    
-            spriteBatch.end();
-        }
+        spriteBatch.draw(textureMoonGlow, moonX - xPercentMod - 46, moonY - yPercentMod - 46);
+        spriteBatch.draw(textureMoon, moonX - xPercentMod, moonY - yPercentMod);
+
+        spriteBatch.end();
     }
 
     public void renderDebugData(Player player) {

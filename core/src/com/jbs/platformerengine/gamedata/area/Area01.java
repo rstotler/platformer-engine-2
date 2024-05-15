@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
-import com.jbs.platformerengine.gamedata.entity.Mob;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
 
@@ -21,7 +20,7 @@ public class Area01 extends AreaData {
         defaultTileNum = 2;
 
         tileSetList = new ArrayList<>(Arrays.asList("Dirt-Floor", "Dirt-Platform", "Stone", "Wood"));
-        animatedImageList = new ArrayList<>(Arrays.asList("Torch_01"));
+        breakableImageList = new ArrayList<>(Arrays.asList("Torch_01"));
 
         outside = true;
         nightTimer = 0;
