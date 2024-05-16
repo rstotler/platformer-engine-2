@@ -23,15 +23,14 @@ import com.jbs.platformerengine.screen.Screen;
 /* To-Do List:
  * Fix Ceiling Ramp Collisions
  * Wave Shader When Walking Past Grass
- * Combat - Charged Attacks
- * Spells/Abilities - Player, Mob
- * Background - Clouds, Stars
+ * Combat - Charged Attacks, Spells/Abilities
+ * Background - Clouds, Stars, Pixelate Moon Glow
+ * Areas - Tower, Underground
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
  * Bug When Landing Bottom Right Corner On Top Corner Of Right Ramp (Again?)
- * CollidableObject Audit
  */
 
 public class GameScreen extends Screen {
@@ -281,7 +280,7 @@ public class GameScreen extends Screen {
                     spriteBatch.draw(areaData.screenChunks[x][y].frameBufferTiles.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
                     spriteBatch.end();
 
-                    areaData.screenChunks[x][y].bufferAnimations(camera, spriteBatch, imageManager);
+                    areaData.screenChunks[x][y].bufferAnimations(camera, spriteBatch, imageManager, areaData.areaTimer);
 
                     spriteBatch.begin();
                     spriteBatch.draw(areaData.screenChunks[x][y].frameBufferAnimation.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
@@ -304,7 +303,7 @@ public class GameScreen extends Screen {
                 }
             }
         }
-
+        
         renderDebugData(player);
     }
 

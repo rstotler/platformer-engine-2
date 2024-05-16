@@ -22,4 +22,8 @@ public class CellCollidables {
         mobList = new ArrayList<>();
         breakableList = new ArrayList<>();
     }
+
+    public String toString() {
+        return "Chunk: " + chunkX + ", " + chunkY;
+    }
 }

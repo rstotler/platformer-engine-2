@@ -976,12 +976,12 @@ public class AreaData {
                     HashMap<Mob, ArrayList<CellCollidables>> updateMobScreenChunkMap = new HashMap<>();
                     for(Mob mob : screenChunks[x][y].mobList) {
                         if(mob.updateTimer != areaTimer) {
+                            mob.updateTimer = areaTimer;
+                            
                             ArrayList<CellCollidables> oldCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, mob);
-                        
                             mob.updateAI(this);
                             mob.updateTileCollisions(screenChunks);
-                            mob.updateTimer = areaTimer;
-    
+                            
                             // Update Mob Cell Collidables //
                             ArrayList<CellCollidables> newCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, mob);
                             if(!oldCellCollidables.equals(newCellCollidables)) {
@@ -994,8 +994,10 @@ public class AreaData {
                     }
 
                     for(Mob mob : updateMobScreenChunkMap.keySet()) {
-                        if(screenChunks[x][y].mobList.contains(mob)) {
-                            screenChunks[x][y].mobList.remove(mob);
+                        for(CellCollidables cellCollidables : updateMobScreenChunkMap.get(mob)) {
+                            if(screenChunks[cellCollidables.chunkX][cellCollidables.chunkY].mobList.contains(mob)) {
+                                screenChunks[cellCollidables.chunkX][cellCollidables.chunkY].mobList.remove(mob);
+                            }
                         }
                     }
                 }

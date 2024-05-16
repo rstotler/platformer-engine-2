@@ -1,6 +1,7 @@
 package com.jbs.platformerengine.gamedata.entity;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.jbs.platformerengine.gamedata.Point;
@@ -11,15 +12,20 @@ import com.jbs.platformerengine.screen.ImageManager;
 
 public class Mob extends Player {
     public int updateTimer;
+    public int updateAnimationTimer;
     ArrayList<String> aiPatternList;
 
     public Mob(String imageName, Point location, ImageManager imageManager) {
         super(imageName, imageManager);
 
         updateTimer = -1;
+        updateAnimationTimer = -1;
         aiPatternList = new ArrayList<>();
 
         facingDirection = "Left";
+        if(new Random().nextInt(2) == 0) {
+            facingDirection = "Right";
+        }
         hitBoxArea = new Rect(location.x, location.y, 16, 48);
 
         loadMob(imageName);
@@ -31,7 +37,7 @@ public class Mob extends Player {
             hitBoxArea.height = 12;
             flying = true;
 
-            frameLength = 4;
+            frameLength = 3;
 
             aiPatternList.add("Patrol");
         }

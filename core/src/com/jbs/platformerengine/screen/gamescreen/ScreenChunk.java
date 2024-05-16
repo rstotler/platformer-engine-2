@@ -91,7 +91,7 @@ public class ScreenChunk {
         spriteBatch.end();
     }
 
-    public void bufferAnimations(OrthographicCamera camera, SpriteBatch spriteBatch, ImageManager imageManager) {
+    public void bufferAnimations(OrthographicCamera camera, SpriteBatch spriteBatch, ImageManager imageManager, int areaTimer) {
         for(BreakableObject breakableObject : breakableList) {
             
             // Sprite //
@@ -116,16 +116,21 @@ public class ScreenChunk {
         for(Mob mobObject : mobList) {
 
             // Sprite //
-            if(imageManager.mobImage.containsKey(mobObject.imageName)) {
+            if(mobObject.updateAnimationTimer != areaTimer && imageManager.mobImage.containsKey(mobObject.imageName)) {
                 Texture mobTexture = imageManager.mobImage.get(mobObject.imageName).get("Default").get(mobObject.currentFrameNum);
                 int spriteX = mobObject.hitBoxArea.x - ((mobTexture.getWidth() - mobObject.hitBoxArea.width) / 2);
                 int spriteY = mobObject.hitBoxArea.y - ((mobTexture.getHeight() - mobObject.hitBoxArea.height) / 2);
+                boolean flipDirection = false;
+                if(mobObject.facingDirection.equals("Left")) {
+                    flipDirection = true;
+                }
 
                 spriteBatch.begin();
-                spriteBatch.draw(mobTexture, spriteX, spriteY);
+                spriteBatch.draw(mobTexture, spriteX, spriteY, mobTexture.getWidth(), mobTexture.getHeight(), 0, 0, mobTexture.getWidth(), mobTexture.getHeight(), flipDirection, false);
                 spriteBatch.end();
                 
                 mobObject.updateAnimation();
+                mobObject.updateAnimationTimer = areaTimer;
             }
 
             // Hit Box Outline //

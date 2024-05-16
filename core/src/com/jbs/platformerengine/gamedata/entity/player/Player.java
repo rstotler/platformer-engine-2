@@ -104,7 +104,7 @@ public class Player extends CollidableObject {
         justLanded = false;
         flying = false;
 
-        healthPoints = 5;
+        healthPoints = 1;
     }
 
     public void update(Keyboard keyboard, ScreenChunk[][] screenChunks) {
@@ -668,6 +668,8 @@ public class Player extends CollidableObject {
             if(attackDecayTimer >= attackData.get(getCurrentAttack()).attackDecayTimerMax[attackCount - 1]) {
                 attackCount = 0;
                 attackDecayTimer = 0;
+
+                hitObjectList.clear();
             }
         }
     }

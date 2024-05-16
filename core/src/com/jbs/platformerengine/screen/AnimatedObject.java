@@ -2,8 +2,6 @@ package com.jbs.platformerengine.screen;
 
 import java.util.Random;
 
-import com.jbs.platformerengine.gamedata.Point;
-
 public class AnimatedObject {
     public String imageName;
 
