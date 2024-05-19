@@ -967,8 +967,8 @@ public class AreaData {
         }
 
         // Update Mobs //
-        int chunkStartX = player.hitBoxArea.x / Gdx.graphics.getWidth() - 1;
-        int chunkStartY = player.hitBoxArea.y / Gdx.graphics.getHeight() - 1;
+        int chunkStartX = (((int) player.hitBoxArea.x) / Gdx.graphics.getWidth()) - 1;
+        int chunkStartY = (((int) player.hitBoxArea.y) / Gdx.graphics.getHeight()) - 1;
 
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {

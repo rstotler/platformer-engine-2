@@ -41,7 +41,7 @@ public class Mob extends Player {
 
             frameLength = 3;
 
-            //movementPattern = "Patrol";
+            movementPattern = "Patrol";
         }
     }
 
@@ -77,10 +77,10 @@ public class Mob extends Player {
 
         // Flying //
         if(flying) { 
-            int targetX = target.hitBoxArea.x + (target.hitBoxArea.width / 2);
-            int targetY = target.hitBoxArea.y + (target.hitBoxArea.height / 2);
-            int localX = hitBoxArea.x + (hitBoxArea.width / 2);
-            int localY = hitBoxArea.y + (hitBoxArea.height / 2);
+            float targetX = target.hitBoxArea.x + (target.hitBoxArea.width / 2);
+            float targetY = target.hitBoxArea.y + (target.hitBoxArea.height / 2);
+            float localX = hitBoxArea.x + (hitBoxArea.width / 2);
+            float localY = hitBoxArea.y + (hitBoxArea.height / 2);
             float xDistance = Math.abs(targetX - localX);
             float yDistance = Math.abs(targetY - localY);
             float xMove = 0;
@@ -105,6 +105,12 @@ public class Mob extends Player {
 
             velocity.x = xMove;
             velocity.y = yMove;
+
+            if(velocity.x < 0 && facingDirection.equals("Right")) {
+                facingDirection = "Left";
+            } else if(velocity.x > 0 && facingDirection.equals("Left")) {
+                facingDirection = "Right";
+            }
         }
         
         // Non-Flying //

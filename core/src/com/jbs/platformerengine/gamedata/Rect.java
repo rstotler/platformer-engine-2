@@ -1,8 +1,8 @@
 package com.jbs.platformerengine.gamedata;
 
 public class Rect {
-    public int x;
-    public int y;
+    public float x;
+    public float y;
     public int width;
     public int height;
 
@@ -28,6 +28,6 @@ public class Rect {
     }
 
     public Point getMiddle() {
-        return new Point(x + (width / 2), y + (height / 2));
+        return new Point(((int) x) + (width / 2), ((int) y) + (height / 2));
     }
 }

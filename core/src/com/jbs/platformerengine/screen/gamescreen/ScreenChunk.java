@@ -96,8 +96,8 @@ public class ScreenChunk {
             
             // Sprite //
             Texture objectTexture = imageManager.breakableImage.get(breakableObject.imageName).get("Default").get(breakableObject.currentFrameNum);
-            int spriteX = breakableObject.hitBoxArea.x - ((objectTexture.getWidth() - breakableObject.hitBoxArea.width) / 2);
-            int spriteY = breakableObject.hitBoxArea.y - ((objectTexture.getHeight() - breakableObject.hitBoxArea.height) / 2);
+            int spriteX = (int) breakableObject.hitBoxArea.x - ((objectTexture.getWidth() - breakableObject.hitBoxArea.width) / 2);
+            int spriteY = (int) breakableObject.hitBoxArea.y - ((objectTexture.getHeight() - breakableObject.hitBoxArea.height) / 2);
             
             spriteBatch.begin();
             spriteBatch.draw(objectTexture, spriteX, spriteY);
@@ -118,8 +118,8 @@ public class ScreenChunk {
             // Sprite //
             if(mobObject.updateAnimationTimer != areaTimer && imageManager.mobImage.containsKey(mobObject.imageName)) {
                 Texture mobTexture = imageManager.mobImage.get(mobObject.imageName).get("Default").get(mobObject.currentFrameNum);
-                int spriteX = mobObject.hitBoxArea.x - ((mobTexture.getWidth() - mobObject.hitBoxArea.width) / 2);
-                int spriteY = mobObject.hitBoxArea.y - ((mobTexture.getHeight() - mobObject.hitBoxArea.height) / 2);
+                int spriteX = (int) mobObject.hitBoxArea.x - ((mobTexture.getWidth() - mobObject.hitBoxArea.width) / 2);
+                int spriteY = (int) mobObject.hitBoxArea.y - ((mobTexture.getHeight() - mobObject.hitBoxArea.height) / 2);
                 boolean flipDirection = false;
                 if(mobObject.facingDirection.equals("Left")) {
                     flipDirection = true;

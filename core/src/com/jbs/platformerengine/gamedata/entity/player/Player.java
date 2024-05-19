@@ -216,12 +216,12 @@ public class Player extends CollidableObject {
 
                     // X Collision Detection (Middle) //
                     int chunkX = hitBoxArea.getMiddle().x / Gdx.graphics.getWidth();
-                    int chunkY = (hitBoxArea.y + heightMod) / Gdx.graphics.getHeight();
+                    int chunkY = ((int) hitBoxArea.y + heightMod) / Gdx.graphics.getHeight();
                     if(chunkX < screenChunks.length) {
                         ScreenChunk targetChunk = screenChunks[chunkX][chunkY];
                         if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
                             int targetTileX = (hitBoxArea.getMiddle().x % Gdx.graphics.getWidth()) / 16;
-                            int targetTileY = ((hitBoxArea.y + heightMod) % Gdx.graphics.getHeight()) / 16;
+                            int targetTileY = (((int) hitBoxArea.y + heightMod) % Gdx.graphics.getHeight()) / 16;
                             if(targetTileX >= 0 && targetTileX < 80 && targetTileY >= 0 && targetTileY < 48) {
                                 Tile targetTile = targetChunk.tiles[targetTileX][targetTileY];
         
@@ -245,13 +245,13 @@ public class Player extends CollidableObject {
                     }
 
                     // X Collision Detection (Left Side) //
-                    chunkX = hitBoxArea.x / Gdx.graphics.getWidth();
-                    chunkY = (hitBoxArea.y + heightMod) / Gdx.graphics.getHeight();
+                    chunkX = (int) hitBoxArea.x / Gdx.graphics.getWidth();
+                    chunkY = ((int) hitBoxArea.y + heightMod) / Gdx.graphics.getHeight();
                     if(chunkX < screenChunks.length) {
                         ScreenChunk targetChunk = screenChunks[chunkX][chunkY];
                         if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
-                            int targetTileX = (hitBoxArea.x % Gdx.graphics.getWidth()) / 16;
-                            int targetTileY = ((hitBoxArea.y + heightMod) % Gdx.graphics.getHeight()) / 16;
+                            int targetTileX = ((int) hitBoxArea.x % Gdx.graphics.getWidth()) / 16;
+                            int targetTileY = (((int) hitBoxArea.y + heightMod) % Gdx.graphics.getHeight()) / 16;
                             if(targetTileX >= 0 && targetTileX < 80 && targetTileY >= 0 && targetTileY < 48) {
                                 Tile targetTile = targetChunk.tiles[targetTileX][targetTileY];
                                 boolean collideCheck = false;
@@ -303,12 +303,12 @@ public class Player extends CollidableObject {
 
                     // X Collision Detection (Middle) //
                     int chunkX = hitBoxArea.getMiddle().x / Gdx.graphics.getWidth();
-                    int chunkY = (hitBoxArea.y + heightMod) / Gdx.graphics.getHeight();
+                    int chunkY = ((int) hitBoxArea.y + heightMod) / Gdx.graphics.getHeight();
                     if(chunkX < screenChunks.length) {
                         ScreenChunk targetChunk = screenChunks[chunkX][chunkY];
 
                         int targetTileX = (hitBoxArea.getMiddle().x % Gdx.graphics.getWidth()) / 16;
-                        int targetTileY = ((hitBoxArea.y + heightMod) % Gdx.graphics.getHeight()) / 16;
+                        int targetTileY = (((int) hitBoxArea.y + heightMod) % Gdx.graphics.getHeight()) / 16;
                         if(targetTileX >= 0 && targetTileX < 80 && targetTileY >= 0 && targetTileY < 48) {
                             Tile targetTile = targetChunk.tiles[targetTileX][targetTileY];
                             if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
@@ -332,13 +332,13 @@ public class Player extends CollidableObject {
                     }
 
                     // X Collision Detection (Right Side) //
-                    chunkX = (hitBoxArea.x + hitBoxArea.width) / Gdx.graphics.getWidth();
-                    chunkY = (hitBoxArea.y + heightMod) / Gdx.graphics.getHeight();
+                    chunkX = ((int) hitBoxArea.x + hitBoxArea.width) / Gdx.graphics.getWidth();
+                    chunkY = ((int) hitBoxArea.y + heightMod) / Gdx.graphics.getHeight();
                     if(chunkX < screenChunks.length) {
                         ScreenChunk targetChunk = screenChunks[chunkX][chunkY];
                         if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
-                            int targetTileX = ((hitBoxArea.x + hitBoxArea.width) % Gdx.graphics.getWidth()) / 16;
-                            int targetTileY = ((hitBoxArea.y + heightMod) % Gdx.graphics.getHeight()) / 16;
+                            int targetTileX = (((int) hitBoxArea.x + hitBoxArea.width) % Gdx.graphics.getWidth()) / 16;
+                            int targetTileY = (((int) hitBoxArea.y + heightMod) % Gdx.graphics.getHeight()) / 16;
                             if(targetTileX >= 0 && targetTileX < 80 && targetTileY >= 0 && targetTileY < 48) {
                                 Tile targetTile = targetChunk.tiles[targetTileX][targetTileY];
                                 boolean collideCheck = false;
@@ -418,12 +418,12 @@ public class Player extends CollidableObject {
             
             // Y Collision Detection (Left Side) //
             if(!yCollisionCheck && hitBoxArea.x < (Gdx.graphics.getWidth() * screenChunks.length)) {
-                int chunkX = hitBoxArea.x / Gdx.graphics.getWidth();
-                int chunkY = (hitBoxArea.y + hitBoxArea.height) / Gdx.graphics.getHeight();
+                int chunkX = (int) hitBoxArea.x / Gdx.graphics.getWidth();
+                int chunkY = ((int) hitBoxArea.y + hitBoxArea.height) / Gdx.graphics.getHeight();
                 ScreenChunk targetChunk = screenChunks[chunkX][chunkY];
                 if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
-                    int targetTileX = (hitBoxArea.x % Gdx.graphics.getWidth()) / 16;
-                    int targetTileY = ((hitBoxArea.y + hitBoxArea.height) % Gdx.graphics.getHeight()) / 16;
+                    int targetTileX = ((int) hitBoxArea.x % Gdx.graphics.getWidth()) / 16;
+                    int targetTileY = (((int) hitBoxArea.y + hitBoxArea.height) % Gdx.graphics.getHeight()) / 16;
                     if(targetTileX >= 0 && targetTileX < 80 && targetTileY >= 0 && targetTileY < 48) {
                         Tile targetTile = targetChunk.tiles[targetTileX][targetTileY];
     
@@ -441,13 +441,13 @@ public class Player extends CollidableObject {
             
             // Y Collision Detection (Right Side) //
             if(!yCollisionCheck && hitBoxArea.x + hitBoxArea.width - 1 >= 0) {
-                int chunkX = (hitBoxArea.x + hitBoxArea.width - 1) / Gdx.graphics.getWidth();
-                int chunkY = (hitBoxArea.y + hitBoxArea.height) / Gdx.graphics.getHeight();
+                int chunkX = ((int) hitBoxArea.x + hitBoxArea.width - 1) / Gdx.graphics.getWidth();
+                int chunkY = ((int) hitBoxArea.y + hitBoxArea.height) / Gdx.graphics.getHeight();
                 if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
                     ScreenChunk targetChunk = screenChunks[chunkX][chunkY];
         
-                    int targetTileX = ((hitBoxArea.x + hitBoxArea.width - 1) % Gdx.graphics.getWidth()) / 16;
-                    int targetTileY = ((hitBoxArea.y + hitBoxArea.height) % Gdx.graphics.getHeight()) / 16;
+                    int targetTileX = (((int) hitBoxArea.x + hitBoxArea.width - 1) % Gdx.graphics.getWidth()) / 16;
+                    int targetTileY = (((int) hitBoxArea.y + hitBoxArea.height) % Gdx.graphics.getHeight()) / 16;
                     if(targetTileX >= 0 && targetTileX < 80 && targetTileY >= 0 && targetTileY < 48){
                         Tile targetTile = targetChunk.tiles[targetTileX][targetTileY];
             
@@ -476,12 +476,12 @@ public class Player extends CollidableObject {
                 // Y Collision Detection (Middle) //
                 if(hitBoxArea.getMiddle().x >= 0) {
                     int chunkX = hitBoxArea.getMiddle().x / Gdx.graphics.getWidth();
-                    int chunkY = hitBoxArea.y / Gdx.graphics.getHeight();
+                    int chunkY = (int) hitBoxArea.y / Gdx.graphics.getHeight();
                     if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
                         ScreenChunk targetChunk = screenChunks[chunkX][chunkY];
             
                         int targetTileX = (hitBoxArea.getMiddle().x % Gdx.graphics.getWidth()) / 16;
-                        int targetTileY = (hitBoxArea.y % Gdx.graphics.getHeight()) / 16;
+                        int targetTileY = ((int) hitBoxArea.y % Gdx.graphics.getHeight()) / 16;
                         if(targetTileX >= 0 && targetTileX < 80 && targetTileY >= 0 && targetTileY < 48){
                             Tile targetTile = targetChunk.tiles[targetTileX][targetTileY];
                             boolean collideCheck = false;
@@ -550,13 +550,13 @@ public class Player extends CollidableObject {
 
                 // Y Collision Detection (Left Side) //
                 if(hitBoxArea.x < (Gdx.graphics.getWidth() * screenChunks.length)) {
-                    int chunkX = hitBoxArea.x / Gdx.graphics.getWidth();
-                    int chunkY = hitBoxArea.y / Gdx.graphics.getHeight();
+                    int chunkX = (int) hitBoxArea.x / Gdx.graphics.getWidth();
+                    int chunkY = (int) hitBoxArea.y / Gdx.graphics.getHeight();
                     if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
                         ScreenChunk targetChunk = screenChunks[chunkX][chunkY];
 
-                        int targetTileX = (hitBoxArea.x % Gdx.graphics.getWidth()) / 16;
-                        int targetTileY = (hitBoxArea.y % Gdx.graphics.getHeight()) / 16;
+                        int targetTileX = ((int) hitBoxArea.x % Gdx.graphics.getWidth()) / 16;
+                        int targetTileY = ((int) hitBoxArea.y % Gdx.graphics.getHeight()) / 16;
                         if(targetTileX >= 0 && targetTileX < 80 && targetTileY >= 0 && targetTileY < 48) {
                             Tile targetTile = targetChunk.tiles[targetTileX][targetTileY];
                             boolean collideCheck = false;
@@ -596,13 +596,13 @@ public class Player extends CollidableObject {
                 
                 // Y Collision Detection (Right Side) //
                 if(hitBoxArea.x + hitBoxArea.width - 1 >= 0) {
-                    int chunkX = (hitBoxArea.x + hitBoxArea.width - 1) / Gdx.graphics.getWidth();
-                    int chunkY = hitBoxArea.y / Gdx.graphics.getHeight();
+                    int chunkX = ((int) hitBoxArea.x + hitBoxArea.width - 1) / Gdx.graphics.getWidth();
+                    int chunkY = (int) hitBoxArea.y / Gdx.graphics.getHeight();
                     if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
                         ScreenChunk targetChunk = screenChunks[chunkX][chunkY];
             
-                        int targetTileX = ((hitBoxArea.x + hitBoxArea.width - 1) % Gdx.graphics.getWidth()) / 16;
-                        int targetTileY = (hitBoxArea.y % Gdx.graphics.getHeight()) / 16;
+                        int targetTileX = (((int) hitBoxArea.x + hitBoxArea.width - 1) % Gdx.graphics.getWidth()) / 16;
+                        int targetTileY = ((int) hitBoxArea.y % Gdx.graphics.getHeight()) / 16;
                         if(targetTileX >= 0 && targetTileX < 80 && targetTileY >= 0 && targetTileY < 48){
                             Tile targetTile = targetChunk.tiles[targetTileX][targetTileY];
                             boolean collideCheck = false;
@@ -689,27 +689,27 @@ public class Player extends CollidableObject {
     public void updateCollidables(ScreenChunk[][] screenChunks) {
         Rect attackRect = null;
         if(dropKickCheck) {
-            attackRect = new Rect(hitBoxArea.x, hitBoxArea.y, hitBoxArea.width, 20);
+            attackRect = new Rect((int) hitBoxArea.x, (int) hitBoxArea.y, hitBoxArea.width, 20);
         } else if(attackCount > 0) {
             attackRect = getAttackHitBox();
         }
 
         if(attackRect != null) {
-            int chunkX = attackRect.x / Gdx.graphics.getWidth();
-            int chunkY = attackRect.y / Gdx.graphics.getHeight();
-            int xCellStartIndex = (attackRect.x % Gdx.graphics.getWidth()) / 64;
-            int yCellStartIndex = (attackRect.y % Gdx.graphics.getHeight()) / 64;
-            int xPadding = attackRect.x - ((chunkX * Gdx.graphics.getWidth()) + (xCellStartIndex * 64));
-            int yPadding = attackRect.y - ((chunkY * Gdx.graphics.getHeight()) + (yCellStartIndex * 64));
+            int chunkX = (int) attackRect.x / Gdx.graphics.getWidth();
+            int chunkY = (int) attackRect.y / Gdx.graphics.getHeight();
+            int xCellStartIndex = ((int) attackRect.x % Gdx.graphics.getWidth()) / 64;
+            int yCellStartIndex = ((int) attackRect.y % Gdx.graphics.getHeight()) / 64;
+            int xPadding = (int) attackRect.x - ((chunkX * Gdx.graphics.getWidth()) + (xCellStartIndex * 64));
+            int yPadding = (int) attackRect.y - ((chunkY * Gdx.graphics.getHeight()) + (yCellStartIndex * 64));
             int xCellSize = ((attackRect.width + xPadding) / 64) + 1;
             int yCellSize = ((attackRect.height + yPadding) / 64) + 1;
 
             for(int y = 0; y < yCellSize; y++) {
-                chunkY = (attackRect.y + (y * 64)) / Gdx.graphics.getHeight();
-                int cellY = ((attackRect.y + (y * 64)) % Gdx.graphics.getHeight()) / 64;
+                chunkY = ((int) attackRect.y + (y * 64)) / Gdx.graphics.getHeight();
+                int cellY = (((int) attackRect.y + (y * 64)) % Gdx.graphics.getHeight()) / 64;
                 for(int x = 0; x < xCellSize; x++) {
-                    chunkX = (attackRect.x + (x * 64)) / Gdx.graphics.getWidth();
-                    int cellX = ((attackRect.x + (x * 64)) % Gdx.graphics.getWidth()) / 64;
+                    chunkX = ((int) attackRect.x + (x * 64)) / Gdx.graphics.getWidth();
+                    int cellX = (((int) attackRect.x + (x * 64)) % Gdx.graphics.getWidth()) / 64;
 
                     if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
                         attackCollidableObject(screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].breakableList, screenChunks, attackRect);
@@ -904,11 +904,11 @@ public class Player extends CollidableObject {
             }
         }
 
-        int attackX = hitBoxArea.x + (hitBoxArea.width / 2) + attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] + xMove;
+        int attackX = (int) hitBoxArea.x + (hitBoxArea.width / 2) + attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] + xMove;
         if(facingDirection.equals("Left")) {
             attackX -= attackData.get(getCurrentAttack()).attackWidth[attackCount - 1] + (attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] * 2) + xMove;
         }
-        int attackY = hitBoxArea.y + attackData.get(getCurrentAttack()).attackYMod[attackCount - 1] + yMove;
+        int attackY = (int) hitBoxArea.y + attackData.get(getCurrentAttack()).attackYMod[attackCount - 1] + yMove;
         if(ducking) {
             attackY -= 13;
         }

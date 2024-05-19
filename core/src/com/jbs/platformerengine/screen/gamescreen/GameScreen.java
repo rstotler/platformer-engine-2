@@ -31,7 +31,7 @@ import com.jbs.platformerengine.screen.Screen;
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
  * Bug When Landing Bottom Right Corner On Top Corner Of Right Ramp (Again?)
- * Dash Left And Right Different Distances
+ * Cant dropkick bat after targeting from sword attack
  */
 
 public class GameScreen extends Screen {
@@ -265,8 +265,8 @@ public class GameScreen extends Screen {
 
         renderBackground(player);
 
-        int chunkStartX = player.hitBoxArea.x / Gdx.graphics.getWidth() - 1;
-        int chunkStartY = player.hitBoxArea.y / Gdx.graphics.getHeight() - 1;
+        int chunkStartX = (((int) player.hitBoxArea.x) / Gdx.graphics.getWidth()) - 1;
+        int chunkStartY = (((int) player.hitBoxArea.y) / Gdx.graphics.getHeight()) - 1;
 
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
@@ -342,7 +342,7 @@ public class GameScreen extends Screen {
 
                 float yMod = 0;
                 if(player.hitBoxArea.y > (6 * 16) + 16) {
-                    int playerHeight = player.hitBoxArea.y - (6 * 16) - 16;
+                    int playerHeight = (int) player.hitBoxArea.y - (6 * 16) - 16;
                     float heightPercent = (playerHeight / 600.0f);
                     yMod = heightPercent * 400;
 
@@ -540,14 +540,14 @@ public class GameScreen extends Screen {
         if(objectClass.equals("BreakableObject") || objectClass.equals("Mob")) {
             if(objectClass.equals("BreakableObject")) {
                 breakableObject = (BreakableObject) object;
-                xLoc = breakableObject.hitBoxArea.x;
-                yLoc = breakableObject.hitBoxArea.y;
+                xLoc = (int) breakableObject.hitBoxArea.x;
+                yLoc = (int) breakableObject.hitBoxArea.y;
                 objectWidth = breakableObject.hitBoxArea.width;
                 objectHeight = breakableObject.hitBoxArea.height;
             } else if(objectClass.equals("Mob")) {
                 mobObject = (Mob) object;
-                xLoc = mobObject.hitBoxArea.x;
-                yLoc = mobObject.hitBoxArea.y;
+                xLoc = (int) mobObject.hitBoxArea.x;
+                yLoc = (int) mobObject.hitBoxArea.y;
                 objectWidth = mobObject.hitBoxArea.width;
                 objectHeight = mobObject.hitBoxArea.height;
             }
