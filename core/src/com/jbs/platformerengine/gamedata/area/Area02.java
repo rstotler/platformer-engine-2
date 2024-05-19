@@ -150,12 +150,15 @@ public class Area02 extends AreaData {
 
         // Test Mobs //
         if(!initCheck) {
-            // GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Default", new Point(250, 250), imageManager));
-            for(int i = 0; i < 50; i++) {
-                int xLoc = new Random().nextInt((screenChunks.length * Gdx.graphics.getWidth()) - 60) + 30;
-                int yLoc = new Random().nextInt((screenChunks[0].length * Gdx.graphics.getHeight()) - 250) + 200;
-                GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Bat", new Point(xLoc, yLoc), imageManager));
-            }
+            GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Default", new Point(250, 250), imageManager));
+            // for(int i = 0; i < 50; i++) {
+            //     int xLoc = new Random().nextInt((screenChunks.length * Gdx.graphics.getWidth()) - 60) + 30;
+            //     int yLoc = new Random().nextInt((screenChunks[0].length * Gdx.graphics.getHeight()) - 250) + 200;
+            //     GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Bat", new Point(xLoc, yLoc), imageManager));
+            // }
+            GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Bat", new Point(150, 162), imageManager));
+            screenChunks[0][0].tiles[11][19] = new Tile("Debug", "Square", 1);
+            screenChunks[0][0].tiles[26][19] = new Tile("Debug", "Square", 1);
         }
         
         // Exit To Area01 Bridge //

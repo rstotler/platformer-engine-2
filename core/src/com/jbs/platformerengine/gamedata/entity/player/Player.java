@@ -59,6 +59,8 @@ public class Player extends CollidableObject {
     public boolean justLanded;
     public boolean flying;
 
+    public ArrayList<String> updateActionList;
+
     public int healthPoints;
 
     public Player(String imageName, ImageManager imageManager) {
@@ -104,7 +106,9 @@ public class Player extends CollidableObject {
         justLanded = false;
         flying = false;
 
-        healthPoints = 1;
+        updateActionList = new ArrayList<>();
+
+        healthPoints = 5;
     }
 
     public void update(Keyboard keyboard, ScreenChunk[][] screenChunks) {
@@ -274,7 +278,9 @@ public class Player extends CollidableObject {
                                     }
 
                                     if(collideCheck) {
+                                        updateActionList.add("Hit Wall");
                                         velocity.x = 0;
+
                                         break;
                                     }
                                 }
@@ -284,8 +290,10 @@ public class Player extends CollidableObject {
                     
                     // Screen Boundary Collision //
                     if(hitBoxArea.x < 0) {
+                        updateActionList.add("Hit Wall");
                         hitBoxArea.x = 0;
                         velocity.x = 0;
+                        
                         break;
                     }
                 }
@@ -357,7 +365,9 @@ public class Player extends CollidableObject {
                                     }
 
                                     if(collideCheck) {
+                                        updateActionList.add("Hit Wall");
                                         velocity.x = 0;
+
                                         break;
                                     }
                                 }
@@ -367,8 +377,10 @@ public class Player extends CollidableObject {
                     
                     // Screen Boundary Collision //
                     if(hitBoxArea.x + hitBoxArea.width >= (Gdx.graphics.getWidth() * screenChunks.length)) {
+                        updateActionList.add("Hit Wall");
                         hitBoxArea.x = (Gdx.graphics.getWidth() * screenChunks.length) - hitBoxArea.width;
                         velocity.x = 0;
+
                         break;
                     }
                 }
@@ -726,6 +738,10 @@ public class Player extends CollidableObject {
                 && !hitObjectList.contains(collidableObject)) {
                     if(objectType.equals("Mob")) {
                         ((Mob) object).healthPoints -= 1;
+
+                        if(!((Mob) object).enemyTargetList.contains(this)) {
+                            ((Mob) object).enemyTargetList.add(0, this);
+                        }
                     }
 
                     if(objectType.equals("BreakableObject")

@@ -31,6 +31,7 @@ import com.jbs.platformerengine.screen.Screen;
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
  * Bug When Landing Bottom Right Corner On Top Corner Of Right Ramp (Again?)
+ * Dash Left And Right Different Distances
  */
 
 public class GameScreen extends Screen {

@@ -977,10 +977,11 @@ public class AreaData {
                     for(Mob mob : screenChunks[x][y].mobList) {
                         if(mob.updateTimer != areaTimer) {
                             mob.updateTimer = areaTimer;
+                            mob.updateActionList.clear();
                             
                             ArrayList<CellCollidables> oldCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, mob);
-                            mob.updateAI(this);
                             mob.updateTileCollisions(screenChunks);
+                            mob.updateAI(this);
                             
                             // Update Mob Cell Collidables //
                             ArrayList<CellCollidables> newCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, mob);
