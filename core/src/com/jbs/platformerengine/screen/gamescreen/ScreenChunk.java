@@ -12,7 +12,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
-import com.jbs.platformerengine.gamedata.entity.Mob;
+import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.screen.ImageManager;
 
 public class ScreenChunk {

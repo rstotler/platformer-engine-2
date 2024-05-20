@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
-import com.jbs.platformerengine.gamedata.entity.Mob;
+import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.GameScreen;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
@@ -151,12 +151,12 @@ public class Area02 extends AreaData {
         // Test Mobs //
         if(!initCheck) {
             GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Default", new Point(250, 250), imageManager));
+            GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Bat", new Point(250, 262), imageManager));
             // for(int i = 0; i < 50; i++) {
             //     int xLoc = new Random().nextInt((screenChunks.length * Gdx.graphics.getWidth()) - 60) + 30;
             //     int yLoc = new Random().nextInt((screenChunks[0].length * Gdx.graphics.getHeight()) - 250) + 200;
             //     GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Bat", new Point(xLoc, yLoc), imageManager));
             // }
-            GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Bat", new Point(250, 262), imageManager));
         }
         
         // Exit To Area01 Bridge //

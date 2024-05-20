@@ -12,7 +12,7 @@ import com.jbs.platformerengine.gamedata.CollidableObject;
 import com.jbs.platformerengine.gamedata.PointF;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
-import com.jbs.platformerengine.gamedata.entity.Mob;
+import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.GameScreen;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
@@ -203,7 +203,7 @@ public class Player extends CollidableObject {
         
         // Sideways Movement (X Collision Detection) //
         if(velocity.x != 0) {
-            hitBoxArea.x += velocity.x;
+            hitBoxArea.x += (int) velocity.x;
 
             for(int i = 0; i < 4; i++) {
                 int heightMod = (i * 16);
@@ -229,13 +229,13 @@ public class Player extends CollidableObject {
                                     if(targetTile.tileShape.equals("Ramp-Left")) {
                                         int tileHeightMod = (((targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) - hitBoxArea.getMiddle().x) - 2;
                                         if(hitBoxArea.y < (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1) {
-                                            hitBoxArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1;
+                                            hitBoxArea.y = (int) ((targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1);
                                             onRamp = true;
                                         }
                                     } else if(targetTile.tileShape.equals("Ramp-Right")) {
                                         int tileHeightMod = 16 - (((targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) - hitBoxArea.getMiddle().x);
                                         if(hitBoxArea.y < (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 2) {
-                                            hitBoxArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 2;
+                                            hitBoxArea.y = (int) ((targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 2);
                                             onRamp = true;
                                         }
                                     }
@@ -316,13 +316,13 @@ public class Player extends CollidableObject {
                                     if(targetTile.tileShape.equals("Ramp-Right")) {
                                         int tileHeightMod = 16 - (((targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) - hitBoxArea.getMiddle().x);
                                         if(hitBoxArea.y < (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1) {
-                                            hitBoxArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1;
+                                            hitBoxArea.y = (int) ((targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1);
                                             onRamp = true;
                                         }
                                     } else if(targetTile.tileShape.equals("Ramp-Left")) {
                                         int tileHeightMod = (((targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) - hitBoxArea.getMiddle().x) - 2;
                                         if(hitBoxArea.y < (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1) {
-                                            hitBoxArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1;
+                                            hitBoxArea.y = (int) ((targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1);
                                             onRamp = true;
                                         }
                                     }
@@ -400,17 +400,19 @@ public class Player extends CollidableObject {
         }
 
         // Up/Down Movement //
-        hitBoxArea.y += velocity.y;
+        if((int) velocity.y != 0) {
+            hitBoxArea.y += (int) velocity.y;
+        }
 
         // Up Collision Detection //
-        if(velocity.y > 0) {
+        if(velocity.y >= 1) {
             onRamp = false;
             onHalfRamp = false;
             boolean yCollisionCheck = false;
             
             // Screen Boundary Collision //
             if(hitBoxArea.y + hitBoxArea.height >= (Gdx.graphics.getHeight() * screenChunks[0].length)) {
-                hitBoxArea.y = (Gdx.graphics.getHeight() * screenChunks[0].length) - hitBoxArea.height;
+                hitBoxArea.y = (int) ((Gdx.graphics.getHeight() * screenChunks[0].length) - hitBoxArea.height);
                 velocity.y = 0;
                 jumpTimer = jumpTimerMax;
                 yCollisionCheck = true;
@@ -429,7 +431,7 @@ public class Player extends CollidableObject {
     
                         if(targetTile != null) {
                             if(!targetTile.tileShape.equals("Ceiling-Ramp-Right") || !targetTile.tileShape.equals("Ceiling-Ramp-Left")) {
-                                hitBoxArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) - hitBoxArea.height;
+                                hitBoxArea.y = (int) ((targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) - hitBoxArea.height);
                                 velocity.y = 0;
                                 jumpTimer = jumpTimerMax;
                                 yCollisionCheck = true;
@@ -453,7 +455,7 @@ public class Player extends CollidableObject {
             
                         if(targetTile != null) {
                             if(!targetTile.tileShape.equals("Ceiling-Ramp-Right") || !targetTile.tileShape.equals("Ceiling-Ramp-Left")) {
-                                hitBoxArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) - hitBoxArea.height;
+                                hitBoxArea.y = (int) ((targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) - hitBoxArea.height);
                                 velocity.y = 0;
                                 jumpTimer = jumpTimerMax;
                             }
@@ -464,7 +466,7 @@ public class Player extends CollidableObject {
         }
 
         // Down Collision Detection //
-        else {
+        else if(velocity.y <= -1) {
             for(int i = 0; i < 2; i++) {
                 boolean yCollisionCheck = false;
                 boolean inRampTileCell = false;
@@ -869,7 +871,8 @@ public class Player extends CollidableObject {
     }
 
     public void dash(String direction) {
-        if(dashPercent < .15) {
+        // if(dashPercent < .15) {
+        if(dashPercent < .75) {
             dashCheck = true;
             dashTimer = 0f;
             dashDirection = direction;

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
-import com.jbs.platformerengine.gamedata.entity.Mob;
+import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 
 public class CellCollidables {
     public int chunkX;

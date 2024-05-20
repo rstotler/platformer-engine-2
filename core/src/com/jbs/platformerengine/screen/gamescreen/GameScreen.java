@@ -15,7 +15,7 @@ import com.jbs.platformerengine.gamedata.area.Area01;
 import com.jbs.platformerengine.gamedata.area.Area02;
 import com.jbs.platformerengine.gamedata.area.AreaData;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
-import com.jbs.platformerengine.gamedata.entity.Mob;
+import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.gamedata.entity.player.Player;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.Screen;
@@ -280,7 +280,16 @@ public class GameScreen extends Screen {
                     spriteBatch.draw(areaData.screenChunks[x][y].frameBufferWalls.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
                     spriteBatch.draw(areaData.screenChunks[x][y].frameBufferTiles.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
                     spriteBatch.end();
+                }
+            }
+        }
 
+        for(int y = chunkStartY; y < chunkStartY + 3; y++) {
+            for(int x = chunkStartX; x < chunkStartX + 3; x++) {
+                if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
+                    int xLoc = x * Gdx.graphics.getWidth();
+                    int yLoc = y * Gdx.graphics.getHeight();
+                    
                     areaData.screenChunks[x][y].bufferAnimations(camera, spriteBatch, imageManager, areaData.areaTimer);
 
                     spriteBatch.begin();

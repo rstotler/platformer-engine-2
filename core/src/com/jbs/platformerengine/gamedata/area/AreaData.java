@@ -13,7 +13,8 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
-import com.jbs.platformerengine.gamedata.entity.Mob;
+import com.jbs.platformerengine.gamedata.entity.mob.Mob;
+import com.jbs.platformerengine.gamedata.entity.mob.logic.movement.MovementPattern;
 import com.jbs.platformerengine.gamedata.entity.player.Player;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.CellCollidables;
@@ -981,7 +982,25 @@ public class AreaData {
                             
                             ArrayList<CellCollidables> oldCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, mob);
                             mob.updateTileCollisions(screenChunks);
-                            mob.updateAI(this);
+                            
+                            // Update Movement Pattern //
+                            if(!mob.enemyTargetList.isEmpty()) {
+                                MovementPattern.trackTarget(mob);
+                            } else {
+                                if(mob.movementPattern != null) {
+                                    if(mob.updateActionList.contains("Hit Wall")) {
+                                        mob.reverseDirection();
+                                    }
+                                    mob.movementPattern.update(mob);
+                                }
+                            }
+
+                            // Update Facing Direction //
+                            if(mob.velocity.x < 0 && mob.facingDirection.equals("Right")) {
+                                mob.facingDirection = "Left";
+                            } else if(mob.velocity.x > 0 && mob.facingDirection.equals("Left")) {
+                                mob.facingDirection = "Right";
+                            }
                             
                             // Update Mob Cell Collidables //
                             ArrayList<CellCollidables> newCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, mob);
