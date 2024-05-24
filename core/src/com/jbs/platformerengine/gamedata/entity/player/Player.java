@@ -795,7 +795,7 @@ public class Player extends CollidableObject {
                         if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
                         && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
                         && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
-                            xHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirX, y);
+                            xHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirX, 0, y);
                             if(xHitWallCheck) {
                                 break;
                             }
@@ -811,7 +811,7 @@ public class Player extends CollidableObject {
                         if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
                         && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
                         && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
-                            xHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirX, y);
+                            xHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirX, 1, y);
                             if(xHitWallCheck) {
                                 break;
                             }
@@ -827,7 +827,7 @@ public class Player extends CollidableObject {
                         if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
                         && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
                         && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
-                            yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, "Middle", y);
+                            yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, "Middle", 2, y);
                         }
                     }
                 }
@@ -855,6 +855,8 @@ public class Player extends CollidableObject {
                     movingDirY = "Down";
                 }
 
+                onRamp = false;
+
                 int yCount = 2;
                 for(int y = 0; y < yCount; y++) {
                     if(y == yCount - 1) {
@@ -870,6 +872,22 @@ public class Player extends CollidableObject {
                         yOffset += yMod;
                     }
 
+                    // Middle Collision Check //
+                    if(velocity.y != 0) {
+                        int chunkX = hitBoxArea.getMiddle().x / Gdx.graphics.getWidth();
+                        int chunkY = ((int) hitBoxArea.y + yOffset) / Gdx.graphics.getHeight();
+                        int tileX = (hitBoxArea.getMiddle().x % Gdx.graphics.getWidth()) / 16;
+                        int tileY = (((int) hitBoxArea.y + yOffset) % Gdx.graphics.getHeight()) / 16;
+                        if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
+                        && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
+                        && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
+                            yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 0, y);
+                            if(yHitWallCheck) {
+                                break;
+                            }
+                        }
+                    }
+
                     // Left Side Collision Check //
                     if(velocity.y != 0) {
                         int chunkX = (int) hitBoxArea.x / Gdx.graphics.getWidth();
@@ -879,7 +897,7 @@ public class Player extends CollidableObject {
                         if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
                         && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
                         && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
-                            yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 0);
+                            yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 1, y);
                             if(yHitWallCheck) {
                                 break;
                             }
@@ -895,29 +913,13 @@ public class Player extends CollidableObject {
                         if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
                         && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
                         && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
-                            yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 1);
+                            yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 2, y);
                             if(yHitWallCheck) {
                                 break;
                             }
                         }
                     }
-
-                    // Middle Collision Check //
-                    if(velocity.y != 0) {
-                        int chunkX = hitBoxArea.getMiddle().x / Gdx.graphics.getWidth();
-                        int chunkY = ((int) hitBoxArea.y + yOffset) / Gdx.graphics.getHeight();
-                        int tileX = (hitBoxArea.getMiddle().x % Gdx.graphics.getWidth()) / 16;
-                        int tileY = (((int) hitBoxArea.y + yOffset) % Gdx.graphics.getHeight()) / 16;
-                        if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
-                        && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
-                        && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
-                            yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 2);
-                            if(yHitWallCheck) {
-                                break;
-                            }
-                        }
-                    }
-
+                    
                     // Index Collision Check //
                     if(velocity.y != 0 && !yHitWallCheck && hitBoxArea.width > 32) {
                         int xCount = hitBoxArea.width / 16;
@@ -930,7 +932,7 @@ public class Player extends CollidableObject {
                             if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
                             && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
                             && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
-                                yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 3 + x);
+                                yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 3 + x, y);
                                 if(yHitWallCheck) {
                                     break;
                                 }
@@ -1198,12 +1200,20 @@ public class Player extends CollidableObject {
         return jumpCount > 0 || falling;
     }
 
-    public void land() {
+    public void land(Tile tile) {
+        jumpCheck = false;
+        jumpTimer = jumpTimerMax;
         jumpCount = 0;
+        falling = false;
+
+        superJumpCheck = false;
+        if(dropKickCheck) {
+            dropKickCheck = false;
+        }
     }
 
     public void hitCeiling() {
-        
+
     }
 
     public int getMaxJumpCount() {

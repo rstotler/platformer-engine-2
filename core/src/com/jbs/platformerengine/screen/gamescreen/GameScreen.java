@@ -26,6 +26,7 @@ import com.jbs.platformerengine.screen.Screen;
  * Background - Clouds, Stars, Pixelate Moon Glow
  * Areas - Tower, Underground
  * Smooth Movement Going Down Ramp
+ * No Duck When Superjump
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
