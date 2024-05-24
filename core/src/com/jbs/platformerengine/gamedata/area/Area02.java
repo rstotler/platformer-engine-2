@@ -169,7 +169,7 @@ public class Area02 extends AreaData {
                 exitX = (GameScreen.getAreaData("Area01").screenChunks.length * Gdx.graphics.getWidth()) - 32;
             }
 
-            screenChunks[0][chunkY].tiles[0][tileY] = new Tile("Area01", new Point(exitX, 600));
+            screenChunks[0][chunkY].tiles[0][tileY] = new Tile("Area01", new Point(exitX, 600), 0, chunkY, 0, tileY);
         }
 
         // Dispose Textures //

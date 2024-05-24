@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.CollidableObject;
+import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.PointF;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
@@ -67,7 +68,7 @@ public class Player extends CollidableObject {
         super(imageName, imageManager);
 
         shapeRenderer = new ShapeRenderer();
-        hitBoxArea = new Rect(100, 175, 16, 48);
+        hitBoxArea = new Rect(100, 490, 16, 48);
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
@@ -113,7 +114,8 @@ public class Player extends CollidableObject {
 
     public void update(Keyboard keyboard, ScreenChunk[][] screenChunks) {
         updateInput(keyboard);
-        updateTileCollisions(screenChunks);
+        //updateTileCollisions(screenChunks);
+        updateTileCollisions2(screenChunks);
         updateAttack();
         updateCollidables(screenChunks);
     }
@@ -229,13 +231,13 @@ public class Player extends CollidableObject {
                                     if(targetTile.tileShape.equals("Ramp-Left")) {
                                         int tileHeightMod = (((targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) - hitBoxArea.getMiddle().x) - 2;
                                         if(hitBoxArea.y < (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1) {
-                                            hitBoxArea.y = (int) ((targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1);
+                                            hitBoxArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1;
                                             onRamp = true;
                                         }
                                     } else if(targetTile.tileShape.equals("Ramp-Right")) {
                                         int tileHeightMod = 16 - (((targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) - hitBoxArea.getMiddle().x);
                                         if(hitBoxArea.y < (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 2) {
-                                            hitBoxArea.y = (int) ((targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 2);
+                                            hitBoxArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 2;
                                             onRamp = true;
                                         }
                                     }
@@ -316,13 +318,13 @@ public class Player extends CollidableObject {
                                     if(targetTile.tileShape.equals("Ramp-Right")) {
                                         int tileHeightMod = 16 - (((targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) - hitBoxArea.getMiddle().x);
                                         if(hitBoxArea.y < (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1) {
-                                            hitBoxArea.y = (int) ((targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1);
+                                            hitBoxArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1;
                                             onRamp = true;
                                         }
                                     } else if(targetTile.tileShape.equals("Ramp-Left")) {
                                         int tileHeightMod = (((targetChunk.location.x * Gdx.graphics.getWidth()) + (targetTileX * 16) + 16) - hitBoxArea.getMiddle().x) - 2;
                                         if(hitBoxArea.y < (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1) {
-                                            hitBoxArea.y = (int) ((targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1);
+                                            hitBoxArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) + tileHeightMod + 1;
                                             onRamp = true;
                                         }
                                     }
@@ -400,19 +402,17 @@ public class Player extends CollidableObject {
         }
 
         // Up/Down Movement //
-        if((int) velocity.y != 0) {
-            hitBoxArea.y += (int) velocity.y;
-        }
+        hitBoxArea.y += (int) velocity.y;
 
         // Up Collision Detection //
-        if(velocity.y >= 1) {
+        if(velocity.y > 0) {
             onRamp = false;
             onHalfRamp = false;
             boolean yCollisionCheck = false;
             
             // Screen Boundary Collision //
             if(hitBoxArea.y + hitBoxArea.height >= (Gdx.graphics.getHeight() * screenChunks[0].length)) {
-                hitBoxArea.y = (int) ((Gdx.graphics.getHeight() * screenChunks[0].length) - hitBoxArea.height);
+                hitBoxArea.y = (Gdx.graphics.getHeight() * screenChunks[0].length) - hitBoxArea.height;
                 velocity.y = 0;
                 jumpTimer = jumpTimerMax;
                 yCollisionCheck = true;
@@ -431,7 +431,7 @@ public class Player extends CollidableObject {
     
                         if(targetTile != null) {
                             if(!targetTile.tileShape.equals("Ceiling-Ramp-Right") || !targetTile.tileShape.equals("Ceiling-Ramp-Left")) {
-                                hitBoxArea.y = (int) ((targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) - hitBoxArea.height);
+                                hitBoxArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) - hitBoxArea.height;
                                 velocity.y = 0;
                                 jumpTimer = jumpTimerMax;
                                 yCollisionCheck = true;
@@ -455,7 +455,7 @@ public class Player extends CollidableObject {
             
                         if(targetTile != null) {
                             if(!targetTile.tileShape.equals("Ceiling-Ramp-Right") || !targetTile.tileShape.equals("Ceiling-Ramp-Left")) {
-                                hitBoxArea.y = (int) ((targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) - hitBoxArea.height);
+                                hitBoxArea.y = (targetChunk.location.y * Gdx.graphics.getHeight()) + (targetTileY * 16) - hitBoxArea.height;
                                 velocity.y = 0;
                                 jumpTimer = jumpTimerMax;
                             }
@@ -674,6 +674,275 @@ public class Player extends CollidableObject {
                 }
             }
         }
+    }
+
+    public void updateTileCollisions2(ScreenChunk[][] screenChunks) {
+
+        // Apply Gravity (Or Drop Kick) //
+        if(dropKickCheck) {
+            velocity.y = -15;
+        }
+        else if(!flying && velocity.y > maxFallVelocity) {
+            if(jumpTimer == jumpTimerMax) {
+                velocity.y -= .7;
+            } else {
+                velocity.y -= .07;
+            }
+        }
+        
+        // Update Collisions //
+        Point targetPoint = new Point((int) (hitBoxArea.x + velocity.x), (int) (hitBoxArea.y + velocity.y));
+        Point startPoint = new Point((int) hitBoxArea.x, (int) hitBoxArea.y);
+        
+        float xDistance = targetPoint.x - startPoint.x;
+        float yDistance = targetPoint.y - startPoint.y;
+        float slope = yDistance / xDistance;
+
+        // Get UpdateCount, UpdateXMove, & UpdateYMove //
+        int updateCount = -1;
+        float updateXMove = -1;
+        float updateYMove = -1;
+        boolean xHitWallCheck = false;
+        boolean yHitWallCheck = false;
+
+        // Longer Left & Right //
+        if(Math.abs(xDistance) >= Math.abs(yDistance)) {
+            updateCount = ((int) Math.abs(xDistance) / 16);
+            if((int) xDistance % 16 != 0) {
+                updateCount += 1;
+            }
+
+            if((int) Math.abs(xDistance) < 16) {
+                updateXMove = xDistance;
+                updateYMove = slope * (int) xDistance;
+            } else {
+                updateXMove = 16;
+                updateYMove = Math.abs(slope) * 16;
+
+                if(xDistance < 0) {
+                    updateXMove *= -1;
+                }
+                if(yDistance < 0) {
+                    updateYMove *= -1;
+                }
+            }
+        }
+        
+        // Longer Top & Bottom //
+        else {
+            updateCount = ((int) Math.abs(yDistance) / 16);
+            if((int) yDistance % 16 != 0) {
+                updateCount += 1;
+            }
+
+            slope = xDistance / yDistance;
+
+            if((int) Math.abs(yDistance) < 16) {
+                updateYMove = yDistance;
+                updateXMove = slope * (int) yDistance;
+            } else {
+                updateYMove = 16;
+                updateXMove = Math.abs(slope) * 16;
+
+                if(yDistance < 0) {
+                    updateYMove *= -1;
+                }
+                if(xDistance < 0) {
+                    updateXMove *= -1;
+                }
+            }
+        }
+        
+        for(int i = 0; i < updateCount; i++) {
+            
+            // Update X Location //
+            if(i == updateCount - 1) {
+                if(!xHitWallCheck) {
+                    hitBoxArea.x = startPoint.x + xDistance;
+                }
+            } else {
+                if(!xHitWallCheck) {
+                    hitBoxArea.x += updateXMove;
+                }
+            }
+
+            // X Collision Check //
+            if(!xHitWallCheck) {
+                int yCount = (hitBoxArea.height / 16) + 1;
+                if(hitBoxArea.height % 16 != 0) {
+                    yCount += 1;
+                }
+
+                String movingDirX = "";
+                if(updateXMove < 0) {
+                    movingDirX = "Left";
+                } else if(updateXMove > 0) {
+                    movingDirX = "Right";
+                }
+
+                for(int y = 0; y < yCount; y++) {
+                    int yMod = 0;
+                    if(y == yCount - 1) {
+                        yMod = -1;
+                    }
+
+                    // Left Side Collision //
+                    if(updateXMove < 0) {
+                        int chunkX = (int) hitBoxArea.x / Gdx.graphics.getWidth();
+                        int chunkY = ((int) hitBoxArea.y + (16 * y) + yMod) / Gdx.graphics.getHeight();
+                        int tileX = ((int) hitBoxArea.x % Gdx.graphics.getWidth()) / 16;
+                        int tileY = (((int) hitBoxArea.y + (16 * y) + yMod) % Gdx.graphics.getHeight()) / 16;
+                        if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
+                        && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
+                        && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
+                            xHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirX, y);
+                            if(xHitWallCheck) {
+                                break;
+                            }
+                        }
+                    }
+
+                    // Right Side Collision //
+                    else if(updateXMove > 0) {
+                        int chunkX = ((int) hitBoxArea.x + hitBoxArea.width - 1) / Gdx.graphics.getWidth();
+                        int chunkY = ((int) hitBoxArea.y + (16 * y) + yMod) / Gdx.graphics.getHeight();
+                        int tileX = (((int) hitBoxArea.x + hitBoxArea.width - 1) % Gdx.graphics.getWidth()) / 16;
+                        int tileY = (((int) hitBoxArea.y + (16 * y) + yMod) % Gdx.graphics.getHeight()) / 16;
+                        if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
+                        && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
+                        && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
+                            xHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirX, y);
+                            if(xHitWallCheck) {
+                                break;
+                            }
+                        }
+                    }
+
+                    // Middle Collision (Ramps) //
+                    if(y == 0 && updateXMove != 0) {
+                        int chunkX = (int) hitBoxArea.getMiddle().x / Gdx.graphics.getWidth();
+                        int chunkY = ((int) hitBoxArea.y + (16 * y) + yMod) / Gdx.graphics.getHeight();
+                        int tileX = ((int) hitBoxArea.getMiddle().x % Gdx.graphics.getWidth()) / 16;
+                        int tileY = (((int) hitBoxArea.y + (16 * y) + yMod) % Gdx.graphics.getHeight()) / 16;
+                        if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
+                        && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
+                        && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
+                            yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, "Middle", y);
+                        }
+                    }
+                }
+            }
+
+            // Update Y Location //
+            if(i == updateCount - 1) {
+                if(!yHitWallCheck) {
+                    hitBoxArea.y = startPoint.y + yDistance;
+                }
+            } else {
+                if(!yHitWallCheck) {
+                    hitBoxArea.y += updateYMove;
+                }
+            }
+
+            // Y Collision Check //
+            if(!yHitWallCheck) {
+                int yOffset = 0;
+                String movingDirY = "";
+                if(velocity.y > 0) {
+                    yOffset = hitBoxArea.height - 1;
+                    movingDirY = "Up";
+                } else if(velocity.y < 0) {
+                    movingDirY = "Down";
+                }
+
+                int yCount = 2;
+                for(int y = 0; y < yCount; y++) {
+                    if(y == yCount - 1) {
+                        int yMod = 0;
+                        if(hitBoxArea.height < 16) {
+                            yMod = hitBoxArea.height;
+                        } else {
+                            yMod = 16;
+                        }
+                        if(movingDirY.equals("Up")) {
+                            yMod *= -1;
+                        }
+                        yOffset += yMod;
+                    }
+
+                    // Left Side Collision Check //
+                    if(velocity.y != 0) {
+                        int chunkX = (int) hitBoxArea.x / Gdx.graphics.getWidth();
+                        int chunkY = ((int) hitBoxArea.y + yOffset) / Gdx.graphics.getHeight();
+                        int tileX = ((int) hitBoxArea.x % Gdx.graphics.getWidth()) / 16;
+                        int tileY = (((int) hitBoxArea.y + yOffset) % Gdx.graphics.getHeight()) / 16;
+                        if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
+                        && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
+                        && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
+                            yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 0);
+                            if(yHitWallCheck) {
+                                break;
+                            }
+                        }
+                    }
+
+                    // Right Side Collision Check //
+                    if(velocity.y != 0) {
+                        int chunkX = ((int) hitBoxArea.x + hitBoxArea.width - 1) / Gdx.graphics.getWidth();
+                        int chunkY = ((int) hitBoxArea.y + yOffset) / Gdx.graphics.getHeight();
+                        int tileX = (((int) hitBoxArea.x + hitBoxArea.width - 1) % Gdx.graphics.getWidth()) / 16;
+                        int tileY = (((int) hitBoxArea.y + yOffset) % Gdx.graphics.getHeight()) / 16;
+                        if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
+                        && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
+                        && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
+                            yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 1);
+                            if(yHitWallCheck) {
+                                break;
+                            }
+                        }
+                    }
+
+                    // Middle Collision Check //
+                    if(velocity.y != 0) {
+                        int chunkX = hitBoxArea.getMiddle().x / Gdx.graphics.getWidth();
+                        int chunkY = ((int) hitBoxArea.y + yOffset) / Gdx.graphics.getHeight();
+                        int tileX = (hitBoxArea.getMiddle().x % Gdx.graphics.getWidth()) / 16;
+                        int tileY = (((int) hitBoxArea.y + yOffset) % Gdx.graphics.getHeight()) / 16;
+                        if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
+                        && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
+                        && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
+                            yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 2);
+                            if(yHitWallCheck) {
+                                break;
+                            }
+                        }
+                    }
+
+                    // Index Collision Check //
+                    if(velocity.y != 0 && !yHitWallCheck && hitBoxArea.width > 32) {
+                        int xCount = hitBoxArea.width / 16;
+        
+                        for(int x = 0; x < xCount; x++) {
+                            int chunkX = ((int) hitBoxArea.x + 16 + (x * 16)) / Gdx.graphics.getWidth();
+                            int chunkY = ((int) hitBoxArea.y + yOffset) / Gdx.graphics.getHeight();
+                            int tileX = (((int) hitBoxArea.x + 16 + (x * 16)) % Gdx.graphics.getWidth()) / 16;
+                            int tileY = (((int) hitBoxArea.y + yOffset) % Gdx.graphics.getHeight()) / 16;
+                            if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
+                            && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
+                            && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
+                                yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 3 + x);
+                                if(yHitWallCheck) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        hitBoxArea.x = (int) hitBoxArea.x;
+        hitBoxArea.y = (int) hitBoxArea.y;
     }
 
     public void updateAttack() {
@@ -927,6 +1196,14 @@ public class Player extends CollidableObject {
 
     public boolean inAir() {
         return jumpCount > 0 || falling;
+    }
+
+    public void land() {
+        jumpCount = 0;
+    }
+
+    public void hitCeiling() {
+        
     }
 
     public int getMaxJumpCount() {

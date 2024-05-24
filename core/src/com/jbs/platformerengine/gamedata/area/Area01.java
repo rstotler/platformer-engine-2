@@ -168,7 +168,7 @@ public class Area01 extends AreaData {
         for(int y = 0; y < 7; y++) {
             int chunkY = (bridgeYLoc + 1 + y) / 48;
             int tileY = (bridgeYLoc + 1 + y) % 48;
-            screenChunks[size.width - 1][chunkY].tiles[79][tileY] = new Tile("Area02", new Point(16, 112));
+            screenChunks[size.width - 1][chunkY].tiles[79][tileY] = new Tile("Area02", new Point(16, 112), size.width - 1, chunkY, 79, tileY);
         }
 
         // Rocks & Tombstones //

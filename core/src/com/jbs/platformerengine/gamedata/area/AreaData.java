@@ -66,7 +66,7 @@ public class AreaData {
                     if(y == 6) {
                         textureNum = 1;
                     }
-                    screenChunks[chunkX][0].tiles[x][y] = new Tile(tileSetName, "Square", textureNum);
+                    screenChunks[chunkX][0].tiles[x][y] = new Tile(tileSetName, "Square", textureNum, chunkX, 0, x, y);
                 }
             }
         }
@@ -125,8 +125,8 @@ public class AreaData {
                                 tileNum = 2;
                             }
                             
-                            screenChunks[chunkX][0].tiles[tileX][baseFloorThickness - 1 + y] = new Tile("Dirt-Floor", "Square", 2);
-                            screenChunks[chunkX][0].tiles[tileX][baseFloorThickness + y] = new Tile("Dirt-Floor", tileType, tileNum);
+                            screenChunks[chunkX][0].tiles[tileX][baseFloorThickness - 1 + y] = new Tile("Dirt-Floor", "Square", 2, chunkX, 0, tileX, baseFloorThickness - 1 + y);
+                            screenChunks[chunkX][0].tiles[tileX][baseFloorThickness + y] = new Tile("Dirt-Floor", tileType, tileNum, chunkX, 0, tileX, baseFloorThickness + y);
                         }
                     }
                 }
@@ -483,7 +483,7 @@ public class AreaData {
                         }
 
                         if(platformMap[x][y] == true) {
-                            screenChunks[chunkX][chunkY].tiles[startX + x][startY + y] = new Tile(tileSetName, tileName, tileNum);
+                            screenChunks[chunkX][chunkY].tiles[startX + x][startY + y] = new Tile(tileSetName, tileName, tileNum, chunkX, chunkY, startX + x, startY + y);
                         }
                     }
                 }
@@ -516,7 +516,7 @@ public class AreaData {
 
             // Top Walkable Platform //
             if(!initCheck) {
-                screenChunks[chunkX][chunkY].tiles[tileX][yLoc] = new Tile("Stone", "Square-Half");
+                screenChunks[chunkX][chunkY].tiles[tileX][yLoc] = new Tile("Stone", "Square-Half", chunkX, chunkY, tileX, yLoc);
             }
             
             // Rooftop //
@@ -524,7 +524,7 @@ public class AreaData {
                 int rooftopYLoc = yLoc + 9;
                 int rooftopChunkY = rooftopYLoc / screenChunks[0][0].tiles[0].length;
                 int rooftopTileY = rooftopYLoc % screenChunks[0][0].tiles[0].length;
-                screenChunks[chunkX][rooftopChunkY].tiles[tileX][rooftopTileY] = new Tile("Stone", "Square-Half");
+                screenChunks[chunkX][rooftopChunkY].tiles[tileX][rooftopTileY] = new Tile("Stone", "Square-Half", chunkX, rooftopChunkY, tileX, rooftopTileY);
             }
 
             // Area Below Top Walkable Platform //

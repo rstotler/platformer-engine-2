@@ -11,8 +11,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.jbs.platformerengine.components.Keyboard;
-import com.jbs.platformerengine.gamedata.area.Area01;
-import com.jbs.platformerengine.gamedata.area.Area02;
+import com.jbs.platformerengine.gamedata.area.*;
 import com.jbs.platformerengine.gamedata.area.AreaData;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
@@ -26,6 +25,7 @@ import com.jbs.platformerengine.screen.Screen;
  * Combat - Charged Attacks, Spells/Abilities
  * Background - Clouds, Stars, Pixelate Moon Glow
  * Areas - Tower, Underground
+ * Smooth Movement Going Down Ramp
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
@@ -50,7 +50,7 @@ public class GameScreen extends Screen {
         keyboard = new Keyboard();
         initInputAdapter();
         
-        areaData = new Area02();
+        areaData = new AreaDebug();
         unusedAreaData = new HashMap<>();
         unusedAreaData.put("Area01", new Area01());
 
@@ -151,7 +151,7 @@ public class GameScreen extends Screen {
                 
                 if(targetButton.equals("Left")) {
                     if(!justClicked && areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY] == null) {
-                        areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile(areaData.defaultTileSet, areaData.defaultTileName, areaData.defaultTileNum);
+                        areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile(areaData.defaultTileSet, areaData.defaultTileName, areaData.defaultTileNum, chunkX, chunkY, tileX, tileY);
                         tileType = areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileShape;
         
                         Texture texture = new Texture("images/tiles/Debug/Square_01.png");
@@ -177,7 +177,7 @@ public class GameScreen extends Screen {
                                 areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY].num = 2;
                             }
                         } else {
-                            areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile(areaData.defaultTileSet, areaData.defaultTileName, areaData.defaultTileNum);
+                            areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY] = new Tile(areaData.defaultTileSet, areaData.defaultTileName, areaData.defaultTileNum, chunkX, chunkY, tileX, tileY);
                         }
         
                         areaData.screenChunks[chunkX][chunkY].bufferTiles(spriteBatch, imageManager);
