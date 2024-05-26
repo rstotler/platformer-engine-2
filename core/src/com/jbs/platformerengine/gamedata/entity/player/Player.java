@@ -53,8 +53,11 @@ public class Player extends CollidableObject {
     public ArrayList<CollidableObject> hitObjectList;
     public float attackDecayTimer;
 
+    public boolean inWallOnRamp;
+    public boolean justSteppedOnRamp;
     public boolean onRamp;
     public boolean onHalfRamp;
+
     public boolean ducking;
     public boolean falling;
     public boolean justLanded;
@@ -677,6 +680,7 @@ public class Player extends CollidableObject {
     }
 
     public void updateTileCollisions2(ScreenChunk[][] screenChunks) {
+        System.out.println("---New Frame---");
 
         // Apply Gravity (Or Drop Kick) //
         if(dropKickCheck) {
@@ -752,6 +756,8 @@ public class Player extends CollidableObject {
                 }
             }
         }
+        
+        inWallOnRamp = false;
         
         for(int i = 0; i < updateCount; i++) {
             
@@ -834,18 +840,17 @@ public class Player extends CollidableObject {
             }
 
             // Update Y Location //
-            if(i == updateCount - 1) {
-                if(!yHitWallCheck) {
+            justSteppedOnRamp = false;
+            if(!yHitWallCheck && velocity.y != 0) {
+                if(i == updateCount - 1) {
                     hitBoxArea.y = startPoint.y + yDistance;
-                }
-            } else {
-                if(!yHitWallCheck) {
+                } else {
                     hitBoxArea.y += updateYMove;
                 }
             }
-
+            
             // Y Collision Check //
-            if(!yHitWallCheck) {
+            if(!yHitWallCheck && velocity.y != 0) {
                 int yOffset = 0;
                 String movingDirY = "";
                 if(velocity.y > 0) {
@@ -853,9 +858,8 @@ public class Player extends CollidableObject {
                     movingDirY = "Up";
                 } else if(velocity.y < 0) {
                     movingDirY = "Down";
+                    falling = true;
                 }
-
-                onRamp = false;
 
                 int yCount = 2;
                 for(int y = 0; y < yCount; y++) {
@@ -871,7 +875,7 @@ public class Player extends CollidableObject {
                         }
                         yOffset += yMod;
                     }
-
+                    
                     // Middle Collision Check //
                     if(velocity.y != 0) {
                         int chunkX = hitBoxArea.getMiddle().x / Gdx.graphics.getWidth();
@@ -1127,6 +1131,8 @@ public class Player extends CollidableObject {
         superJumpCheck = false;
         superJumpTimer = 0f;
         superJumpPercent = 0f;
+
+        onRamp = false;
     }
 
     public void superJump() {
@@ -1138,6 +1144,7 @@ public class Player extends CollidableObject {
             }
 
             justLanded = false;
+            onRamp = false;
         }
     }
 
