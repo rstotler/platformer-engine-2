@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
+import com.jbs.platformerengine.gamedata.area.entity.Cloud;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.gamedata.entity.mob.logic.movement.MovementPattern;
@@ -43,6 +44,8 @@ public class AreaData {
     public boolean outside;
     public float nightTimer;
     public float nightTimerMax;
+    public ArrayList<Cloud> cloudBackList;
+    public ArrayList<Cloud> cloudFrontList;
 
     public void loadScreenChunks() {
         screenChunks = new ScreenChunk[size.width][size.height];

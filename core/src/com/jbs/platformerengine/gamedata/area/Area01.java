@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
+import com.jbs.platformerengine.gamedata.area.entity.Cloud;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
 
@@ -52,6 +53,28 @@ public class Area01 extends AreaData {
                 int platformHeight = new Random().nextInt(3) + 3;
                 createPlatform("Dirt-Platform", 4 + (platformNum * 13), 66 + (new Random().nextInt(3) - 1), platformWidth, platformHeight);
             }
+        }
+
+        // Clouds //
+        cloudBackList = new ArrayList<>();
+        cloudFrontList = new ArrayList<>();
+
+        int cloudMoveDir = 1;
+        if(new Random().nextInt(2) == 0) {
+            cloudMoveDir = -1;
+        }
+
+        for(int i = 0; i < 5; i++) {
+            int xLoc = new Random().nextInt(600);
+            int yLoc = new Random().nextInt(100) + 200;
+            // cloudBackList.add(new Cloud(xLoc, yLoc, cloudMoveDir));
+        }
+        for(int i = 0; i < 5; i++) {
+            int xLoc = new Random().nextInt(600);
+            int yLoc = new Random().nextInt(100) + 200;
+            Cloud cloud = new Cloud(xLoc, yLoc, cloudMoveDir);
+            cloud.tintColor = new Random().nextInt(50) + 125;
+            // cloudFrontList.add(cloud);
         }
 
         // Trees //

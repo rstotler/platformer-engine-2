@@ -12,7 +12,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.area.*;
-import com.jbs.platformerengine.gamedata.area.AreaData;
+import com.jbs.platformerengine.gamedata.area.entity.Cloud;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.gamedata.entity.player.Player;
@@ -20,7 +20,6 @@ import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
- * Fix Ceiling Ramp Collisions
  * Wave Shader When Walking Past Grass
  * Combat - Charged Attacks, Spells/Abilities
  * Background - Clouds, Stars, Pixelate Moon Glow
@@ -31,7 +30,6 @@ import com.jbs.platformerengine.screen.Screen;
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
- * Bug When Landing Bottom Right Corner On Top Corner Of Right Ramp (Again?)
  * Cant dropkick bat after targeting from sword attack
  */
 
@@ -54,6 +52,7 @@ public class GameScreen extends Screen {
         areaData = new AreaDebug();
         unusedAreaData = new HashMap<>();
         unusedAreaData.put("Area01", new Area01());
+        unusedAreaData.put("Area02", new Area02());
 
         imageManager = new ImageManager(areaData.tileSetList, areaData.breakableImageList, areaData.mobImageList, areaData.outside);
         
@@ -387,11 +386,15 @@ public class GameScreen extends Screen {
 
         float moonXMod = 0f;
         float moonYMod = 0f;
+        float cloudXMod = 0f;
+        float cloudYMod = 0f;
         if(xPercent >= 0) {
             moonXMod = ((Gdx.graphics.getWidth() * areaData.screenChunks.length) - (Gdx.graphics.getWidth() * .60f)) * xPercent;
+            cloudXMod = ((Gdx.graphics.getWidth() * areaData.screenChunks.length) - (Gdx.graphics.getWidth() * .80f)) * xPercent;
         }
         if(yPercent >= 0) {
             moonYMod = 1400 * yPercent;
+            cloudYMod = 1400 * yPercent;
         }
 
         float nightPercent = areaData.nightTimer / areaData.nightTimerMax;
@@ -401,8 +404,22 @@ public class GameScreen extends Screen {
         float moonX = 550 + moonXMod;
         float moonY = 240 + moonYMod;
 
+        for(Cloud cloud : areaData.cloudBackList) {
+            cloud.update();
+            spriteBatch.setColor(cloud.tintColor/255f, cloud.tintColor/255f, cloud.tintColor/255f, 1);
+            spriteBatch.draw(imageManager.outsideImage.get("Cloud").get(cloud.num), cloud.location.x + cloudXMod + cloud.getMoveMod(), cloud.location.y + cloudYMod);
+            spriteBatch.setColor(1, 1, 1, 1);
+        }
+
         spriteBatch.draw(textureMoonGlow, moonX - xPercentMod - 46, moonY - yPercentMod - 46);
         spriteBatch.draw(textureMoon, moonX - xPercentMod, moonY - yPercentMod);
+
+        for(Cloud cloud : areaData.cloudFrontList) {
+            cloud.update();
+            spriteBatch.setColor(cloud.tintColor/255f, cloud.tintColor/255f, cloud.tintColor/255f, 1);
+            spriteBatch.draw(imageManager.outsideImage.get("Cloud").get(cloud.num), cloud.location.x + cloudXMod + cloud.getMoveMod(), cloud.location.y + cloudYMod);
+            spriteBatch.setColor(1, 1, 1, 1);
+        }
 
         spriteBatch.end();
     }

@@ -56,6 +56,7 @@ public class Player extends CollidableObject {
     public boolean inWallOnRamp;
     public boolean justSteppedOnRamp;
     public boolean onRamp;
+    public boolean onRampLastFrame;
     public boolean onHalfRamp;
 
     public boolean ducking;
@@ -104,6 +105,7 @@ public class Player extends CollidableObject {
         attackData = AttackData.loadAttackData();
 
         onRamp = false;
+        onRampLastFrame = false;
         onHalfRamp = false;
         ducking = false;
         falling = false;
@@ -758,6 +760,11 @@ public class Player extends CollidableObject {
         }
         
         inWallOnRamp = false;
+        if(onRamp || onHalfRamp) {
+            onRampLastFrame = true;
+        } else {
+            onRampLastFrame = false;
+        }
         
         for(int i = 0; i < updateCount; i++) {
             
@@ -943,6 +950,31 @@ public class Player extends CollidableObject {
                             }
                         }
                     }
+                }
+            }
+        }
+
+        if(falling) {
+            onRamp = false;
+        }
+
+        // Inside Ramp Check //
+        if(true) {
+            int chunkX = hitBoxArea.getMiddle().x / Gdx.graphics.getWidth();
+            int chunkY = ((int) hitBoxArea.y) / Gdx.graphics.getHeight();
+            int tileX = (hitBoxArea.getMiddle().x % Gdx.graphics.getWidth()) / 16;
+            int tileY = (((int) hitBoxArea.y) % Gdx.graphics.getHeight()) / 16;
+            if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
+            && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
+            && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
+                Tile targetTile = screenChunks[chunkX][chunkY].tiles[tileX][tileY];
+                if(targetTile.tileShape.equals("Ramp-Right")
+                || targetTile.tileShape.equals("Ramp-Left")
+                || targetTile.tileShape.equals("Ramp-Right-Half-Bottom")
+                || targetTile.tileShape.equals("Ramp-Left-Half-Bottom")
+                || targetTile.tileShape.equals("Ramp-Right-Half-Top")
+                || targetTile.tileShape.equals("Ramp-Left-Half-Top")) {
+                    screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, "Middle", 2, 0);
                 }
             }
         }
@@ -1133,6 +1165,7 @@ public class Player extends CollidableObject {
         superJumpPercent = 0f;
 
         onRamp = false;
+        onHalfRamp = false;
     }
 
     public void superJump() {
@@ -1145,6 +1178,7 @@ public class Player extends CollidableObject {
 
             justLanded = false;
             onRamp = false;
+            onHalfRamp = false;
         }
     }
 

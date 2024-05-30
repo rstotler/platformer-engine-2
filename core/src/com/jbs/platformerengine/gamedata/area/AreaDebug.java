@@ -3,6 +3,7 @@ package com.jbs.platformerengine.gamedata.area;
 import java.util.*;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
@@ -118,6 +119,11 @@ public class AreaDebug extends AreaData {
             if(i < 10 || i > 11) {
                 screenChunks[0][1].tiles[i][0] = new Tile("Debug", "Square", 0, 1, i, 0);
             }
+        }
+
+        // Temporary Exit To Area02 //
+        for(int y = 0; y < 7; y++) {
+            screenChunks[0][0].tiles[0][30 + y] = new Tile("Area01", new Point(1290, 600), 0, 0, 0, 30 + y);
         }
 
         initCheck = true;
