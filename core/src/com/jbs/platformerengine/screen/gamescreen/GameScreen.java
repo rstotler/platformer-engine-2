@@ -26,11 +26,13 @@ import com.jbs.platformerengine.screen.Screen;
  * Areas - Tower, Underground
  * Smooth Movement Going Down Ramp
  * No Duck When Superjump
+ * Re-Add 'Hit Wall' For Mob Movement
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
  * Cant dropkick bat after targeting from sword attack
+ * Dash Distance Bug
  */
 
 public class GameScreen extends Screen {
@@ -144,7 +146,7 @@ public class GameScreen extends Screen {
             int chunkY = (yLoc / 16) / areaData.screenChunks[0][0].tiles[0].length;
             int tileX = (xLoc / 16) % areaData.screenChunks[0][0].tiles.length;
             int tileY = (yLoc / 16) % areaData.screenChunks[0][0].tiles[0].length;
-
+            
             if(chunkX >= 0 && chunkX < areaData.screenChunks.length && chunkY >= 0 && chunkY < areaData.screenChunks[0].length
             && tileX >= 0 && tileX < areaData.screenChunks[0][0].tiles.length && tileY >= 0 && tileY < areaData.screenChunks[0][0].tiles[0].length) {
                 String tileType = "None";
@@ -432,7 +434,7 @@ public class GameScreen extends Screen {
 
         font.draw(spriteBatch, "Player Pos: X - " + player.hitBoxArea.x + " (" + (player.hitBoxArea.x % Gdx.graphics.getWidth()) + ") " + " Y - " + player.hitBoxArea.y + " (" + (player.hitBoxArea.y % Gdx.graphics.getHeight()) + ")", 3, 765);
         font.draw(spriteBatch, "Velocity: X - " + player.velocity.x + " Y - " + player.velocity.y, 3, 750);
-        font.draw(spriteBatch, "On Ramp: " + player.onRamp + " - On Half-Ramp: " + player.onHalfRamp, 3, 735);
+        font.draw(spriteBatch, "On Ramp: " + player.onRamp + " - On Half-Ramp-Bottom: " + player.onHalfRampBottom + " - On Half-Ramp-Top: " + player.onHalfRampTop, 3, 735);
         font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount + " Falling: " + player.falling, 3, 720);
         
         String attackString = " (0)";

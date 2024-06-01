@@ -11,7 +11,7 @@ import com.jbs.platformerengine.screen.gamescreen.Tile;
 public class AreaDebug extends AreaData {
     public AreaDebug() {
         levelName = "Debug";
-        size = new Rect(2, 7);
+        size = new Rect(2, 2);
 
         defaultTileSet = "Debug";
         defaultTileName = "Square";
@@ -122,9 +122,9 @@ public class AreaDebug extends AreaData {
         }
 
         // Temporary Exit To Area02 //
-        for(int y = 0; y < 7; y++) {
-            screenChunks[0][0].tiles[0][30 + y] = new Tile("Area01", new Point(1290, 600), 0, 0, 0, 30 + y);
-        }
+        // for(int y = 0; y < 7; y++) {
+        //     screenChunks[0][0].tiles[0][30 + y] = new Tile("Area01", new Point(1290, 600), 0, 0, 0, 30 + y);
+        // }
 
         initCheck = true;
     }
