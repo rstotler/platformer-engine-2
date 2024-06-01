@@ -6,13 +6,13 @@ import com.jbs.platformerengine.screen.Screen;
 import com.jbs.platformerengine.screen.gamescreen.GameScreen;
 
 public class PlatformerEngine extends ApplicationAdapter {
-	Screen screen;
 	Player player;
+	Screen screen;
 	
 	@Override
 	public void create () {
-		screen = new GameScreen();
 		player = new Player("", null);
+		screen = new GameScreen(player);
 	}
 
 	@Override

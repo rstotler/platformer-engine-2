@@ -8,7 +8,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.area.entity.Cloud;
+import com.jbs.platformerengine.gamedata.entity.player.Player;
 import com.jbs.platformerengine.screen.ImageManager;
+import com.jbs.platformerengine.screen.gamescreen.GameScreen;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
 
 public class Area01 extends AreaData {
@@ -30,7 +32,7 @@ public class Area01 extends AreaData {
         loadScreenChunks();
     }
 
-    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager, Player player) {
         if(!initCheck) {
 
             // Base Floor //
@@ -187,7 +189,19 @@ public class Area01 extends AreaData {
         int bridgeYLoc = 37;
         createBridge(spriteBatch, imageManager, 80, bridgeYLoc, 160, 4, 11, initCheck);
 
-        // Bridge Exit To Area02 //
+        // Left Exit To AreaDebug //
+        int exitYLoc = 7;
+        for(int y = 0; y < 7; y++) {
+            int chunkY = (exitYLoc + y) / 48;
+            int tileY = (exitYLoc + y) % 48;
+            int exitX = 100;
+            if(GameScreen.getAreaData("AreaDebug") != null) {
+                exitX = (GameScreen.getAreaData("AreaDebug").screenChunks.length * Gdx.graphics.getWidth()) - (player.hitBoxArea.width * 2);
+            }
+            screenChunks[0][chunkY].tiles[0][tileY] = new Tile("AreaDebug", new Point(exitX, 16), 0, chunkY, 0, tileY);
+        }
+
+        // Right Bridge Exit To Area02 //
         for(int y = 0; y < 7; y++) {
             int chunkY = (bridgeYLoc + 1 + y) / 48;
             int tileY = (bridgeYLoc + 1 + y) % 48;

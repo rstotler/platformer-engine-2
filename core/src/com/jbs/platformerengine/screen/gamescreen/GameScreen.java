@@ -24,15 +24,14 @@ import com.jbs.platformerengine.screen.Screen;
  * Combat - Charged Attacks, Spells/Abilities
  * Background - Clouds, Stars, Pixelate Moon Glow
  * Areas - Tower, Underground
- * Smooth Movement Going Down Ramp
- * No Duck When Superjump
  * Re-Add 'Hit Wall' For Mob Movement
+ * Create Classes For Different Attacks
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
  * Cant dropkick bat after targeting from sword attack
- * Dash Distance Bug
+ * Weird 'Glitching' When Dashing
  */
 
 public class GameScreen extends Screen {
@@ -44,21 +43,23 @@ public class GameScreen extends Screen {
     
     ImageManager imageManager;
     
-    public GameScreen() {
+    public GameScreen(Player player) {
+        super(player);
+        
         cameraDebug = new OrthographicCamera();
         cameraDebug.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         
         keyboard = new Keyboard();
         initInputAdapter();
         
-        areaData = new AreaDebug();
+        areaData = new Area01();
         unusedAreaData = new HashMap<>();
-        unusedAreaData.put("Area01", new Area01());
+        unusedAreaData.put("AreaDebug", new AreaDebug());
         unusedAreaData.put("Area02", new Area02());
 
         imageManager = new ImageManager(areaData.tileSetList, areaData.breakableImageList, areaData.mobImageList, areaData.outside);
         
-        areaData.loadArea(spriteBatch, imageManager);
+        areaData.loadArea(spriteBatch, imageManager, player);
         areaData.loadBackgroundFrameBuffers(spriteBatch);
 
         bufferChunks();
@@ -146,7 +147,7 @@ public class GameScreen extends Screen {
             int chunkY = (yLoc / 16) / areaData.screenChunks[0][0].tiles[0].length;
             int tileX = (xLoc / 16) % areaData.screenChunks[0][0].tiles.length;
             int tileY = (yLoc / 16) % areaData.screenChunks[0][0].tiles[0].length;
-            
+
             if(chunkX >= 0 && chunkX < areaData.screenChunks.length && chunkY >= 0 && chunkY < areaData.screenChunks[0].length
             && tileX >= 0 && tileX < areaData.screenChunks[0][0].tiles.length && tileY >= 0 && tileY < areaData.screenChunks[0][0].tiles[0].length) {
                 String tileType = "None";
@@ -245,7 +246,7 @@ public class GameScreen extends Screen {
             areaData = unusedAreaData.get(targetTile.changeArea);
             unusedAreaData.remove(targetTile.changeArea);
 
-            areaData.changeArea(spriteBatch, imageManager);
+            areaData.changeArea(spriteBatch, imageManager, player);
 
             player.hitBoxArea.x = targetTile.changeLocation.x;
             player.hitBoxArea.y = targetTile.changeLocation.y;

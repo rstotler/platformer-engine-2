@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.CollidableObject;
-import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.PointF;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
@@ -73,7 +72,7 @@ public class Player extends CollidableObject {
         super(imageName, imageManager);
 
         shapeRenderer = new ShapeRenderer();
-        hitBoxArea = new Rect(100, 490, 16, 48);
+        hitBoxArea = new Rect(100, 112, 16, 48);
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
@@ -224,8 +223,8 @@ public class Player extends CollidableObject {
         }
         
         // Update Collisions //
-        Point targetPoint = new Point((int) (hitBoxArea.x + velocity.x), (int) (hitBoxArea.y + velocity.y));
-        Point startPoint = new Point((int) hitBoxArea.x, (int) hitBoxArea.y);
+        PointF targetPoint = new PointF(hitBoxArea.x + velocity.x, hitBoxArea.y + velocity.y);
+        PointF startPoint = new PointF(hitBoxArea.x, hitBoxArea.y);
         
         float xDistance = targetPoint.x - startPoint.x;
         float yDistance = targetPoint.y - startPoint.y;
@@ -293,6 +292,13 @@ public class Player extends CollidableObject {
             onRampLastFrame = false;
         }
         
+        if(velocity.x == 0) {
+            hitBoxArea.x = (int) hitBoxArea.x;
+        }
+        if(velocity.y == 0) {
+            hitBoxArea.y = (int) hitBoxArea.y;
+        }
+
         for(int i = 0; i < updateCount; i++) {
             
             // Update X Location //
@@ -538,9 +544,6 @@ public class Player extends CollidableObject {
                 }
             }
         }
-
-        hitBoxArea.x = (int) hitBoxArea.x;
-        hitBoxArea.y = (int) hitBoxArea.y;
     }
 
     public void updateAttack() {
@@ -730,7 +733,7 @@ public class Player extends CollidableObject {
     }
 
     public void superJump() {
-        if(!dropKickCheck && superJumpPercent < .05) {
+        if(!ducking && !dropKickCheck && superJumpPercent < .05) {
             superJumpCheck = true;
             superJumpTimer = 0f;
             if(jumpCount == 0) {

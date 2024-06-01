@@ -56,7 +56,7 @@ public class AreaData {
         }
     }
 
-    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {}
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager, Player player) {}
 
     public void createFloor(String tileSetName, boolean createHills) {
 
@@ -917,7 +917,7 @@ public class AreaData {
         }
     }
 
-    public void changeArea(SpriteBatch spriteBatch, ImageManager imageManager) {
+    public void changeArea(SpriteBatch spriteBatch, ImageManager imageManager, Player player) {
         for(int y = 0; y < screenChunks[0].length; y++) {
             for(int x = 0; x < screenChunks.length; x++) {
                 screenChunks[x][y].initChunk();
@@ -945,7 +945,7 @@ public class AreaData {
         }
         imageManager.loadImages(addTileSetList, addBreakableImageList, addMobImageList, outside);
 
-        loadArea(spriteBatch, imageManager);
+        loadArea(spriteBatch, imageManager, player);
         loadBackgroundFrameBuffers(spriteBatch);
 
         for(int y = 0; y < screenChunks[0].length; y++) {

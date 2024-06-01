@@ -408,7 +408,7 @@ public class Tile {
                 }
             } else if(movingDir.equals("Left")) {
                 if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16
-                && !(locationYIndex == 0 && player.onRamp)) {
+                && !(locationYIndex == 0 && (player.onRamp || player.onHalfRampTop))) {
                     player.hitBoxArea.x = tileLocation.x + 16;
                     player.velocity.x = 0;
                     return true;
@@ -546,7 +546,7 @@ public class Tile {
         else if(tileShape.equals("Ramp-Left-Half-Top")) {
             if(movingDir.equals("Right")) {
                 if(player.hitBoxArea.getMiddle().x < tileLocation.x
-                && !(locationYIndex == 0 && player.onRamp)) {
+                && !(locationYIndex == 0 && (player.onRamp || player.onHalfRampTop))) {
                     player.hitBoxArea.x = tileLocation.x - player.hitBoxArea.width;
                     player.velocity.x = 0;
                     return true;

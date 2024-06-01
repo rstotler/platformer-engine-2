@@ -5,12 +5,13 @@ import java.util.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
+import com.jbs.platformerengine.gamedata.entity.player.Player;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
 
 public class AreaDebug extends AreaData {
     public AreaDebug() {
-        levelName = "Debug";
+        levelName = "AreaDebug";
         size = new Rect(2, 2);
 
         defaultTileSet = "Debug";
@@ -24,7 +25,7 @@ public class AreaDebug extends AreaData {
         loadScreenChunks();
     }
 
-    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager, Player player) {
 
         // Bottom Floor //
         for(int i = 0; i < screenChunks.length; i++) {
@@ -121,10 +122,11 @@ public class AreaDebug extends AreaData {
             }
         }
 
-        // Temporary Exit To Area02 //
-        // for(int y = 0; y < 7; y++) {
-        //     screenChunks[0][0].tiles[0][30 + y] = new Tile("Area01", new Point(1290, 600), 0, 0, 0, 30 + y);
-        // }
+        // Exit To Area02 //
+        int lastXChunk = screenChunks.length - 1;
+        for(int y = 0; y < 7; y++) {
+            screenChunks[lastXChunk][0].tiles[79][1 + y] = new Tile("Area01", new Point(16, 112), lastXChunk, 0, 79, 1 + y);
+        }
 
         initCheck = true;
     }
