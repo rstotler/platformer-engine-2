@@ -25,13 +25,12 @@ import com.jbs.platformerengine.screen.Screen;
  * Background - Clouds, Stars, Pixelate Moon Glow
  * Areas - Tower, Underground
  * Re-Add 'Hit Wall' For Mob Movement
- * Create Classes For Different Attacks
+ * Class Out Different Attacks
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
  * Cant dropkick bat after targeting from sword attack
- * Weird 'Glitching' When Dashing
  */
 
 public class GameScreen extends Screen {
@@ -125,6 +124,15 @@ public class GameScreen extends Screen {
             player.duck(true);
         } else if(keyboard.lastUp.contains("S") || keyboard.lastUp.contains("Down")) {
             player.duck(false);
+        }
+
+        // Temp. Shapeshift //
+        else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
+            player.changeSize(1);
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
+            player.changeSize(2);
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
+            player.changeSize(3);
         }
 
         // Click Screen //
@@ -257,11 +265,11 @@ public class GameScreen extends Screen {
         ScreenUtils.clear(0/255f, 0/255f, 7/255f, 1);
 
         // Update Camera //
-        if(player.hitBoxArea.x < 328) {
+        if(player.hitBoxArea.getMiddle().x < 336) {
             camera.position.set(336, (player.hitBoxArea.y + 80), 0);
-        } else if(player.hitBoxArea.x > 936 + (Gdx.graphics.getWidth() * (areaData.screenChunks.length - 1))) {
+        } else if(player.hitBoxArea.getMiddle().x > 944 + (Gdx.graphics.getWidth() * (areaData.screenChunks.length - 1))) {
             camera.position.set(944 + (Gdx.graphics.getWidth() * (areaData.screenChunks.length - 1)), (player.hitBoxArea.y + 80), 0);
-        } else if(player.hitBoxArea.x >= 328) {
+        } else if(player.hitBoxArea.getMiddle().x >= 336) {
             camera.position.set(player.hitBoxArea.getMiddle().x, (player.hitBoxArea.y + 80), 0);
         }
         camera.update();
@@ -321,7 +329,7 @@ public class GameScreen extends Screen {
     }
 
     public void renderBackground(Player player) {
-        float xPercent = (player.hitBoxArea.x - 328.0f) / ((Gdx.graphics.getWidth() * areaData.screenChunks.length) - 640 - 32);
+        float xPercent = (player.hitBoxArea.getMiddle().x - 336.0f) / ((Gdx.graphics.getWidth() * areaData.screenChunks.length) - 640 - 32);
         float yPercent = (player.hitBoxArea.y - 0.0f) / ((Gdx.graphics.getHeight() * areaData.screenChunks[0].length));
         if(xPercent > 1) {
             xPercent = 1;
@@ -443,6 +451,8 @@ public class GameScreen extends Screen {
             attackString = " (" + player.attackDecayTimer + "/" + player.attackData.get(player.getCurrentAttack()).attackDecayTimerMax[player.attackCount - 1] + ")";
         }
         font.draw(spriteBatch, "Attack: " + player.attackCount + attackString + " - DK: " + player.dropKickCheck + " SJ: " + player.superJumpCheck, 3, 705);
+
+        font.draw(spriteBatch, "(Large) In Ramp Right: " + player.largeHitBoxInRampRight + " - In Ramp Left: " + player.largeHitBoxInRampLeft, 3, 690);
 
         spriteBatch.end();
     }

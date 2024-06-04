@@ -59,6 +59,9 @@ public class Player extends CollidableObject {
     public boolean onHalfRampTop;
     public boolean onRampLastFrame;
 
+    public boolean largeHitBoxInRampRight;
+    public boolean largeHitBoxInRampLeft;
+
     public boolean ducking;
     public boolean falling;
     public boolean justLanded;
@@ -72,7 +75,7 @@ public class Player extends CollidableObject {
         super(imageName, imageManager);
 
         shapeRenderer = new ShapeRenderer();
-        hitBoxArea = new Rect(100, 112, 16, 48);
+        hitBoxArea = new Rect(100, 112, 47, 64); // 16 x 48 (X:26)
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
@@ -109,6 +112,9 @@ public class Player extends CollidableObject {
         onHalfRampTop = false;
         onRampLastFrame = false;
 
+        largeHitBoxInRampRight = false;
+        largeHitBoxInRampLeft = false;
+
         ducking = false;
         falling = false;
         justLanded = false;
@@ -117,6 +123,21 @@ public class Player extends CollidableObject {
         updateActionList = new ArrayList<>();
 
         healthPoints = 5;
+    }
+
+    public void changeSize(int num) {
+        if(num == 1) {
+            hitBoxArea.width = 16;
+            hitBoxArea.height = 48;
+        }
+
+        else if(num == 2) {
+            hitBoxArea.width += 1;
+        }
+
+        else if(num == 3) {
+            hitBoxArea.height += 1;
+        }
     }
 
     public void update(Keyboard keyboard, ScreenChunk[][] screenChunks) {
@@ -208,7 +229,7 @@ public class Player extends CollidableObject {
     }
 
     public void updateTileCollisions(ScreenChunk[][] screenChunks) {
-        // System.out.println("---New Frame---");
+        System.out.println("---New Frame---");
 
         // Apply Gravity (Or Drop Kick) //
         if(dropKickCheck) {
@@ -312,6 +333,11 @@ public class Player extends CollidableObject {
                 }
             }
 
+            // (Big Hitbox) Ramp Check //
+            if(hitBoxArea.width >= 32) {
+                setLargeHitBoxInRamps(screenChunks);
+            }
+
             // X Collision Check //
             if(!xHitWallCheck) {
                 int yCount = (hitBoxArea.height / 16) + 1;
@@ -352,7 +378,7 @@ public class Player extends CollidableObject {
                             && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
                                 xHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirX, 0, y);
                                 if(xHitWallCheck) {
-                                    // System.out.println("-Hit-");
+                                    System.out.println("-Hit-");
                                     break;
                                 }
                             }
@@ -369,7 +395,7 @@ public class Player extends CollidableObject {
                             && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
                                 xHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirX, 1, y);
                                 if(xHitWallCheck) {
-                                    // System.out.println("-Hit-");
+                                    System.out.println("-Hit-");
                                     break;
                                 }
                             }
@@ -386,7 +412,7 @@ public class Player extends CollidableObject {
                             && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
                                 yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, "Middle", 2, y);
                                 if(yHitWallCheck) {
-                                    // System.out.println("-Hit-");
+                                    System.out.println("-Hit-");
                                 }
                             }
                         }
@@ -403,7 +429,12 @@ public class Player extends CollidableObject {
                     hitBoxArea.y += updateYMove;
                 }
             }
-            
+
+            // (Big Hitbox) Ramp Check //
+            if(velocity.y != 0 && hitBoxArea.width >= 32) {
+                setLargeHitBoxInRamps(screenChunks);
+            }
+
             // Y Collision Check //
             if(!yHitWallCheck && velocity.y != 0) {
                 int yOffset = 0;
@@ -451,7 +482,7 @@ public class Player extends CollidableObject {
                             && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
                                 yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 0, y);
                                 if(yHitWallCheck) {
-                                    // System.out.println("-Hit-");
+                                    System.out.println("-Hit-");
                                     break;
                                 }
                             }
@@ -468,7 +499,7 @@ public class Player extends CollidableObject {
                             && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
                                 yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 1, y);
                                 if(yHitWallCheck) {
-                                    // System.out.println("-Hit-");
+                                    System.out.println("-Hit-");
                                     break;
                                 }
                             }
@@ -485,14 +516,14 @@ public class Player extends CollidableObject {
                             && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
                                 yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 2, y);
                                 if(yHitWallCheck) {
-                                    // System.out.println("-Hit-");
+                                    System.out.println("-Hit-");
                                     break;
                                 }
                             }
                         }
                         
                         // Index Collision Check //
-                        if(velocity.y != 0 && !yHitWallCheck && hitBoxArea.width > 32) {
+                        if(hitBoxArea.width >= 32 && velocity.y != 0 && !yHitWallCheck) {
                             int xCount = hitBoxArea.width / 16;
             
                             for(int x = 0; x < xCount; x++) {
@@ -505,7 +536,7 @@ public class Player extends CollidableObject {
                                 && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
                                     yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, movingDirY, 3 + x, y);
                                     if(yHitWallCheck) {
-                                        // System.out.println("-Hit-");
+                                        System.out.println("-Hit-");
                                         break;
                                     }
                                 }
@@ -516,6 +547,7 @@ public class Player extends CollidableObject {
             }
         }
 
+        // Falling Check //
         if(falling) {
             onRamp = false;
             onHalfRampBottom = false;
@@ -539,8 +571,36 @@ public class Player extends CollidableObject {
                 || targetTile.tileShape.equals("Ramp-Right-Half-Top")
                 || targetTile.tileShape.equals("Ramp-Left-Half-Top")) {
                     if(screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, "Middle", 2, 0)) {
-                        // System.out.println("-Hit-");
+                        System.out.println("-Hit-");
                     }
+                }
+            }
+        }
+    }
+
+    public void setLargeHitBoxInRamps(ScreenChunk[][] screenChunks) {
+        largeHitBoxInRampRight = false;
+        largeHitBoxInRampLeft = false;
+
+        int xCount = (hitBoxArea.width / 16) + 2;
+        for(int x = 0; x < xCount; x++) {
+            int xMod = x * 16;
+            if(x == xCount - 1) {
+                xMod = hitBoxArea.width - 1;
+            }
+
+            int chunkX = ((int) hitBoxArea.x + xMod) / Gdx.graphics.getWidth();
+            int chunkY = ((int) hitBoxArea.y) / Gdx.graphics.getHeight();
+            int tileX = (((int) hitBoxArea.x + xMod) % Gdx.graphics.getWidth()) / 16;
+            int tileY = (((int) hitBoxArea.y) % Gdx.graphics.getHeight()) / 16;
+            if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
+            && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
+            && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
+                String tileShape = screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileShape;
+                if(tileShape.equals("Ramp-Right")) {
+                    largeHitBoxInRampRight = true;
+                } else if(tileShape.equals("Ramp-Left")) {
+                    largeHitBoxInRampLeft = true;
                 }
             }
         }
@@ -657,7 +717,7 @@ public class Player extends CollidableObject {
             shapeRenderer.setColor(140/255f, 0/255f, 140/255f, 1f);
         }
 
-        shapeRenderer.rect(hitBoxArea.x, hitBoxArea.y, hitBoxArea.width, hitBoxArea.height);
+        shapeRenderer.rect((int) hitBoxArea.x, (int) hitBoxArea.y, hitBoxArea.width, hitBoxArea.height);
         
         // X & Y (Location) //
         // shapeRenderer.setColor(Color.GREEN);
@@ -666,9 +726,9 @@ public class Player extends CollidableObject {
         // Facing Direction //
         shapeRenderer.setColor(Color.YELLOW);
         if(facingDirection.equals("Right")) {
-            shapeRenderer.circle(hitBoxArea.x + hitBoxArea.width, hitBoxArea.y + (hitBoxArea.height / 2), 1);
+            shapeRenderer.circle((int) hitBoxArea.x + hitBoxArea.width, (int) hitBoxArea.y + (hitBoxArea.height / 2), 1);
         } else {
-            shapeRenderer.circle(hitBoxArea.x, hitBoxArea.y + (hitBoxArea.height / 2), 1);
+            shapeRenderer.circle((int) hitBoxArea.x, (int) hitBoxArea.y + (hitBoxArea.height / 2), 1);
         }
 
         // X & Y (Screen Center)
@@ -688,7 +748,7 @@ public class Player extends CollidableObject {
             }
 
             Rect attackHitBox = getAttackHitBox();
-            shapeRenderer.rect(attackHitBox.x, attackHitBox.y, attackHitBox.width, attackHitBox.height);
+            shapeRenderer.rect((int) attackHitBox.x, (int) attackHitBox.y, attackHitBox.width, attackHitBox.height);
         }
 
         shapeRenderer.end();
