@@ -26,6 +26,7 @@ import com.jbs.platformerengine.screen.Screen;
  * Areas - Tower, Underground
  * Re-Add 'Hit Wall' For Mob Movement
  * Class Out Different Attacks
+ * Player Inherits From Mob
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
@@ -441,9 +442,9 @@ public class GameScreen extends Screen {
         font.setColor(Color.WHITE);
         font.draw(spriteBatch, "FPS: " + String.valueOf(Gdx.graphics.getFramesPerSecond()), 1205, 767);
 
-        font.draw(spriteBatch, "Player Pos: X - " + player.hitBoxArea.x + " (" + (player.hitBoxArea.x % Gdx.graphics.getWidth()) + ") " + " Y - " + player.hitBoxArea.y + " (" + (player.hitBoxArea.y % Gdx.graphics.getHeight()) + ")", 3, 765);
+        font.draw(spriteBatch, "Pos: X - " + player.hitBoxArea.x + " (" + (player.hitBoxArea.x % Gdx.graphics.getWidth()) + ") " + " Y - " + player.hitBoxArea.y + " (" + (player.hitBoxArea.y % Gdx.graphics.getHeight()) + ") " + " Size: " + player.hitBoxArea.width + "x" + player.hitBoxArea.height, 3, 765);
         font.draw(spriteBatch, "Velocity: X - " + player.velocity.x + " Y - " + player.velocity.y, 3, 750);
-        font.draw(spriteBatch, "On Ramp: " + player.onRamp + " - On Half-Ramp-Bottom: " + player.onHalfRampBottom + " - On Half-Ramp-Top: " + player.onHalfRampTop, 3, 735);
+        font.draw(spriteBatch, "R: " + player.onRamp + " - HRB: " + player.onHalfRampBottom + " - HRT: " + player.onHalfRampTop, 3, 735);
         font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount + " Falling: " + player.falling, 3, 720);
         
         String attackString = " (0)";
