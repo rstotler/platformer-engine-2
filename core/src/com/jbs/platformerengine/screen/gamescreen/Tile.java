@@ -1,5 +1,6 @@
 package com.jbs.platformerengine.screen.gamescreen;
 
+import com.badlogic.gdx.Gdx;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.entity.player.Player;
 
@@ -105,7 +106,8 @@ public class Tile {
             if(movingDir.equals("Right")) {
                 if(player.hitBoxArea.width < 32 && locationYIndex == 0 && (player.onRamp || player.onHalfRampTop) && !player.falling) {
                     player.inWallOnRamp = true;
-                } else if(locationYIndex == 0 && player.largeHitBoxInRampRight) {
+                } else if((locationYIndex == 0 && (player.largeHitBoxInRampRight || player.largeHitBoxInHalfRampRightTop))
+                || (locationYIndex <= 1 && player.largeHitBoxInRampRight)) {
                     // Do Nothing
                 } else {
                     player.hitBoxArea.x = tileLocation.x - player.hitBoxArea.width;
@@ -115,7 +117,8 @@ public class Tile {
             } else if(movingDir.equals("Left")) {
                 if(player.hitBoxArea.width < 32 && locationYIndex == 0 && (player.onRamp || player.onHalfRampTop) && !player.falling) {
                     player.inWallOnRamp = true;
-                } else if(locationYIndex == 0 && player.largeHitBoxInRampLeft) {
+                } else if((locationYIndex == 0 && (player.largeHitBoxInRampLeft || player.largeHitBoxInHalfRampLeftTop))
+                || (locationYIndex <= 1 && player.largeHitBoxInRampLeft)) {
                     // Do Nothing
                 } else {
                     player.hitBoxArea.x = tileLocation.x + 16;
@@ -123,9 +126,9 @@ public class Tile {
                     return true;
                 }
             } else if(movingDir.equals("Down")) {
-                if(player.hitBoxArea.width >= 32 && locationYIndex == 0
-                && ((player.largeHitBoxInRampRight && tileLocation.x > player.hitBoxArea.getMiddle().x)
-                || (player.largeHitBoxInRampLeft && tileLocation.x + 16 < player.hitBoxArea.getMiddle().x))) {
+                if(player.hitBoxArea.width >= 32 && locationYIndex <= 1
+                && (((player.largeHitBoxInRampRight || player.largeHitBoxInHalfRampRightTop) && tileLocation.x > player.hitBoxArea.getMiddle().x)
+                || ((player.largeHitBoxInRampLeft || player.largeHitBoxInHalfRampLeftTop) && tileLocation.x + 16 < player.hitBoxArea.getMiddle().x))) {
                     // Do Nothing
                 } else if(!(locationXIndex == 2 && (player.onRamp || player.onHalfRampTop))) {
                     player.hitBoxArea.y = tileLocation.y + 16;
@@ -153,6 +156,8 @@ public class Tile {
             if(movingDir.equals("Right")) {
                 if(locationYIndex == 0 && player.onHalfRampBottom && !player.falling) {
                     player.inWallOnRamp = true;
+                } else if(locationYIndex <= 1 && player.largeHitBoxInHalfRampRightBottom) {
+                    // Do Nothing
                 } else {
                     if(locationYIndex > 0
                     || (locationYIndex == 0 && player.hitBoxArea.y < tileLocation.y + 8)) {
@@ -164,6 +169,8 @@ public class Tile {
             } else if(movingDir.equals("Left")) {
                 if(locationYIndex == 0 && player.onHalfRampBottom && !player.falling) {
                     player.inWallOnRamp = true;
+                } else if(locationYIndex <= 1 && player.largeHitBoxInHalfRampLeftBottom) {
+                    // Do Nothing
                 } else {
                     if(locationYIndex > 0
                     || (locationYIndex == 0 && player.hitBoxArea.y < tileLocation.y + 8)) {
@@ -173,7 +180,10 @@ public class Tile {
                     }
                 }
             } else if(movingDir.equals("Down")) {
-                if(player.hitBoxArea.y < tileLocation.y + 8) {
+                if((player.largeHitBoxInHalfRampRightBottom && player.hitBoxArea.getMiddle().x >= getLocation().x + 16)
+                || (player.largeHitBoxInHalfRampLeftBottom && player.hitBoxArea.getMiddle().x < getLocation().x)) {
+                    // Do Nothing
+                } else if(player.hitBoxArea.y < tileLocation.y + 8) {
                     player.hitBoxArea.y = tileLocation.y + 8;
                     player.velocity.y = 0;
                     player.land(this);
@@ -196,7 +206,8 @@ public class Tile {
         else if(tileShape.equals("Ramp-Right")) {
             if(movingDir.equals("Right")) {
                 if(locationYIndex > 0
-                && !player.onRamp && !player.onHalfRampTop) {
+                && !player.onRamp && !player.onHalfRampTop
+                && !(locationYIndex <= 1 && (player.largeHitBoxInHalfRampRightTop || player.largeHitBoxInRampRight))) {
                     player.hitBoxArea.x = tileLocation.x - player.hitBoxArea.width;
                     player.velocity.x = 0;
                     return true;
@@ -239,7 +250,7 @@ public class Tile {
                             return true;
                         }
                     }
-                } else if(locationXIndex == 1) {
+                } else if(locationXIndex == 1 || (player.hitBoxArea.width >= 32 && locationYIndex == 0 && locationXIndex > 2)) {
                     if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16) {
                         player.hitBoxArea.y = tileLocation.y + 16;
                         player.velocity.y = 0;
@@ -247,9 +258,10 @@ public class Tile {
                         player.land(this);
                         return true;
                     }
-                } else if(locationXIndex == 2) {
+                } else if(locationXIndex == 2 || (player.hitBoxArea.width >= 32 && locationYIndex == 1 && locationXIndex > 2)) {
                     if(player.hitBoxArea.getMiddle().x < tileLocation.x
-                    && player.hitBoxArea.y <= tileLocation.y) {
+                    && player.hitBoxArea.y <= tileLocation.y
+                    && !(player.hitBoxArea.width >= 32 && (player.onRamp || player.largeHitBoxInRampRight))) {
                         player.hitBoxArea.y = tileLocation.y;
                         player.velocity.y = 0;
                         player.onRamp = false;
@@ -276,7 +288,8 @@ public class Tile {
                 }
             } else if(movingDir.equals("Left")) {
                 if(locationYIndex > 0
-                && !player.onRamp && !player.onHalfRampTop) {
+                && !player.onRamp && !player.onHalfRampTop
+                && !(locationYIndex <= 1 && (player.largeHitBoxInHalfRampLeftTop || player.largeHitBoxInRampLeft))) {
                     player.hitBoxArea.x = tileLocation.x + 16;
                     player.velocity.x = 0;
                     return true;
@@ -311,16 +324,17 @@ public class Tile {
                             return true;
                         }
                     }
-                } else if(locationXIndex == 1) {
+                } else if(locationXIndex == 1 || (player.hitBoxArea.width >= 32 && locationYIndex == 1 && locationXIndex > 2)) {
                     if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16
-                    && player.hitBoxArea.y < tileLocation.y) {
+                    && player.hitBoxArea.y < tileLocation.y
+                    && !(player.hitBoxArea.width >= 32 && (player.onRamp || player.largeHitBoxInRampRight))) {
                         player.hitBoxArea.y = tileLocation.y;
                         player.velocity.y = 0;
                         player.onRamp = false;
                         player.land(this);
                         return true;
                     }
-                } else if(locationXIndex == 2) {
+                } else if(locationXIndex == 2 || (player.hitBoxArea.width >= 32 && locationYIndex == 0 && locationXIndex > 2)) {
                     if(player.hitBoxArea.getMiddle().x < tileLocation.x) {
                         player.hitBoxArea.y = tileLocation.y + 16;
                         player.velocity.y = 0;
@@ -341,7 +355,7 @@ public class Tile {
         else if(tileShape.equals("Ramp-Right-Half-Bottom")) {
             if(movingDir.equals("Right")) {
                 if(locationYIndex > 0
-                && !player.onRamp) {
+                && !player.onRamp && !player.largeHitBoxInHalfRampRightTop && !player.largeHitBoxInRampRight) {
                     player.hitBoxArea.x = tileLocation.x - player.hitBoxArea.width;
                     player.velocity.x = 0;
                     return true;
@@ -384,7 +398,7 @@ public class Tile {
                             return true;
                         }
                     }
-                } else if(locationXIndex == 1) {
+                } else if(locationXIndex == 1 || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x >= getLocation().x + 16)) {
                     if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16
                     && player.hitBoxArea.y <= tileLocation.y + 8) {
                         player.hitBoxArea.y = tileLocation.y + 8;
@@ -393,10 +407,11 @@ public class Tile {
                         player.land(this);
                         return true;
                     }
-                } else if(locationXIndex == 2) {
+                } else if(locationXIndex == 2 || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x < getLocation().x)) {
                     if(player.hitBoxArea.getMiddle().x < tileLocation.x
                     && player.hitBoxArea.y <= tileLocation.y
-                    && !player.justSteppedOnRamp) {
+                    && !player.justSteppedOnRamp
+                    && !player.largeHitBoxInRampRight && !player.largeHitBoxInHalfRampRightTop) {
                         player.hitBoxArea.y = tileLocation.y;
                         player.velocity.y = 0;
                         player.onHalfRampBottom = false;
@@ -417,7 +432,8 @@ public class Tile {
             if(movingDir.equals("Right")) {
                 if(!player.onHalfRampBottom &&
                 ((locationYIndex > 0 && !player.onRamp)
-                || (locationYIndex == 0 && player.hitBoxArea.y < tileLocation.y + 8))) {
+                || (locationYIndex == 0 && player.hitBoxArea.y < tileLocation.y + 8))
+                && !player.largeHitBoxInHalfRampRightBottom) {
                     player.hitBoxArea.x = tileLocation.x - player.hitBoxArea.width;
                     player.velocity.x = 0;
                     return true;
@@ -462,7 +478,7 @@ public class Tile {
                             return true;
                         }
                     }
-                } else if(locationXIndex == 1) {
+                } else if(locationXIndex == 1 || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x >= getLocation().x + 16)) {
                     if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16
                     && player.hitBoxArea.y <= tileLocation.y + 16) {
                         player.hitBoxArea.y = tileLocation.y + 16;
@@ -471,10 +487,11 @@ public class Tile {
                         player.land(this);
                         return true;
                     }
-                } else if(locationXIndex == 2) {
+                } else if((locationYIndex == 0 && locationXIndex == 2) || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x < getLocation().x)) {
                     if(player.hitBoxArea.getMiddle().x < tileLocation.x
                     && player.hitBoxArea.y <= tileLocation.y + 8
-                    && !player.justSteppedOnRamp) {
+                    && !player.justSteppedOnRamp
+                    && !player.largeHitBoxInHalfRampRightBottom) {
                         player.hitBoxArea.y = tileLocation.y + 8;
                         player.velocity.y = 0;
                         player.onHalfRampBottom = false;
@@ -502,7 +519,7 @@ public class Tile {
                 }
             } else if(movingDir.equals("Left")) {
                 if(locationYIndex > 0
-                && !player.onRamp) {
+                && !player.onRamp && !player.largeHitBoxInHalfRampLeftTop && !player.largeHitBoxInRampLeft) {
                     player.hitBoxArea.x = tileLocation.x + 16;
                     player.velocity.x = 0;
                     return true;
@@ -537,17 +554,18 @@ public class Tile {
                             return true;
                         }
                     }
-                } else if(locationXIndex == 1) {
+                } else if(locationXIndex == 1 || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x >= getLocation().x + 16)) {
                     if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16
                     && player.hitBoxArea.y <= tileLocation.y
-                    && !player.justSteppedOnRamp) {
+                    && !player.justSteppedOnRamp
+                    && !player.largeHitBoxInRampLeft && !player.largeHitBoxInHalfRampLeftTop) {
                         player.hitBoxArea.y = tileLocation.y;
                         player.velocity.y = 0;
                         player.onHalfRampBottom = false;
                         player.land(this);
                         return true;
                     }
-                } else if(locationXIndex == 2) {
+                } else if(locationXIndex == 2 || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x < getLocation().x)) {
                     if(player.hitBoxArea.getMiddle().x < tileLocation.x
                     && player.hitBoxArea.y <= tileLocation.y + 8) {
                         player.hitBoxArea.y = tileLocation.y + 8;
@@ -577,7 +595,8 @@ public class Tile {
             } else if(movingDir.equals("Left")) {
                 if(!player.onHalfRampBottom &&
                 ((locationYIndex > 0 && !player.onRamp)
-                || (locationYIndex == 0 && player.hitBoxArea.y < tileLocation.y + 8))) {
+                || (locationYIndex == 0 && player.hitBoxArea.y < tileLocation.y + 8))
+                && !player.largeHitBoxInHalfRampLeftBottom) {
                     player.hitBoxArea.x = tileLocation.x + 16;
                     player.velocity.x = 0;
                     return true;
@@ -615,17 +634,18 @@ public class Tile {
                             return true;
                         }
                     }
-                } else if(locationXIndex == 1) {
+                } else if(locationXIndex == 1 || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x >= getLocation().x + 16)) {
                     if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16
                     && player.hitBoxArea.y <= tileLocation.y + 8
-                    && !player.justSteppedOnRamp) {
+                    && !player.justSteppedOnRamp
+                    && !player.largeHitBoxInHalfRampLeftBottom) {
                         player.hitBoxArea.y = tileLocation.y + 8;
                         player.velocity.y = 0;
                         player.onHalfRampBottom = false;
                         player.land(this);
                         return true;
                     }
-                } else if(locationXIndex == 2) {
+                } else if((locationXIndex == 0 || locationXIndex == 2) || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x < getLocation().x)) {
                     if(player.hitBoxArea.getMiddle().x < tileLocation.x
                     && player.hitBoxArea.y <= tileLocation.y + 16) {
                         player.hitBoxArea.y = tileLocation.y + 16;
@@ -666,5 +686,11 @@ public class Tile {
         }
 
         return false;
+    }
+
+    public Point getLocation() {
+        int xLoc = (chunkX * Gdx.graphics.getWidth()) + (tileX * 16);
+        int yLoc = (chunkY * Gdx.graphics.getHeight()) + (tileY * 16);
+        return new Point(xLoc, yLoc);
     }
 }

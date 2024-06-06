@@ -61,6 +61,10 @@ public class Player extends CollidableObject {
 
     public boolean largeHitBoxInRampRight;
     public boolean largeHitBoxInRampLeft;
+    public boolean largeHitBoxInHalfRampRightBottom;
+    public boolean largeHitBoxInHalfRampRightTop;
+    public boolean largeHitBoxInHalfRampLeftBottom;
+    public boolean largeHitBoxInHalfRampLeftTop;
 
     public boolean ducking;
     public boolean falling;
@@ -114,6 +118,10 @@ public class Player extends CollidableObject {
 
         largeHitBoxInRampRight = false;
         largeHitBoxInRampLeft = false;
+        largeHitBoxInHalfRampRightBottom = false;
+        largeHitBoxInHalfRampRightTop = false;
+        largeHitBoxInHalfRampLeftBottom = false;
+        largeHitBoxInHalfRampLeftTop = false;
 
         ducking = false;
         falling = false;
@@ -412,7 +420,7 @@ public class Player extends CollidableObject {
                             && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
                                 yHitWallCheck = screenChunks[chunkX][chunkY].tiles[tileX][tileY].collisionCheck(this, "Middle", 2, y);
                                 if(yHitWallCheck) {
-                                    System.out.println("-Hit-");
+                                    System.out.println("-(Non-Breaking) Hit-");
                                 }
                             }
                         }
@@ -581,26 +589,44 @@ public class Player extends CollidableObject {
     public void setLargeHitBoxInRamps(ScreenChunk[][] screenChunks) {
         largeHitBoxInRampRight = false;
         largeHitBoxInRampLeft = false;
+        largeHitBoxInHalfRampRightBottom = false;
+        largeHitBoxInHalfRampRightTop = false;
+        largeHitBoxInHalfRampLeftBottom = false;
+        largeHitBoxInHalfRampLeftTop = false;
 
         int xCount = (hitBoxArea.width / 16) + 2;
-        for(int x = 0; x < xCount; x++) {
-            int xMod = x * 16;
-            if(x == xCount - 1) {
-                xMod = hitBoxArea.width - 1;
-            }
-
-            int chunkX = ((int) hitBoxArea.x + xMod) / Gdx.graphics.getWidth();
-            int chunkY = ((int) hitBoxArea.y) / Gdx.graphics.getHeight();
-            int tileX = (((int) hitBoxArea.x + xMod) % Gdx.graphics.getWidth()) / 16;
-            int tileY = (((int) hitBoxArea.y) % Gdx.graphics.getHeight()) / 16;
-            if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
-            && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
-            && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
-                String tileShape = screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileShape;
-                if(tileShape.equals("Ramp-Right")) {
-                    largeHitBoxInRampRight = true;
-                } else if(tileShape.equals("Ramp-Left")) {
-                    largeHitBoxInRampLeft = true;
+        int yCount = 2;
+        for(int y = 0; y < yCount; y++) {
+            int yMod = y * 16;
+            for(int x = 0; x < xCount; x++) {
+                if(y == 0 || (x <= 1 || x >= xCount - 2)) {
+                    int xMod = x * 16;
+                    if(x == xCount - 1) {
+                        xMod = hitBoxArea.width - 1;
+                    }
+        
+                    int chunkX = ((int) hitBoxArea.x + xMod) / Gdx.graphics.getWidth();
+                    int chunkY = ((int) hitBoxArea.y + yMod) / Gdx.graphics.getHeight();
+                    int tileX = (((int) hitBoxArea.x + xMod) % Gdx.graphics.getWidth()) / 16;
+                    int tileY = (((int) hitBoxArea.y + yMod) % Gdx.graphics.getHeight()) / 16;
+                    if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
+                    && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
+                    && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
+                        String tileShape = screenChunks[chunkX][chunkY].tiles[tileX][tileY].tileShape;
+                        if(tileShape.equals("Ramp-Right")) {
+                            largeHitBoxInRampRight = true;
+                        } else if(tileShape.equals("Ramp-Left")) {
+                            largeHitBoxInRampLeft = true;
+                        } else if(tileShape.equals("Ramp-Right-Half-Bottom")) {
+                            largeHitBoxInHalfRampRightBottom = true;
+                        } else if(tileShape.equals("Ramp-Right-Half-Top")) {
+                            largeHitBoxInHalfRampRightTop = true;
+                        } else if(tileShape.equals("Ramp-Left-Half-Bottom")) {
+                            largeHitBoxInHalfRampLeftBottom = true;
+                        } else if(tileShape.equals("Ramp-Left-Half-Top")) {
+                            largeHitBoxInHalfRampLeftTop = true;
+                        }
+                    }
                 }
             }
         }
