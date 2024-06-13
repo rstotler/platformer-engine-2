@@ -162,6 +162,22 @@ public class ScreenChunk {
         frameBufferForeground.end();
     }
 
+    public static Tile getTile(ScreenChunk[][] screenChunks, int xLoc, int yLoc) {
+        int chunkX = xLoc / Gdx.graphics.getWidth();
+        int chunkY = yLoc / Gdx.graphics.getHeight();
+        int tileX = (xLoc % Gdx.graphics.getWidth()) / 16;
+        int tileY = (yLoc % Gdx.graphics.getHeight()) / 16;
+
+        if(chunkX >= 0 && chunkX < screenChunks.length
+        && chunkY >= 0 && chunkY < screenChunks[0].length
+        && tileX >= 0 && tileX < screenChunks[0][0].tiles.length
+        && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length) {
+            return screenChunks[chunkX][chunkY].tiles[tileX][tileY];
+        }
+
+        return null;
+    }
+
     public void dispose() {
         shapeRenderer.dispose();
         frameBufferTiles.dispose();

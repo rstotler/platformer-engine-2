@@ -453,9 +453,6 @@ public class GameScreen extends Screen {
         }
         font.draw(spriteBatch, "Attack: " + player.attackCount + attackString + " - DK: " + player.dropKickCheck + " SJ: " + player.superJumpCheck, 3, 705);
 
-        font.draw(spriteBatch, "RR: " + player.hitBoxInRampRight[0] + " RL: " + player.hitBoxInRampLeft[0] + " HRB: " + player.hitBoxInHalfRampRightBottom[0] + " HRT: " + player.hitBoxInHalfRampRightTop[0] + " HLB: " + player.hitBoxInHalfRampLeftBottom[0] + " HLT: " + player.hitBoxInHalfRampLeftTop[0], 3, 690);
-        font.draw(spriteBatch, "RR: " + player.hitBoxInRampRight[1] + " RL: " + player.hitBoxInRampLeft[1] + " HRB: " + player.hitBoxInHalfRampRightBottom[1] + " HRT: " + player.hitBoxInHalfRampRightTop[1] + " HLB: " + player.hitBoxInHalfRampLeftBottom[1] + " HLT: " + player.hitBoxInHalfRampLeftTop[1], 3, 675);
-
         spriteBatch.end();
     }
 
