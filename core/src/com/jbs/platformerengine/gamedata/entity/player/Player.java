@@ -56,10 +56,6 @@ public class Player extends CollidableObject {
     public Tile onHalfRampBottom;
     public Tile onHalfRampTop;
 
-    public boolean inWallOnRamp;
-    public boolean justSteppedOnRamp;
-    public boolean onRampLastFrame;
-
     public boolean justFellInRamp;
     public boolean middleJustFellInRamp;
     public boolean middleFellInRampLastFrame;
@@ -77,7 +73,7 @@ public class Player extends CollidableObject {
         super(imageName, imageManager);
 
         shapeRenderer = new ShapeRenderer();
-        hitBoxArea = new Rect(100, 112, 47, 64); // 16 x 48 (X:26)
+        hitBoxArea = new Rect(100, 112, 47, 64);
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
@@ -113,7 +109,6 @@ public class Player extends CollidableObject {
         onHalfRampBottom = null;
         onHalfRampTop = null;
 
-        onRampLastFrame = false;
         justFellInRamp = false;
         middleJustFellInRamp = false;
         middleFellInRampLastFrame = false;
@@ -309,13 +304,6 @@ public class Player extends CollidableObject {
             }
         }
         
-        inWallOnRamp = false; //
-        if(onRamp != null || onHalfRampBottom != null || onHalfRampTop != null) {
-            onRampLastFrame = true; //
-        } else {
-            onRampLastFrame = false; //
-        }
-        
         if(velocity.x == 0) {
             hitBoxArea.x = (int) hitBoxArea.x;
         }
@@ -421,7 +409,6 @@ public class Player extends CollidableObject {
 
             // JustFellInRamp & MiddleJustFellInRamp Check //
             if(velocity.y < 0) {
-                justSteppedOnRamp = false; //
                 justFellInRamp = false;
                 middleJustFellInRamp = false;
 

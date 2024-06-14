@@ -32,6 +32,7 @@ import com.jbs.platformerengine.screen.Screen;
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
  * Cant dropkick bat after targeting from sword attack
+ * Y Movement Fuzz?
  */
 
 public class GameScreen extends Screen {
@@ -42,6 +43,8 @@ public class GameScreen extends Screen {
     public static HashMap<String, AreaData> unusedAreaData;
     
     ImageManager imageManager;
+
+    int displayDebugData;
     
     public GameScreen(Player player) {
         super(player);
@@ -59,6 +62,8 @@ public class GameScreen extends Screen {
 
         imageManager = new ImageManager(areaData.tileSetList, areaData.breakableImageList, areaData.mobImageList, areaData.outside);
         
+        displayDebugData = 1;
+
         areaData.loadArea(spriteBatch, imageManager, player);
         areaData.loadBackgroundFrameBuffers(spriteBatch);
 
@@ -123,6 +128,11 @@ public class GameScreen extends Screen {
             player.attack();
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
             player.duck(true);
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
+            displayDebugData += 1;
+            if(displayDebugData >= 3) {
+                displayDebugData = 0;
+            }
         } else if(keyboard.lastUp.contains("S") || keyboard.lastUp.contains("Down")) {
             player.duck(false);
         }
@@ -326,7 +336,9 @@ public class GameScreen extends Screen {
             }
         }
         
-        renderDebugData(player);
+        if(displayDebugData != 0) {
+            renderDebugData(player);
+        }
     }
 
     public void renderBackground(Player player) {
@@ -442,17 +454,19 @@ public class GameScreen extends Screen {
         font.setColor(Color.WHITE);
         font.draw(spriteBatch, "FPS: " + String.valueOf(Gdx.graphics.getFramesPerSecond()), 1205, 767);
 
-        font.draw(spriteBatch, "Pos: X - " + player.hitBoxArea.x + " (" + (player.hitBoxArea.x % Gdx.graphics.getWidth()) + ") " + " Y - " + player.hitBoxArea.y + " (" + (player.hitBoxArea.y % Gdx.graphics.getHeight()) + ") " + " Size: " + player.hitBoxArea.width + "x" + player.hitBoxArea.height, 3, 765);
-        font.draw(spriteBatch, "Velocity: X - " + player.velocity.x + " Y - " + player.velocity.y, 3, 750);
-        font.draw(spriteBatch, "R: " + player.onRamp + " - HRB: " + player.onHalfRampBottom + " - HRT: " + player.onHalfRampTop, 3, 735);
-        font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount + " Falling: " + player.falling, 3, 720);
-        
-        String attackString = " (0)";
-        if(player.attackCount > 0) {
-            attackString = " (" + player.attackDecayTimer + "/" + player.attackData.get(player.getCurrentAttack()).attackDecayTimerMax[player.attackCount - 1] + ")";
+        if(displayDebugData == 1) {
+            font.draw(spriteBatch, "Pos: X - " + player.hitBoxArea.x + " (" + (player.hitBoxArea.x % Gdx.graphics.getWidth()) + ") " + " Y - " + player.hitBoxArea.y + " (" + (player.hitBoxArea.y % Gdx.graphics.getHeight()) + ") " + " Size: " + player.hitBoxArea.width + "x" + player.hitBoxArea.height, 3, 765);
+            font.draw(spriteBatch, "Velocity: X - " + player.velocity.x + " Y - " + player.velocity.y, 3, 750);
+            font.draw(spriteBatch, "R: " + player.onRamp + " - HRB: " + player.onHalfRampBottom + " - HRT: " + player.onHalfRampTop, 3, 735);
+            font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount + " Falling: " + player.falling, 3, 720);
+            
+            String attackString = " (0)";
+            if(player.attackCount > 0) {
+                attackString = " (" + player.attackDecayTimer + "/" + player.attackData.get(player.getCurrentAttack()).attackDecayTimerMax[player.attackCount - 1] + ")";
+            }
+            font.draw(spriteBatch, "Attack: " + player.attackCount + attackString + " - DK: " + player.dropKickCheck + " SJ: " + player.superJumpCheck, 3, 705);
         }
-        font.draw(spriteBatch, "Attack: " + player.attackCount + attackString + " - DK: " + player.dropKickCheck + " SJ: " + player.superJumpCheck, 3, 705);
-
+        
         spriteBatch.end();
     }
 
