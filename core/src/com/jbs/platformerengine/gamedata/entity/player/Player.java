@@ -56,9 +56,11 @@ public class Player extends CollidableObject {
     public Tile onHalfRampBottom;
     public Tile onHalfRampTop;
 
-    public boolean justFellInRamp;
-    public boolean middleJustFellInRamp;
-    public boolean middleFellInRampLastFrame;
+    public Tile justFellInRamp;
+    public Tile middleJustFellInRamp;
+    public Tile middleFellInRampLastFrame;
+    public Tile justFellInSquareHalf;
+    public Tile fellInSquareHalfLastFrame;
 
     public boolean ducking;
     public boolean falling;
@@ -109,9 +111,10 @@ public class Player extends CollidableObject {
         onHalfRampBottom = null;
         onHalfRampTop = null;
 
-        justFellInRamp = false;
-        middleJustFellInRamp = false;
-        middleFellInRampLastFrame = false;
+        justFellInRamp = null;
+        justFellInSquareHalf = null;
+        middleJustFellInRamp = null;
+        middleFellInRampLastFrame = null;
 
         ducking = false;
         falling = false;
@@ -400,32 +403,39 @@ public class Player extends CollidableObject {
                 }
             }
 
-            // MiddleFellInRampLastFrame Check //
-            if(middleJustFellInRamp) {
-                middleFellInRampLastFrame = true;
-            } else {
-                middleFellInRampLastFrame = false;
-            }
+            // Set MiddleFellInRampLastFrame & JustFellInSquareHalfLastFrame //
+            middleFellInRampLastFrame = middleJustFellInRamp;
+            fellInSquareHalfLastFrame = justFellInSquareHalf;
 
-            // JustFellInRamp & MiddleJustFellInRamp Check //
-            if(velocity.y < 0) {
-                justFellInRamp = false;
-                middleJustFellInRamp = false;
+            // JustFellInRamp, MiddleJustFellInRamp & JustFellInSquareHalf Check //
+            if(velocity.y <= 0) {
+                justFellInRamp = null;
+                middleJustFellInRamp = null;
+                justFellInSquareHalf = null;
 
-                int xCount = (hitBoxArea.width / 16) + 2;
+                int xCount = (hitBoxArea.width / 16) + 1;
+                if(hitBoxArea.width % 16 > 0) {
+                    xCount += 1;
+                }
                 for(int x = 0; x < xCount; x++) {
                     int xMod = x * 16;
                     if(x == xCount - 1) {
                         xMod = hitBoxArea.width - 1;
                     }
         
-                    // JustFellInRamp Check //
+                    // JustFellInRamp & JustFellInSquareHalf Check //
                     Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.x + xMod, (int) hitBoxArea.y);
-                    if(targetTile != null
-                    && targetTile.tileShape.length() >= 4
-                    && targetTile.tileShape.substring(0, 4).equals("Ramp")) {
-                        justFellInRamp = true;
-                        break;
+                    if(targetTile != null) {
+                        if(targetTile.tileShape.length() >= 4
+                        && targetTile.tileShape.substring(0, 4).equals("Ramp")) {
+                            justFellInRamp = targetTile;
+                        } else if(targetTile.tileShape.equals("Square-Half")) {
+                            justFellInSquareHalf = targetTile;
+                        }
+
+                        if(justFellInRamp != null && justFellInSquareHalf != null) {
+                            break;
+                        }
                     }
                 }
 
@@ -434,17 +444,30 @@ public class Player extends CollidableObject {
                 if(targetTile != null
                 && targetTile.tileShape.length() >= 4
                 && targetTile.tileShape.substring(0, 4).equals("Ramp")) {
-                    middleJustFellInRamp = true;
+                    middleJustFellInRamp = targetTile;
                 }
 
-                // Move Player Up One Tile (MiddleFellInRampLastFrame Check) //
-                if(middleFellInRampLastFrame
+                // Move Player Up One Tile (MiddleFellInRampLastFrame & FellInSquareHalfLastFrame Check) //
+                if((middleFellInRampLastFrame != null || fellInSquareHalfLastFrame != null)
                 && onRamp == null
                 && onHalfRampBottom == null
                 && onHalfRampTop == null) {
                     targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y);
-                    if((targetTile == null || targetTile.tileShape.equals("Square"))) {
-                        hitBoxArea.y = (int) hitBoxArea.y + (16 - (((int) hitBoxArea.y) % 16));
+                    if(middleFellInRampLastFrame != null) {
+                        if(targetTile == null
+                        || targetTile.getLocation().y < middleFellInRampLastFrame.getLocation().y) {
+                            hitBoxArea.y = (int) hitBoxArea.y + (16 - (((int) hitBoxArea.y) % 16));
+                        }
+                    }
+                    
+                    else if(fellInSquareHalfLastFrame != null) {
+                        if((targetTile == null
+                        && !(Tile.isEmptyTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y)) == true)
+
+                        || (targetTile != null
+                        && targetTile.getLocation().y < fellInSquareHalfLastFrame.getLocation().y)) {
+                            hitBoxArea.y = (int) hitBoxArea.y + (16 - (((int) hitBoxArea.y) % 16));
+                        }
                     }
                 }
             }
@@ -754,8 +777,8 @@ public class Player extends CollidableObject {
         onHalfRampTop = null;
 
         justLanded = false;
-        justFellInRamp = false;
-        middleJustFellInRamp = false;
+        justFellInRamp = null;
+        middleJustFellInRamp = null;
     }
 
     public void superJump() {
@@ -771,8 +794,8 @@ public class Player extends CollidableObject {
             onHalfRampTop = null;
 
             justLanded = false;
-            justFellInRamp = false;
-            middleJustFellInRamp = false;
+            justFellInRamp = null;
+            middleJustFellInRamp = null;
         }
     }
 

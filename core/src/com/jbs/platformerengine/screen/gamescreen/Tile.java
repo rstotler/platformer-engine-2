@@ -129,7 +129,7 @@ public class Tile {
             }
             
             else if(movingDir.equals("Down")) {
-                if(!player.justFellInRamp) {
+                if(player.justFellInRamp == null) {
                     player.hitBoxArea.y = getLocation().y + 16;
                     player.velocity.y = 0;
                     player.onRamp = null;
@@ -163,7 +163,10 @@ public class Tile {
 
             else if(movingDir.equals("Down")) {
                 if(player.hitBoxArea.y <= getLocation().y + 8
-                && !player.justFellInRamp) {
+                
+                && !(player.justFellInRamp != null
+                && (player.justFellInRamp.tileShape.equals("Ramp-Right-Half-Bottom")
+                || player.justFellInRamp.tileShape.equals("Ramp-Left-Half-Bottom")))) {
                     player.hitBoxArea.y = getLocation().y + 8;
                     player.velocity.y = 0;
                     player.onRamp = null;
@@ -195,9 +198,7 @@ public class Tile {
 
             else if(movingDir.equals("Left")) {
                 if(player.hitBoxArea.getMiddle().x >= getLocation().x + 16
-                 
-                && !(player.justFellInRamp
-                || (player.onRamp != null && player.onRamp == this))) {
+                && !(player.onRamp != null && player.onRamp == this)) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     player.velocity.x = 0;
                     return true;
@@ -236,7 +237,7 @@ public class Tile {
                 else if(player.hitBoxArea.getMiddle().x <= getLocation().x
                 && player.hitBoxArea.y <= getLocation().y
                 && isBottomRamp(screenChunks)
-                && !player.justFellInRamp) {
+                && player.justFellInRamp == null) {
                     player.hitBoxArea.y = getLocation().y;
                     player.velocity.y = 0;
                     player.land(this);
@@ -279,9 +280,7 @@ public class Tile {
             else if(movingDir.equals("Left")) {
                 if(player.hitBoxArea.y < getLocation().y + 8
                 && player.hitBoxArea.getMiddle().x >= getLocation().x + 16
-                 
-                && !(player.justFellInRamp
-                || (player.onHalfRampBottom != null && player.onHalfRampBottom == this))) {
+                && !(player.onHalfRampBottom != null && player.onHalfRampBottom == this)) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     player.velocity.x = 0;
                     return true;
@@ -322,7 +321,7 @@ public class Tile {
                 else if(player.hitBoxArea.getMiddle().x <= getLocation().x
                 && player.hitBoxArea.y <= getLocation().y
                 && isBottomRamp(screenChunks)
-                && !player.justFellInRamp) {
+                && player.justFellInRamp == null) {
                     player.hitBoxArea.y = getLocation().y;
                     player.velocity.y = 0;
                     player.land(this);
@@ -345,9 +344,7 @@ public class Tile {
             
             else if(movingDir.equals("Left")) {
                 if(player.hitBoxArea.getMiddle().x >= getLocation().x + 16
-                 
-                && !(player.justFellInRamp
-                || (player.onHalfRampTop != null && player.onHalfRampTop == this))) {
+                && !(player.onHalfRampTop != null && player.onHalfRampTop == this)) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     player.velocity.x = 0;
                     return true;
@@ -391,7 +388,7 @@ public class Tile {
                 else if(player.hitBoxArea.getMiddle().x <= getLocation().x
                 && player.hitBoxArea.y <= getLocation().y
                 && isBottomRamp(screenChunks)
-                && !player.justFellInRamp) {
+                && player.justFellInRamp == null) {
                     player.hitBoxArea.y = getLocation().y + 8;
                     player.velocity.y = 0;
                     player.land(this);
@@ -423,616 +420,6 @@ public class Tile {
         return false;
     }
 
-    public boolean collisionCheckOld(Player player, String movingDir, int locationXIndex, int locationYIndex) {
-        // Point tileLocation = new Point(((chunkX * 80) + tileX) * 16, ((chunkY * 48) + tileY) * 16);
-        // System.out.println(tileShape + " " + movingDir + " " + locationXIndex + " " + locationYIndex + " " + player.onRamp + " " + player.onHalfRampBottom + " " + player.onHalfRampTop + " " + player.inWallOnRamp + " " + player.onRampLastFrame);
-
-        // // Square //
-        // if(tileShape.equals("Square")) {
-        //     if(movingDir.equals("Right")) {
-        //         if(player.hitBoxArea.width < 32 && locationYIndex == 0 && (player.onRamp || player.onHalfRampTop) && !player.falling) {
-        //             player.inWallOnRamp = true;
-        //         } else if((locationYIndex == 0 && (player.largeHitBoxInRampRight || player.largeHitBoxInHalfRampRightTop))
-        //         || (locationYIndex <= 1 && player.largeHitBoxInRampRight)) {
-        //             // Do Nothing
-        //         } else {
-        //             player.hitBoxArea.x = tileLocation.x - player.hitBoxArea.width;
-        //             player.velocity.x = 0;
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Left")) {
-        //         if(player.hitBoxArea.width < 32 && locationYIndex == 0 && (player.onRamp || player.onHalfRampTop) && !player.falling) {
-        //             player.inWallOnRamp = true;
-        //         } else if((locationYIndex == 0 && (player.largeHitBoxInRampLeft || player.largeHitBoxInHalfRampLeftTop))
-        //         || (locationYIndex <= 1 && player.largeHitBoxInRampLeft)) {
-        //             // Do Nothing
-        //         } else {
-        //             player.hitBoxArea.x = tileLocation.x + 16;
-        //             player.velocity.x = 0;
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Down")) {
-        //         if(player.hitBoxArea.width >= 32 && locationYIndex <= 1
-        //         && (((player.largeHitBoxInRampRight || player.largeHitBoxInHalfRampRightTop) && tileLocation.x > player.hitBoxArea.getMiddle().x)
-        //         || ((player.largeHitBoxInRampLeft || player.largeHitBoxInHalfRampLeftTop) && tileLocation.x + 16 < player.hitBoxArea.getMiddle().x))) {
-        //             // Do Nothing
-        //         } else if(!(locationXIndex == 2 && (player.onRamp || player.onHalfRampTop))) {
-        //             player.hitBoxArea.y = tileLocation.y + 16;
-        //             player.velocity.y = 0;
-        //             player.land(this);
-
-        //             if(!player.justSteppedOnRamp) {
-        //                 player.onRamp = false;
-        //                 player.onHalfRampBottom = false;
-        //                 player.onHalfRampTop = false;
-        //             }
-
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Up")) {
-        //         player.hitBoxArea.y = tileLocation.y - player.hitBoxArea.height;
-        //         player.velocity.y = 0;
-        //         player.hitCeiling();
-        //         return true;
-        //     }
-        // }
-
-        // // Square-Half //
-        // else if(tileShape.equals("Square-Half")) {
-        //     if(movingDir.equals("Right")) {
-        //         if(locationYIndex == 0 && player.onHalfRampBottom && !player.falling) {
-        //             player.inWallOnRamp = true;
-        //         } else if(locationYIndex <= 1 && player.largeHitBoxInHalfRampRightBottom) {
-        //             // Do Nothing
-        //         } else {
-        //             if(locationYIndex > 0
-        //             || (locationYIndex == 0 && player.hitBoxArea.y < tileLocation.y + 8)) {
-        //                 player.hitBoxArea.x = tileLocation.x - player.hitBoxArea.width;
-        //                 player.velocity.x = 0;
-        //                 return true;
-        //             }
-        //         }
-        //     } else if(movingDir.equals("Left")) {
-        //         if(locationYIndex == 0 && player.onHalfRampBottom && !player.falling) {
-        //             player.inWallOnRamp = true;
-        //         } else if(locationYIndex <= 1 && player.largeHitBoxInHalfRampLeftBottom) {
-        //             // Do Nothing
-        //         } else {
-        //             if(locationYIndex > 0
-        //             || (locationYIndex == 0 && player.hitBoxArea.y < tileLocation.y + 8)) {
-        //                 player.hitBoxArea.x = tileLocation.x + 16;
-        //                 player.velocity.x = 0;
-        //                 return true;
-        //             }
-        //         }
-        //     } else if(movingDir.equals("Down")) {
-        //         if(((player.largeHitBoxInHalfRampRightBottom || player.largeHitBoxInHalfRampLeftBottom)
-        //         && (player.hitBoxArea.getMiddle().x >= getLocation().x + 16 || player.hitBoxArea.getMiddle().x < getLocation().x))) {
-        //             // Do Nothing
-        //         } else if(player.hitBoxArea.y < tileLocation.y + 8) {
-        //             player.hitBoxArea.y = tileLocation.y + 8;
-        //             player.velocity.y = 0;
-        //             player.land(this);
-
-        //             if(locationXIndex == 0) {
-        //                 player.onRamp = false;
-        //             }
-                    
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Up")) {
-        //         player.hitBoxArea.y = tileLocation.y - player.hitBoxArea.height;
-        //         player.velocity.y = 0;
-        //         player.hitCeiling();
-        //         return true;
-        //     }
-        // }
-
-        // // Ramp-Right //
-        // else if(tileShape.equals("Ramp-Right")) {
-        //     if(movingDir.equals("Right")) {
-        //         if(locationYIndex > 0
-        //         && !player.onRamp && !player.onHalfRampTop
-        //         && !(locationYIndex == 0 && player.largeHitBoxInHalfRampRightTop)
-        //         && !(locationYIndex == 0 && player.largeHitBoxInRampRight)) {
-        //             player.hitBoxArea.x = tileLocation.x - player.hitBoxArea.width;
-        //             player.velocity.x = 0;
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Left")) {
-        //         if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16
-        //         && !(locationYIndex == 0 && player.onRamp)
-        //         && !(locationYIndex == 0 && player.largeHitBoxInRampLeft) && !player.largeHitBoxInHalfRampLeftTop) {
-        //             player.hitBoxArea.x = tileLocation.x + 16;
-        //             player.velocity.x = 0;
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Middle")) {
-        //         if(locationYIndex == 0 && (!player.inWallOnRamp || player.hitBoxArea.width > 26) && player.velocity.y <= 0) {
-        //             float locationDiff = player.hitBoxArea.getMiddle().x - tileLocation.x;
-        //             float anglePercent = locationDiff / 16;
-        //             if(player.hitBoxArea.y <= tileLocation.y + (int) (16 * anglePercent)
-        //             || player.onRampLastFrame) {
-        //                 player.hitBoxArea.y = tileLocation.y + (int) (16 * anglePercent);
-        //                 player.onRamp = true;
-        //                 player.justSteppedOnRamp = true;
-        //                 return true;
-        //             }
-        //         }
-        //     } else if(movingDir.equals("Down")) {
-        //         if(locationXIndex == 0) {
-        //             if(player.velocity.y <= 0) {
-        //                 if(!player.largeHitBoxInRampRight) {
-        //                     player.onRamp = true;
-        //                     player.justSteppedOnRamp = true;
-        //                 }
-                        
-        //                 float locationDiff = player.hitBoxArea.getMiddle().x - tileLocation.x;
-        //                 float anglePercent = locationDiff / 16;
-        //                 if((player.hitBoxArea.y <= tileLocation.y + (int) (16 * anglePercent)
-        //                 || player.onRampLastFrame)
-        //                 && !player.largeHitBoxInRampRight) {
-        //                     player.hitBoxArea.y = tileLocation.y + (int) (16 * anglePercent);
-        //                     player.velocity.y = 0;
-        //                     player.land(this);
-        //                     return true;
-        //                 }
-        //             }
-        //         } else if(locationXIndex == 1 || (player.hitBoxArea.width >= 32 && locationYIndex == 0 && locationXIndex > 2)) {
-        //             if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16
-        //             && !player.largeHitBoxInRampLeft) {
-        //                 player.hitBoxArea.y = tileLocation.y + 16;
-        //                 player.velocity.y = 0;
-        //                 player.onRamp = false;
-        //                 player.land(this);
-        //                 return true;
-        //             }
-        //         } else if(locationXIndex == 2 || (player.hitBoxArea.width >= 32 && locationYIndex == 1 && locationXIndex > 2)) {
-        //             if(player.hitBoxArea.getMiddle().x < tileLocation.x
-        //             && player.hitBoxArea.y <= tileLocation.y
-        //             && !(player.hitBoxArea.width >= 32 && (player.onRamp || (player.largeHitBoxInRampRight && locationYIndex == 0)))) {
-        //                 player.hitBoxArea.y = tileLocation.y;
-        //                 player.velocity.y = 0;
-        //                 player.onRamp = false;
-        //                 player.land(this);
-        //                 return true;
-        //             }
-        //         }
-        //     } else if(movingDir.equals("Up")) {
-        //         player.hitBoxArea.y = tileLocation.y - player.hitBoxArea.height;
-        //         player.velocity.y = 0;
-        //         player.hitCeiling();
-        //         return true;
-        //     }
-        // }
-
-        // // Ramp-Left //
-        // else if(tileShape.equals("Ramp-Left")) {
-        //     if(movingDir.equals("Right")) {
-        //         if(player.hitBoxArea.getMiddle().x < tileLocation.x
-        //         && !(locationYIndex == 0 && player.onRamp)
-        //         && !(locationYIndex == 0 && player.largeHitBoxInRampRight) && !player.largeHitBoxInHalfRampRightTop) {
-        //             player.hitBoxArea.x = tileLocation.x - player.hitBoxArea.width;
-        //             player.velocity.x = 0;
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Left")) {
-        //         if(locationYIndex > 0
-        //         && !player.onRamp && !player.onHalfRampTop
-        //         && !(locationYIndex == 0 && (player.largeHitBoxInHalfRampLeftTop || player.largeHitBoxInRampLeft))) {
-        //             player.hitBoxArea.x = tileLocation.x + 16;
-        //             player.velocity.x = 0;
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Middle")) {
-        //         if(locationYIndex == 0 && (!player.inWallOnRamp || player.hitBoxArea.width > 26) && player.velocity.y <= 0) {
-        //             float locationDiff = 16 - (player.hitBoxArea.getMiddle().x - tileLocation.x);
-        //             float anglePercent = locationDiff / 16;
-        //             if(player.hitBoxArea.y <= tileLocation.y + (int) (16 * anglePercent)
-        //             || player.onRampLastFrame) {
-        //                 player.hitBoxArea.y = tileLocation.y + (int) (16 * anglePercent);
-        //                 player.onRamp = true;
-        //                 return true;
-        //             }
-        //         }
-        //     } else if(movingDir.equals("Down")) {
-        //         if(locationXIndex == 0) {
-        //             if(player.velocity.y <= 0) {
-        //                 if(!player.largeHitBoxInRampLeft) {
-        //                     player.onRamp = true;
-        //                     player.justSteppedOnRamp = true;
-        //                 }
-
-        //                 float locationDiff = 16 - (player.hitBoxArea.getMiddle().x - tileLocation.x);
-        //                 float anglePercent = locationDiff / 16;
-        //                 if((player.hitBoxArea.y <= tileLocation.y + (int) (16 * anglePercent)
-        //                 || player.onRampLastFrame)
-        //                 && !player.largeHitBoxInRampLeft) {
-        //                     player.hitBoxArea.y = tileLocation.y + (int) (16 * anglePercent);
-        //                     player.velocity.y = 0;
-        //                     player.land(this);
-        //                     return true;
-        //                 }
-        //             }
-        //         } else if(locationXIndex == 1 || (player.hitBoxArea.width >= 32 && locationYIndex == 1 && locationXIndex > 2)) {
-        //             if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16
-        //             && player.hitBoxArea.y < tileLocation.y
-        //             && !(player.hitBoxArea.width >= 32 && (player.onRamp || (player.largeHitBoxInRampRight && locationYIndex == 0)))) {
-        //                 player.hitBoxArea.y = tileLocation.y;
-        //                 player.velocity.y = 0;
-        //                 player.onRamp = false;
-        //                 player.land(this);
-        //                 return true;
-        //             }
-        //         } else if(locationXIndex == 2 || (player.hitBoxArea.width >= 32 && locationYIndex == 0 && locationXIndex > 2)) {
-        //             if(player.hitBoxArea.getMiddle().x < tileLocation.x
-        //             && !player.largeHitBoxInRampRight) {
-        //                 player.hitBoxArea.y = tileLocation.y + 16;
-        //                 player.velocity.y = 0;
-        //                 player.onRamp = false;
-        //                 player.land(this);
-        //                 return true;
-        //             }
-        //         }
-        //     } else if(movingDir.equals("Up")) {
-        //         player.hitBoxArea.y = tileLocation.y - player.hitBoxArea.height;
-        //         player.velocity.y = 0;
-        //         player.hitCeiling();
-        //         return true;
-        //     }
-        // }
-
-        // // Ramp-Right-Half-Bottom //
-        // else if(tileShape.equals("Ramp-Right-Half-Bottom")) {
-        //     if(movingDir.equals("Right")) {
-        //         if(locationYIndex > 0
-        //         && !player.onRamp
-        //         && !(locationYIndex == 0 && player.largeHitBoxInHalfRampRightTop)
-        //         && !(locationYIndex == 0 && player.largeHitBoxInRampRight)) {
-        //             player.hitBoxArea.x = tileLocation.x - player.hitBoxArea.width;
-        //             player.velocity.x = 0;
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Left")) {
-        //         if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16
-        //         && player.hitBoxArea.y < tileLocation.y + 8
-        //         && !(locationYIndex == 0 && player.onHalfRampBottom)
-        //         && !(locationYIndex == 0 && player.largeHitBoxInHalfRampLeftBottom)) {
-        //             player.hitBoxArea.x = tileLocation.x + 16;
-        //             player.velocity.x = 0;
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Middle")) {
-        //         if(locationYIndex == 0 && player.velocity.y <= 0) {
-        //             float locationDiff = player.hitBoxArea.getMiddle().x - tileLocation.x;
-        //             float anglePercent = locationDiff / 16;
-        //             if(player.hitBoxArea.y <= tileLocation.y + (int) (8 * anglePercent)
-        //             || player.onRampLastFrame) {
-        //                 player.hitBoxArea.y = tileLocation.y + (int) (8 * anglePercent);
-        //                 player.onHalfRampBottom = true;
-        //                 player.onHalfRampTop = false;
-        //                 player.onRamp = false;
-        //                 player.justSteppedOnRamp = true;
-        //                 return true;
-        //             }
-        //         }
-        //     } else if(movingDir.equals("Down")) {
-        //         if(locationXIndex == 0) {
-        //             if(player.velocity.y <= 0 && !player.onRamp) {
-        //                 player.onHalfRampBottom = true;
-        //                 player.justSteppedOnRamp = true;
-                        
-        //                 float locationDiff = player.hitBoxArea.getMiddle().x - tileLocation.x;
-        //                 float anglePercent = locationDiff / 16;
-        //                 if(player.hitBoxArea.y <= tileLocation.y + (int) (8 * anglePercent)
-        //                 || player.onRampLastFrame) {
-        //                     player.hitBoxArea.y = tileLocation.y + (int) (8 * anglePercent);
-        //                     player.velocity.y = 0;
-        //                     player.land(this);
-        //                     return true;
-        //                 }
-        //             }
-        //         } else if(locationXIndex == 1 || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x >= getLocation().x + 16)) {
-        //             if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16
-        //             && player.hitBoxArea.y <= tileLocation.y + 8
-        //             && !player.largeHitBoxInHalfRampLeftBottom) {
-        //                 player.hitBoxArea.y = tileLocation.y + 8;
-        //                 player.velocity.y = 0;
-        //                 player.onHalfRampBottom = false;
-        //                 player.land(this);
-        //                 return true;
-        //             }
-        //         } else if(locationXIndex == 2 || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x < getLocation().x)) {
-        //             if(player.hitBoxArea.getMiddle().x < tileLocation.x
-        //             && player.hitBoxArea.y <= tileLocation.y
-        //             && !player.justSteppedOnRamp
-        //             && !player.largeHitBoxInRampRight && !player.largeHitBoxInHalfRampRightTop) {
-        //                 player.hitBoxArea.y = tileLocation.y;
-        //                 player.velocity.y = 0;
-        //                 player.onHalfRampBottom = false;
-        //                 player.land(this);
-        //                 return true;
-        //             }
-        //         }
-        //     } else if(movingDir.equals("Up")) {
-        //         player.hitBoxArea.y = tileLocation.y - player.hitBoxArea.height;
-        //         player.velocity.y = 0;
-        //         player.hitCeiling();
-        //         return true;
-        //     }
-        // }
-
-        // // Ramp-Right-Half-Top //
-        // else if(tileShape.equals("Ramp-Right-Half-Top")) {
-        //     if(movingDir.equals("Right")) {
-        //         if(!player.onHalfRampBottom &&
-        //         ((locationYIndex > 0 && !player.onRamp)
-        //         || (locationYIndex == 0 && player.hitBoxArea.y < tileLocation.y + 8))
-        //         && !(locationYIndex == 0 && player.largeHitBoxInHalfRampRightBottom)) {
-        //             player.hitBoxArea.x = tileLocation.x - player.hitBoxArea.width;
-        //             player.velocity.x = 0;
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Left")) {
-        //         if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16
-        //         && !(locationYIndex == 0 && (player.onRamp || player.onHalfRampTop))
-        //         && !(locationYIndex == 0 && player.largeHitBoxInHalfRampLeftTop)
-        //         && !(locationYIndex == 0 && player.largeHitBoxInRampLeft)) {
-        //             player.hitBoxArea.x = tileLocation.x + 16;
-        //             player.velocity.x = 0;
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Middle")) {
-        //         if(locationYIndex == 0 && !player.inWallOnRamp && player.velocity.y <= 0) {
-        //             float locationDiff = player.hitBoxArea.getMiddle().x - tileLocation.x;
-        //             float anglePercent = locationDiff / 16;
-        //             if(player.hitBoxArea.y <= tileLocation.y + 8 + (int) (8 * anglePercent)
-        //             || player.onRampLastFrame) {
-        //                 player.hitBoxArea.y = tileLocation.y + 8 + (int) (8 * anglePercent);
-        //                 player.onHalfRampTop = true;
-        //                 player.onHalfRampBottom = false;
-        //                 player.onRamp = false;
-        //                 player.justSteppedOnRamp = true;
-        //                 return true;
-        //             }
-        //         }
-        //     } else if(movingDir.equals("Down")) {
-        //         if(locationXIndex == 0) {
-        //             if(locationYIndex == 0 && player.velocity.y <= 0) {
-        //                 player.onHalfRampTop = true;
-        //                 player.justSteppedOnRamp = true;
-
-        //                 float locationDiff = player.hitBoxArea.getMiddle().x - tileLocation.x;
-        //                 float anglePercent = locationDiff / 16;
-        //                 if(player.hitBoxArea.y <= tileLocation.y + 8 + (int) (8 * anglePercent)
-        //                 || player.onRampLastFrame) {
-        //                     player.hitBoxArea.y = tileLocation.y + 8 + (int) (8 * anglePercent);
-        //                     player.onHalfRampTop = true;
-        //                     player.onHalfRampBottom = false;
-        //                     player.onRamp = false;
-        //                     player.justSteppedOnRamp = true;
-        //                     player.land(this);
-        //                     return true;
-        //                 }
-        //             }
-        //         } else if(locationXIndex == 1 || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x >= getLocation().x + 16)) {
-        //             if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16
-        //             && player.hitBoxArea.y <= tileLocation.y + 16
-        //             && !player.largeHitBoxInHalfRampLeftTop && !player.largeHitBoxInRampLeft) {
-        //                 player.hitBoxArea.y = tileLocation.y + 16;
-        //                 player.velocity.y = 0;
-        //                 player.onHalfRampBottom = false;
-        //                 player.land(this);
-        //                 return true;
-        //             }
-        //         } else if((locationYIndex == 0 && locationXIndex == 2) || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x < getLocation().x)) {
-        //             if(player.hitBoxArea.getMiddle().x < tileLocation.x
-        //             && player.hitBoxArea.y <= tileLocation.y + 8
-        //             && !player.justSteppedOnRamp
-        //             && !player.largeHitBoxInHalfRampRightBottom) {
-        //                 player.hitBoxArea.y = tileLocation.y + 8;
-        //                 player.velocity.y = 0;
-        //                 player.onHalfRampBottom = false;
-        //                 player.land(this);
-        //                 return true;
-        //             }
-        //         }
-        //     } else if(movingDir.equals("Up")) {
-        //         player.hitBoxArea.y = tileLocation.y - player.hitBoxArea.height;
-        //         player.velocity.y = 0;
-        //         player.hitCeiling();
-        //         return true;
-        //     }
-        // }
-
-        // // Ramp-Left-Half-Bottom //
-        // else if(tileShape.equals("Ramp-Left-Half-Bottom")) {
-        //     if(movingDir.equals("Right")) {
-        //         if(player.hitBoxArea.getMiddle().x < tileLocation.x
-        //         && player.hitBoxArea.y < tileLocation.y + 8
-        //         && !(locationYIndex == 0 && player.onHalfRampBottom)
-        //         && !(locationYIndex == 0 && player.largeHitBoxInHalfRampRightBottom)) {
-        //             player.hitBoxArea.x = tileLocation.x - player.hitBoxArea.width;
-        //             player.velocity.x = 0;
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Left")) {
-        //         if(locationYIndex > 0
-        //         && !player.onRamp
-        //         && !(locationYIndex == 0 && player.largeHitBoxInHalfRampLeftTop)
-        //         && !(locationYIndex == 0 && player.largeHitBoxInRampLeft)) {
-        //             player.hitBoxArea.x = tileLocation.x + 16;
-        //             player.velocity.x = 0;
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Middle")) {
-        //         if(locationYIndex == 0 && player.velocity.y <= 0) {
-        //             float locationDiff = 16 - (player.hitBoxArea.getMiddle().x - tileLocation.x);
-        //             float anglePercent = locationDiff / 16;
-        //             if(player.hitBoxArea.y <= tileLocation.y + (int) (8 * anglePercent)
-        //             || player.onRampLastFrame) {
-        //                 player.hitBoxArea.y = tileLocation.y + (int) (8 * anglePercent);
-        //                 player.onHalfRampBottom = true;
-        //                 player.onHalfRampTop = false;
-        //                 player.onRamp = false;
-        //                 player.justSteppedOnRamp = true;
-        //                 return true;
-        //             }
-        //         }
-        //     } else if(movingDir.equals("Down")) {
-        //         if(locationXIndex == 0) {
-        //             if(player.velocity.y <= 0 && !player.onRamp) {
-        //                 player.onHalfRampBottom = true;
-        //                 player.justSteppedOnRamp = true;
-                        
-        //                 float locationDiff = 16 - (player.hitBoxArea.getMiddle().x - tileLocation.x);
-        //                 float anglePercent = locationDiff / 16;
-        //                 if(player.hitBoxArea.y <= tileLocation.y + (int) (8 * anglePercent)
-        //                 || player.onRampLastFrame) {
-        //                     player.hitBoxArea.y = tileLocation.y + (int) (8 * anglePercent);
-        //                     player.velocity.y = 0;
-        //                     player.land(this);
-        //                     return true;
-        //                 }
-        //             }
-        //         } else if(locationXIndex == 1 || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x >= getLocation().x + 16)) {
-        //             if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16
-        //             && player.hitBoxArea.y <= tileLocation.y
-        //             && !player.justSteppedOnRamp
-        //             && !player.largeHitBoxInRampLeft && !player.largeHitBoxInHalfRampLeftTop) {
-        //                 player.hitBoxArea.y = tileLocation.y;
-        //                 player.velocity.y = 0;
-        //                 player.onHalfRampBottom = false;
-        //                 player.land(this);
-        //                 return true;
-        //             }
-        //         } else if(locationXIndex == 2 || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x < getLocation().x)) {
-        //             if(player.hitBoxArea.getMiddle().x < tileLocation.x
-        //             && player.hitBoxArea.y <= tileLocation.y + 8
-        //             && !player.largeHitBoxInHalfRampRightBottom) {
-        //                 player.hitBoxArea.y = tileLocation.y + 8;
-        //                 player.velocity.y = 0;
-        //                 player.onHalfRampBottom = false;
-        //                 player.land(this);
-        //                 return true;
-        //             }
-        //         }
-        //     } else if(movingDir.equals("Up")) {
-        //         player.hitBoxArea.y = tileLocation.y - player.hitBoxArea.height;
-        //         player.velocity.y = 0;
-        //         player.hitCeiling();
-        //         return true;
-        //     }
-        // }
-
-        // // Ramp-Left-Half-Top //
-        // else if(tileShape.equals("Ramp-Left-Half-Top")) {
-        //     if(movingDir.equals("Right")) {
-        //         if(player.hitBoxArea.getMiddle().x < tileLocation.x
-        //         && !(locationYIndex == 0 && (player.onRamp || player.onHalfRampTop))
-        //         && !(locationYIndex == 0 && player.largeHitBoxInHalfRampRightTop)
-        //         && !(locationYIndex == 0 && player.largeHitBoxInRampRight)) {
-        //             player.hitBoxArea.x = tileLocation.x - player.hitBoxArea.width;
-        //             player.velocity.x = 0;
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Left")) {
-        //         if(!player.onHalfRampBottom &&
-        //         ((locationYIndex > 0 && !player.onRamp)
-        //         || (locationYIndex == 0 && player.hitBoxArea.y < tileLocation.y + 8))
-        //         && !(locationYIndex == 0 && player.largeHitBoxInHalfRampLeftBottom)) {
-        //             player.hitBoxArea.x = tileLocation.x + 16;
-        //             player.velocity.x = 0;
-        //             return true;
-        //         }
-        //     } else if(movingDir.equals("Middle")) {
-        //         if(locationYIndex == 0 && !player.inWallOnRamp && player.velocity.y <= 0) {
-        //             float locationDiff = 16 - (player.hitBoxArea.getMiddle().x - tileLocation.x);
-        //             float anglePercent = locationDiff / 16;
-        //             if(player.hitBoxArea.y <= tileLocation.y + 8 + (int) (8 * anglePercent)
-        //             || player.onRampLastFrame) {
-        //                 player.hitBoxArea.y = tileLocation.y + 8 + (int) (8 * anglePercent);
-        //                 player.onHalfRampTop = true;
-        //                 player.onHalfRampBottom = false;
-        //                 player.onRamp = false;
-        //                 player.justSteppedOnRamp = true;
-        //                 return true;
-        //             }
-        //         }
-        //     } else if(movingDir.equals("Down")) {
-        //         if(locationXIndex == 0) {
-        //             if(locationYIndex == 0 && player.velocity.y <= 0) {
-        //                 player.onHalfRampTop = true;
-        //                 player.justSteppedOnRamp = true;
-
-        //                 float locationDiff = 16 - (player.hitBoxArea.getMiddle().x - tileLocation.x);
-        //                 float anglePercent = locationDiff / 16;
-        //                 if(player.hitBoxArea.y <= tileLocation.y + 8 + (int) (8 * anglePercent)
-        //                 || player.onRampLastFrame) {
-        //                     player.hitBoxArea.y = tileLocation.y + 8 + (int) (8 * anglePercent);
-        //                     player.onHalfRampTop = true;
-        //                     player.onHalfRampBottom = false;
-        //                     player.onRamp = false;
-        //                     player.justSteppedOnRamp = true;
-        //                     player.land(this);
-        //                     return true;
-        //                 }
-        //             }
-        //         } else if(locationXIndex == 1 || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x >= getLocation().x + 16)) {
-        //             if(player.hitBoxArea.getMiddle().x >= tileLocation.x + 16
-        //             && player.hitBoxArea.y <= tileLocation.y + 8
-        //             && !player.justSteppedOnRamp
-        //             && !player.largeHitBoxInHalfRampLeftBottom) {
-        //                 player.hitBoxArea.y = tileLocation.y + 8;
-        //                 player.velocity.y = 0;
-        //                 player.onHalfRampBottom = false;
-        //                 player.land(this);
-        //                 return true;
-        //             }
-        //         } else if((locationXIndex == 0 || locationXIndex == 2) || (player.hitBoxArea.width >= 32 && locationXIndex > 2 && player.hitBoxArea.getMiddle().x < getLocation().x)) {
-        //             if(player.hitBoxArea.getMiddle().x < tileLocation.x
-        //             && player.hitBoxArea.y <= tileLocation.y + 16
-        //             && !player.largeHitBoxInHalfRampRightTop && !player.largeHitBoxInRampRight) {
-        //                 player.hitBoxArea.y = tileLocation.y + 16;
-        //                 player.velocity.y = 0;
-        //                 player.onHalfRampBottom = false;
-        //                 player.land(this);
-        //                 return true;
-        //             }
-        //         }
-        //     } else if(movingDir.equals("Up")) {
-        //         player.hitBoxArea.y = tileLocation.y - player.hitBoxArea.height;
-        //         player.velocity.y = 0;
-        //         player.hitCeiling();
-        //         return true;
-        //     }
-        // }
-
-        // // Ceiling-Ramp-Right //
-        // else if(tileShape.equals("Ceiling-Ramp-Right")) {
-        //     if(movingDir.equals("Right")) {
-
-        //     } else if(movingDir.equals("Left")) {
-                
-        //     } else if(movingDir.equals("Up")) {
-                
-        //     }
-        // }
-
-        // // Ceiling-Ramp-Left //
-        // else if(tileShape.equals("Ceiling-Ramp-Left")) {
-        //     if(movingDir.equals("Right")) {
-
-        //     } else if(movingDir.equals("Left")) {
-                
-        //     } else if(movingDir.equals("Up")) {
-                
-        //     }
-        // }
-
-        return false;
-    }
-
     public Point getLocation() {
         int xLoc = (chunkX * Gdx.graphics.getWidth()) + (tileX * 16);
         int yLoc = (chunkY * Gdx.graphics.getHeight()) + (tileY * 16);
@@ -1048,6 +435,7 @@ public class Tile {
         int chunkY = targetTileLocation.y / Gdx.graphics.getHeight();
         int tileX = (targetTileLocation.x % Gdx.graphics.getWidth()) / 16;
         int tileY = (targetTileLocation.y % Gdx.graphics.getHeight()) / 16;
+
         if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
         && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
         && screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null) {
@@ -1055,6 +443,21 @@ public class Tile {
         }
 
         return null;
+    }
+
+    public static boolean isEmptyTile(ScreenChunk[][] screenChunks, int xLoc, int yLoc) {
+        int chunkX = xLoc / Gdx.graphics.getWidth();
+        int chunkY = yLoc / Gdx.graphics.getHeight();
+        int tileX = (xLoc % Gdx.graphics.getWidth()) / 16;
+        int tileY = (yLoc % Gdx.graphics.getHeight()) / 16;
+
+        if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length
+        && tileX >= 0 && tileX < screenChunks[0][0].tiles.length && tileY >= 0 && tileY < screenChunks[0][0].tiles[0].length
+        && screenChunks[chunkX][chunkY].tiles[tileX][tileY] == null) {
+            return true;
+        }
+
+        return false;
     }
 
     public boolean isBottomRamp(ScreenChunk[][] screenChunks) {

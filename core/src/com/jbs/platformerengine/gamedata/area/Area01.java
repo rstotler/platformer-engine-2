@@ -67,8 +67,8 @@ public class Area01 extends AreaData {
         }
 
         for(int i = 0; i < 5; i++) {
-            int xLoc = new Random().nextInt(600);
-            int yLoc = new Random().nextInt(100) + 200;
+            // int xLoc = new Random().nextInt(600);
+            // int yLoc = new Random().nextInt(100) + 200;
             // cloudBackList.add(new Cloud(xLoc, yLoc, cloudMoveDir));
         }
         for(int i = 0; i < 5; i++) {
