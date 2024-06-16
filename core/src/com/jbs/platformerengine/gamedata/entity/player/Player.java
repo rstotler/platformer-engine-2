@@ -57,6 +57,7 @@ public class Player extends CollidableObject {
     public Tile onHalfRampTop;
 
     public Tile justFellInRamp;
+    public Tile fellInRampLastFrame;
     public Tile middleJustFellInRamp;
     public Tile middleFellInRampLastFrame;
     public Tile justFellInSquareHalf;
@@ -112,6 +113,7 @@ public class Player extends CollidableObject {
         onHalfRampTop = null;
 
         justFellInRamp = null;
+        fellInRampLastFrame = null;
         justFellInSquareHalf = null;
         middleJustFellInRamp = null;
         middleFellInRampLastFrame = null;
@@ -403,7 +405,8 @@ public class Player extends CollidableObject {
                 }
             }
 
-            // Set MiddleFellInRampLastFrame & JustFellInSquareHalfLastFrame //
+            // Set FellInRampLastFrame, MiddleFellInRampLastFrame & JustFellInSquareHalfLastFrame //
+            fellInRampLastFrame = justFellInRamp;
             middleFellInRampLastFrame = middleJustFellInRamp;
             fellInSquareHalfLastFrame = justFellInSquareHalf;
 
