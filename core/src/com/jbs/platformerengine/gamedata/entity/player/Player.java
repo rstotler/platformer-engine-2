@@ -60,6 +60,8 @@ public class Player extends CollidableObject {
     public Tile fellInRampLastFrame;
     public Tile middleJustFellInRamp;
     public Tile middleFellInRampLastFrame;
+    public Tile rightJustFellInRamp;
+    public Tile rightFellInRampLastFrame;
     public Tile justFellInSquareHalf;
     public Tile fellInSquareHalfLastFrame;
 
@@ -117,6 +119,8 @@ public class Player extends CollidableObject {
         justFellInSquareHalf = null;
         middleJustFellInRamp = null;
         middleFellInRampLastFrame = null;
+        rightJustFellInRamp = null;
+        rightFellInRampLastFrame = null;
 
         ducking = false;
         falling = false;
@@ -405,15 +409,17 @@ public class Player extends CollidableObject {
                 }
             }
 
-            // Set FellInRampLastFrame, MiddleFellInRampLastFrame & JustFellInSquareHalfLastFrame //
+            // Set FellInRampLastFrame Variables //
             fellInRampLastFrame = justFellInRamp;
             middleFellInRampLastFrame = middleJustFellInRamp;
+            rightFellInRampLastFrame = rightJustFellInRamp;
             fellInSquareHalfLastFrame = justFellInSquareHalf;
 
             // JustFellInRamp, MiddleJustFellInRamp & JustFellInSquareHalf Check //
             if(velocity.y <= 0) {
                 justFellInRamp = null;
                 middleJustFellInRamp = null;
+                rightJustFellInRamp = null;
                 justFellInSquareHalf = null;
 
                 int xCount = (hitBoxArea.width / 16) + 1;
@@ -426,20 +432,23 @@ public class Player extends CollidableObject {
                         xMod = hitBoxArea.width - 1;
                     }
         
-                    // JustFellInRamp & JustFellInSquareHalf Check //
+                    // JustFellInRamp, RightJustFellInRamp & JustFellInSquareHalf Check //
                     Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.x + xMod, (int) hitBoxArea.y);
                     if(targetTile != null) {
-                        if(targetTile.tileShape.length() >= 4
-                        && targetTile.tileShape.substring(0, 4).equals("Ramp")) {
+                        if(targetTile.tileShape.contains("Ramp")
+                        && justFellInRamp == null) {
                             justFellInRamp = targetTile;
-                        } else if(targetTile.tileShape.equals("Square-Half")) {
+                        } else if(targetTile.tileShape.contains("Ramp")) {
+                            rightJustFellInRamp = targetTile;
+                        } else if(targetTile.tileShape.equals("Square-Half")
+                        && justFellInSquareHalf == null) {
                             justFellInSquareHalf = targetTile;
                         }
-
-                        if(justFellInRamp != null && justFellInSquareHalf != null) {
-                            break;
-                        }
                     }
+                }
+                if(rightJustFellInRamp != null && justFellInRamp != null
+                && rightJustFellInRamp.getLocation().x < justFellInRamp.getLocation().x) {
+                    rightJustFellInRamp = null;
                 }
 
                 // MiddleJustFellInRamp Check //
@@ -450,20 +459,28 @@ public class Player extends CollidableObject {
                     middleJustFellInRamp = targetTile;
                 }
 
+                // Remove OnRamp If Falling From Opposite Ramp //
+                if((onRamp != null && fellInRampLastFrame != null && justFellInRamp == null)
+                || (onRamp != null && rightFellInRampLastFrame != null && rightJustFellInRamp == null)) {
+                    onRamp = null;
+                }
+
                 // Move Player Up One Tile (MiddleFellInRampLastFrame & FellInSquareHalfLastFrame Check) //
                 if((middleFellInRampLastFrame != null || fellInSquareHalfLastFrame != null)
                 && onRamp == null
                 && onHalfRampBottom == null
                 && onHalfRampTop == null) {
                     targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y);
-                    if(middleFellInRampLastFrame != null) {
+                    if(middleFellInRampLastFrame != null
+                    && middleFellInRampLastFrame.getLocation().y < ((int) hitBoxArea.y / 16)) {
                         if(targetTile == null
                         || targetTile.getLocation().y < middleFellInRampLastFrame.getLocation().y) {
                             hitBoxArea.y = (int) hitBoxArea.y + (16 - (((int) hitBoxArea.y) % 16));
                         }
                     }
                     
-                    else if(fellInSquareHalfLastFrame != null) {
+                    else if(fellInSquareHalfLastFrame != null
+                    && fellInSquareHalfLastFrame.getLocation().y < ((int) hitBoxArea.y / 16)) {
                         if((targetTile == null
                         && !(Tile.isEmptyTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y)) == true)
 
