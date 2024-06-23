@@ -21,17 +21,16 @@ import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
  * Wave Shader When Walking Past Grass
- * Combat - Charged Attacks, Spells/Abilities
+ * Combat - Charged Attacks, Spells/Abilities, Class Out Different Attacks, Multiple Hitboxes Per Attack
  * Background - Clouds, Stars, Pixelate Moon Glow
  * Areas - Tower, Underground
  * Re-Add 'Hit Wall' For Mob Movement
- * Class Out Different Attacks
  * Player Inherits From Mob
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
- * Cant dropkick bat after targeting from sword attack
+ * Can't dropkick Bat After Targeting From Sword Attack
  * Y Movement Fuzz?
  */
 

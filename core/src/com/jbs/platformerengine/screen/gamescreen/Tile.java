@@ -98,7 +98,7 @@ public class Tile {
     }
 
     public boolean collisionCheck(ScreenChunk[][] screenChunks, Player player, String movingDir, int locationXIndex, int locationYIndex) {
-        System.out.println(tileShape + " " + movingDir + " " + locationXIndex + " " + locationYIndex + " ");
+        System.out.println(tileShape + " " + movingDir + " " + locationXIndex + " " + locationYIndex + " " + (player.justFellInRamp != null) + " " + (player.rightJustFellInRamp != null) + " " + (player.middleJustFellInRamp != null));
 
         // Up Collision (All But Ceiling Tiles) //
         if(movingDir.equals("Up")
@@ -168,11 +168,16 @@ public class Tile {
             }
 
             else if(movingDir.equals("Down")) {
+                Tile rightTile = getTargetTile(screenChunks, 1, 0);
+                Tile leftTile = getTargetTile(screenChunks, -1, 0);
+
                 if(player.hitBoxArea.y <= getLocation().y + 8
                 
-                && !(player.justFellInRamp != null
-                && (player.justFellInRamp.tileShape.equals("Ramp-Right-Half-Bottom")
-                || player.justFellInRamp.tileShape.equals("Ramp-Left-Half-Bottom")))) {
+                && !(locationXIndex == 2
+                && leftTile != null && leftTile.tileShape.equals("Ramp-Right-Half-Bottom"))
+                
+                && !(locationXIndex == 1
+                && rightTile != null && rightTile.tileShape.equals("Ramp-Left-Half-Bottom"))) {
                     player.hitBoxArea.y = getLocation().y + 8;
                     player.velocity.y = 0;
                     player.onRamp = null;
@@ -212,13 +217,7 @@ public class Tile {
                 && rightTile.tileShape.equals("Ramp-Left"))
                 
                 && !((rightTile != null
-                && rightTile.tileShape.equals("Square"))
-                && ((player.justFellInRamp != null
-                && player.justFellInRamp.tileShape.equals("Ramp-Left")
-                && player.justFellInRamp.getLocation().y == this.getLocation().y)
-                || (player.onRamp != null
-                && player.onRamp.tileShape.equals("Ramp-Left")
-                && player.onRamp.getLocation().y == this.getLocation().y)))) {
+                && rightTile.tileShape.equals("Square")))) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     player.velocity.x = 0;
                     return true;
@@ -246,7 +245,7 @@ public class Tile {
                         if(isBottomRamp(screenChunks)
                         && player.hitBoxArea.getMiddle().x <= getLocation().x) {
                             player.hitBoxArea.y = getLocation().y;
-                        } else if(!(rightTile != null && rightTile.tileShape.equals("Square"))
+                        } else if(!(rightTile != null && (rightTile.tileShape.equals("Square") || rightTile.tileShape.equals("Ramp-Left") || rightTile.tileShape.equals("Ramp-Left-Half-Top")))
                         && ((player.justFellInRamp != null && player.justFellInRamp != this && player.justFellInRamp.getLocation().y == getLocation().y)
                         || (player.rightJustFellInRamp != null && player.rightJustFellInRamp != this && player.rightJustFellInRamp.getLocation().y == getLocation().y)
                         || (player.middleJustFellInRamp != null && player.middleJustFellInRamp != this && player.middleJustFellInRamp.getLocation().y == getLocation().y))) {
@@ -288,13 +287,7 @@ public class Tile {
                 && leftTile.tileShape.equals("Ramp-Right"))
                 
                 && !((leftTile != null
-                && leftTile.tileShape.equals("Square"))
-                && ((player.justFellInRamp != null
-                && player.justFellInRamp.tileShape.equals("Ramp-Right")
-                && player.justFellInRamp.getLocation().y == this.getLocation().y)
-                || (player.onRamp != null
-                && player.onRamp.tileShape.equals("Ramp-Right")
-                && player.onRamp.getLocation().y == this.getLocation().y)))) {
+                && leftTile.tileShape.equals("Square")))) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     player.velocity.x = 0;
                     return true;
@@ -338,7 +331,7 @@ public class Tile {
                         if(isBottomRamp(screenChunks)
                         && player.hitBoxArea.getMiddle().x >= getLocation().x + 16) {
                             player.hitBoxArea.y = getLocation().y;
-                        } else if(!(leftTile != null && leftTile.tileShape.equals("Square"))
+                        } else if(!(leftTile != null && (leftTile.tileShape.equals("Square") || leftTile.tileShape.equals("Ramp-Right") || leftTile.tileShape.equals("Ramp-Right-Half-Top")))
                         && ((player.justFellInRamp != null && player.justFellInRamp != this && player.justFellInRamp.getLocation().y == getLocation().y)
                         || (player.rightJustFellInRamp != null && player.rightJustFellInRamp != this && player.rightJustFellInRamp.getLocation().y == getLocation().y)
                         || (player.middleJustFellInRamp != null && player.middleJustFellInRamp != this && player.middleJustFellInRamp.getLocation().y == getLocation().y))) {
@@ -395,13 +388,7 @@ public class Tile {
                 && rightTile.tileShape.equals("Ramp-Left-Half-Bottom"))
                 
                 && !((rightTile != null
-                && rightTile.tileShape.equals("Square-Half"))
-                && ((player.justFellInRamp != null
-                && player.justFellInRamp.tileShape.equals("Ramp-Left-Half-Bottom")
-                && player.justFellInRamp.getLocation().y == this.getLocation().y)
-                || (player.onHalfRampBottom != null
-                && player.onHalfRampBottom.tileShape.equals("Ramp-Left-Half-Bottom")
-                && player.onHalfRampBottom.getLocation().y == this.getLocation().y)))) {
+                && rightTile.tileShape.equals("Square-Half")))) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     player.velocity.x = 0;
                     return true;
@@ -411,7 +398,8 @@ public class Tile {
             else if(movingDir.equals("Middle") || movingDir.equals("Down")) {
                 if(locationYIndex == 0
                 && (player.hitBoxArea.getMiddle().x >= getLocation().x
-                || (player.onHalfRampBottom != null || player.onHalfRampTop != null))) {
+                || (player.onHalfRampBottom != null || player.onHalfRampTop != null)
+                || (!player.falling && player.middleJustFellInRamp != null))) {
                     float locationDiff = player.hitBoxArea.getMiddle().x - getLocation().x;
                     float anglePercent = locationDiff / 16;
                     if(anglePercent > 1) {
@@ -423,16 +411,22 @@ public class Tile {
                     && (player.hitBoxArea.y <= getLocation().y + (int) (8 * anglePercent)
                     
                     || (player.onHalfRampBottom != null
-                    || (player.onHalfRampTop != null && player.hitBoxArea.getMiddle().x <= player.onHalfRampTop.getLocation().x)))) {
+                    || (player.onHalfRampTop != null && player.hitBoxArea.getMiddle().x <= player.onHalfRampTop.getLocation().x)
+                    || (!player.falling && player.middleJustFellInRamp != null && player.hitBoxArea.y <= getLocation().y + (int) (8 * anglePercent))))
+                    
+                    && !(rightTile != null && rightTile.tileShape.equals("Square-Half")
+                    && player.hitBoxArea.getMiddle().x >= getLocation().x + 16)) {
                         if(isBottomRamp(screenChunks)
                         && player.hitBoxArea.getMiddle().x <= getLocation().x) {
                             player.hitBoxArea.y = getLocation().y;
-                        } else if(!(rightTile != null && rightTile.tileShape.equals("Square-Half"))
+                        } else if(!(rightTile != null && (rightTile.tileShape.equals("Square-Half") || rightTile.tileShape.equals("Ramp-Left-Half-Bottom") || rightTile.tileShape.equals("Ramp-Right-Half-Top")))
                         && ((player.justFellInRamp != null && player.justFellInRamp != this && player.justFellInRamp.getLocation().y == getLocation().y)
                         || (player.rightJustFellInRamp != null && player.rightJustFellInRamp != this && player.rightJustFellInRamp.getLocation().y == getLocation().y)
                         || (player.middleJustFellInRamp != null && player.middleJustFellInRamp != this && player.middleJustFellInRamp.getLocation().y == getLocation().y))) {
                             player.hitBoxArea.y = getLocation().y + 8;
-                        } else {
+                        } else if(!(player.onHalfRampBottom != null && player.onHalfRampBottom != this)
+                        && !(player.onHalfRampTop != null && player.onHalfRampTop != this)
+                        && !(player.onRamp != null && player.onRamp != this)) {
                             player.hitBoxArea.y = getLocation().y + (int) (8 * anglePercent);
                         }
 
@@ -473,8 +467,16 @@ public class Tile {
             }
             
             else if(movingDir.equals("Left")) {
+                Tile rightTile = getTargetTile(screenChunks, 1, 0);
+
                 if(player.hitBoxArea.getMiddle().x >= getLocation().x + 16
-                && !(player.onHalfRampTop != null && player.onHalfRampTop == this)) {
+                && !(player.onHalfRampTop != null && player.onHalfRampTop == this)
+                
+                && !(rightTile != null
+                && rightTile.tileShape.equals("Ramp-Left-Half-Top"))
+                
+                && !((rightTile != null
+                && rightTile.tileShape.equals("Square")))) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     player.velocity.x = 0;
                     return true;
@@ -482,6 +484,7 @@ public class Tile {
             }
             
             else if(movingDir.equals("Middle") || movingDir.equals("Down")) {
+                Tile rightTile = getTargetTile(screenChunks, 1, 0);
                 Tile leftTile = getTargetTile(screenChunks, -1, 0);
 
                 if(locationYIndex == 0
@@ -499,10 +502,20 @@ public class Tile {
                     
                     && !(player.hitBoxArea.getMiddle().x <= getLocation().x
                     && leftTile != null
-                    && leftTile.tileShape.equals("Ramp-Right-Half-Bottom"))) {
+                    && leftTile.tileShape.equals("Ramp-Right-Half-Bottom"))
+                    
+                    && !(rightTile != null
+                    && rightTile.tileShape.equals("Ramp-Left-Half-Top")
+                    && player.hitBoxArea.getMiddle().x >= getLocation().x + 16)) {
                         if(isBottomRamp(screenChunks)
                         && player.hitBoxArea.getMiddle().x <= getLocation().x) {
                             player.hitBoxArea.y = getLocation().y + 8;
+                        } else if(!(rightTile != null && (rightTile.tileShape.equals("Square") || rightTile.tileShape.equals("Ramp-Left") || rightTile.tileShape.equals("Ramp-Left-Half-Top")))
+                        && !(leftTile != null && leftTile.tileShape.equals("Ramp-Right-Half-Bottom"))
+                        && ((player.justFellInRamp != null && player.justFellInRamp != this && player.justFellInRamp.getLocation().y == getLocation().y)
+                        || (player.rightJustFellInRamp != null && player.rightJustFellInRamp != this && player.rightJustFellInRamp.getLocation().y == getLocation().y)
+                        || (player.middleJustFellInRamp != null && player.middleJustFellInRamp != this && player.middleJustFellInRamp.getLocation().y == getLocation().y))) {
+                            player.hitBoxArea.y = getLocation().y + 16;
                         } else {
                             player.hitBoxArea.y = getLocation().y + 8 + (int) (8 * anglePercent);
                         }
@@ -517,9 +530,8 @@ public class Tile {
                 }
 
                 else if(player.hitBoxArea.getMiddle().x <= getLocation().x
-                && player.hitBoxArea.y <= getLocation().y
+                && player.hitBoxArea.y <= getLocation().y + 8
                 && isBottomRamp(screenChunks)
-                && player.justFellInRamp == null
                 
                 && !(leftTile != null
                 && leftTile.tileShape.equals("Ramp-Right-Half-Bottom"))) {
@@ -544,13 +556,7 @@ public class Tile {
                 && leftTile.tileShape.equals("Ramp-Right-Half-Bottom"))
                 
                 && !((leftTile != null
-                && leftTile.tileShape.equals("Square-Half"))
-                && ((player.justFellInRamp != null
-                && player.justFellInRamp.tileShape.equals("Ramp-Right-Half-Bottom")
-                && player.justFellInRamp.getLocation().y == this.getLocation().y)
-                || (player.onHalfRampBottom != null
-                && player.onHalfRampBottom.tileShape.equals("Ramp-Right-Half-Bottom")
-                && player.onHalfRampBottom.getLocation().y == this.getLocation().y)))) {
+                && leftTile.tileShape.equals("Square-Half")))) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     player.velocity.x = 0;
                     return true;
@@ -574,7 +580,8 @@ public class Tile {
             else if(movingDir.equals("Middle") || movingDir.equals("Down")) {
                 if(locationYIndex == 0
                 && (player.hitBoxArea.getMiddle().x < getLocation().x + 16
-                || (player.onHalfRampBottom != null || player.onHalfRampTop != null))) {
+                || (player.onHalfRampBottom != null || player.onHalfRampTop != null)
+                || (!player.falling && player.middleJustFellInRamp != null))) {
                     float locationDiff = 16 - (player.hitBoxArea.getMiddle().x - getLocation().x);
                     float anglePercent = locationDiff / 16;
                     if(anglePercent > 1) {
@@ -586,16 +593,22 @@ public class Tile {
                     && (player.hitBoxArea.y <= getLocation().y + (int) (8 * anglePercent)
                     
                     || (player.onHalfRampBottom != null
-                    || (player.onHalfRampTop != null && player.hitBoxArea.getMiddle().x > player.onHalfRampTop.getLocation().x + 16)))) {
+                    || (player.onHalfRampTop != null && player.hitBoxArea.getMiddle().x > player.onHalfRampTop.getLocation().x + 16)
+                    || (!player.falling && player.middleJustFellInRamp != null && player.hitBoxArea.y <= getLocation().y + (int) (8 * anglePercent))))
+                    
+                    && !(leftTile != null && leftTile.tileShape.equals("Square-Half")
+                    && player.hitBoxArea.getMiddle().x < getLocation().x)) {
                         if(isBottomRamp(screenChunks)
                         && player.hitBoxArea.getMiddle().x >= getLocation().x + 16) {
                             player.hitBoxArea.y = getLocation().y;
-                        } else if(!(leftTile != null && leftTile.tileShape.equals("Square-Half"))
+                        } else if(!(leftTile != null && (leftTile.tileShape.equals("Square-Half") || leftTile.tileShape.equals("Ramp-Right-Half-Bottom") || leftTile.tileShape.equals("Ramp-Left-Half-Top")))
                         && ((player.justFellInRamp != null && player.justFellInRamp != this && player.justFellInRamp.getLocation().y == getLocation().y)
                         || (player.rightJustFellInRamp != null && player.rightJustFellInRamp != this && player.rightJustFellInRamp.getLocation().y == getLocation().y)
                         || (player.middleJustFellInRamp != null && player.middleJustFellInRamp != this && player.middleJustFellInRamp.getLocation().y == getLocation().y))) {
                             player.hitBoxArea.y = getLocation().y + 8;
-                        } else {
+                        } else if(!(player.onHalfRampBottom != null && player.onHalfRampBottom != this)
+                        && !(player.onHalfRampTop != null && player.onHalfRampTop != this)
+                        && !(player.onRamp != null && player.onRamp != this)) {
                             player.hitBoxArea.y = getLocation().y + (int) (8 * anglePercent);
                         }
 
@@ -623,8 +636,16 @@ public class Tile {
         // Ramp-Left-Half-Top //
         else if(tileShape.equals("Ramp-Left-Half-Top")) {
             if(movingDir.equals("Right")) {
+                Tile leftTile = getTargetTile(screenChunks, -1, 0);
+
                 if(player.hitBoxArea.getMiddle().x < getLocation().x
-                && !(player.onHalfRampTop != null && player.onHalfRampTop == this)) {
+                && !(player.onHalfRampTop != null && player.onHalfRampTop == this)
+                
+                && !(leftTile != null
+                && leftTile.tileShape.equals("Ramp-Right-Half-Top"))
+                
+                && !((leftTile != null
+                && leftTile.tileShape.equals("Square")))) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     player.velocity.x = 0;
                     return true;
@@ -643,6 +664,7 @@ public class Tile {
         
             else if(movingDir.equals("Middle") || movingDir.equals("Down")) {
                 Tile rightTile = getTargetTile(screenChunks, 1, 0);
+                Tile leftTile = getTargetTile(screenChunks, -1, 0);
 
                 if(locationYIndex == 0
                 && (player.hitBoxArea.getMiddle().x < getLocation().x + 16
@@ -659,10 +681,20 @@ public class Tile {
                     
                     && !(player.hitBoxArea.getMiddle().x > getLocation().x + 16
                     && rightTile != null
-                    && rightTile.tileShape.equals("Ramp-Left-Half-Bottom"))) {
+                    && rightTile.tileShape.equals("Ramp-Left-Half-Bottom"))
+                    
+                    && !(leftTile != null
+                    && leftTile.tileShape.equals("Ramp-Right-Half-Top")
+                    && player.hitBoxArea.getMiddle().x < getLocation().x)) {
                         if(isBottomRamp(screenChunks)
                         && player.hitBoxArea.getMiddle().x >= getLocation().x + 16) {
                             player.hitBoxArea.y = getLocation().y + 8;
+                        } else if(!(leftTile != null && (leftTile.tileShape.equals("Square") || leftTile.tileShape.equals("Ramp-Right") || leftTile.tileShape.equals("Ramp-Right-Half-Top")))
+                        && !(rightTile != null && rightTile.tileShape.equals("Ramp-Left-Half-Bottom"))
+                        && ((player.justFellInRamp != null && player.justFellInRamp != this && player.justFellInRamp.getLocation().y == getLocation().y)
+                        || (player.rightJustFellInRamp != null && player.rightJustFellInRamp != this && player.rightJustFellInRamp.getLocation().y == getLocation().y)
+                        || (player.middleJustFellInRamp != null && player.middleJustFellInRamp != this && player.middleJustFellInRamp.getLocation().y == getLocation().y))) {
+                            player.hitBoxArea.y = getLocation().y + 16;
                         } else {
                             player.hitBoxArea.y = getLocation().y + 8 + (int) (8 * anglePercent);
                         }
@@ -677,9 +709,8 @@ public class Tile {
                 }
 
                 else if(player.hitBoxArea.getMiddle().x >= getLocation().x + 16
-                && player.hitBoxArea.y <= getLocation().y
+                && player.hitBoxArea.y <= getLocation().y + 8
                 && isBottomRamp(screenChunks)
-                && player.justFellInRamp == null
                 
                 && !(rightTile != null
                 && rightTile.tileShape.equals("Ramp-Left-Half-Bottom"))) {
@@ -753,8 +784,7 @@ public class Tile {
         }
 
         if(targetTile != null) {
-            if(targetTile.tileShape.length() >= 4
-            && targetTile.tileShape.substring(0, 4).equals("Ramp")) {
+            if(targetTile.tileShape.contains("Ramp")) {
                 return false;
             }
         } 

@@ -466,6 +466,9 @@ public class Player extends CollidableObject {
                 } else if((onHalfRampBottom != null && fellInRampLastFrame != null && justFellInRamp == null && (fellInRampLastFrame.tileShape.equals("Ramp-Right-Half-Bottom") || fellInRampLastFrame.tileShape.equals("Ramp-Left-Half-Bottom")))
                 || (onHalfRampBottom != null && rightFellInRampLastFrame != null && rightJustFellInRamp == null) && (rightFellInRampLastFrame.tileShape.equals("Ramp-Right-Half-Bottom") || rightFellInRampLastFrame.tileShape.equals("Ramp-Left-Half-Bottom"))) {
                     onHalfRampBottom = null;
+                } else if((onHalfRampTop != null && fellInRampLastFrame != null && justFellInRamp == null && (fellInRampLastFrame.tileShape.equals("Ramp-Right-Half-Top") || fellInRampLastFrame.tileShape.equals("Ramp-Left-Half-Top")))
+                || (onHalfRampTop != null && rightFellInRampLastFrame != null && rightJustFellInRamp == null) && (rightFellInRampLastFrame.tileShape.equals("Ramp-Right-Half-Top") || rightFellInRampLastFrame.tileShape.equals("Ramp-Left-Half-Top"))) {
+                    onHalfRampTop = null;
                 }
 
                 // Move Player Up One Tile (MiddleFellInRampLastFrame & FellInSquareHalfLastFrame Check) //
