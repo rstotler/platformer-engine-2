@@ -438,9 +438,11 @@ public class Player extends CollidableObject {
                         if(targetTile.tileShape.contains("Ramp")
                         && justFellInRamp == null) {
                             justFellInRamp = targetTile;
-                        } else if(targetTile.tileShape.contains("Ramp")) {
+                        }
+                        if(targetTile.tileShape.contains("Ramp")) {
                             rightJustFellInRamp = targetTile;
-                        } else if(targetTile.tileShape.equals("Square-Half")
+                        }
+                        if(targetTile.tileShape.equals("Square-Half")
                         && justFellInSquareHalf == null) {
                             justFellInSquareHalf = targetTile;
                         }
@@ -486,7 +488,8 @@ public class Player extends CollidableObject {
                     }
                     
                     else if(fellInSquareHalfLastFrame != null
-                    && fellInSquareHalfLastFrame.getLocation().y < ((int) hitBoxArea.y / 16)) {
+                    && (fellInSquareHalfLastFrame.getLocation().y / 16) > ((int) hitBoxArea.y / 16)) {
+                        targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y);
                         if((targetTile == null
                         && !(Tile.isEmptyTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y)) == true)
 
