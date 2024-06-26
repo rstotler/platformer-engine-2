@@ -26,6 +26,7 @@ import com.jbs.platformerengine.screen.Screen;
  * Areas - Tower, Underground
  * Re-Add 'Hit Wall' For Mob Movement
  * Player Inherits From Mob
+ * No Dashing While Superjumping
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping

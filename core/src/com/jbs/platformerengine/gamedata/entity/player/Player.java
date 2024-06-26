@@ -236,7 +236,7 @@ public class Player extends CollidableObject {
     }
 
     public void updateTileCollisions(ScreenChunk[][] screenChunks) {
-        System.out.println("---New Frame---");
+        // System.out.println("---New Frame---");
 
         // Apply Gravity (Or Drop Kick) //
         if(dropKickCheck) {
@@ -368,7 +368,7 @@ public class Player extends CollidableObject {
                             if(targetTile != null) {
                                 xHitWallCheck = targetTile.collisionCheck(screenChunks, this, movingDirX, 0, y);
                                 if(xHitWallCheck) {
-                                    System.out.println("-Hit-");
+                                    // System.out.println("-Hit-");
                                     break;
                                 }
                             }
@@ -380,7 +380,7 @@ public class Player extends CollidableObject {
                             if(targetTile != null) {
                                 xHitWallCheck = targetTile.collisionCheck(screenChunks, this, movingDirX, 1, y);
                                 if(xHitWallCheck) {
-                                    System.out.println("-Hit-");
+                                    // System.out.println("-Hit-");
                                     break;
                                 }
                             }
@@ -392,7 +392,7 @@ public class Player extends CollidableObject {
                             if(targetTile != null) {
                                 yHitWallCheck = targetTile.collisionCheck(screenChunks, this, "Middle", 2, y);
                                 if(yHitWallCheck) {
-                                    System.out.println("-(Non-Breaking) Hit-");
+                                    // System.out.println("-(Non-Breaking) Hit-");
                                 }
                             }
                         }
@@ -542,7 +542,7 @@ public class Player extends CollidableObject {
                             if(targetTile != null) {
                                 yHitWallCheck = targetTile.collisionCheck(screenChunks, this, movingDirY, 0, y);
                                 if(yHitWallCheck) {
-                                    System.out.println("-Hit-");
+                                    // System.out.println("-Hit-");
                                     break;
                                 }
                             }
@@ -554,7 +554,7 @@ public class Player extends CollidableObject {
                             if(targetTile != null) {
                                 yHitWallCheck = targetTile.collisionCheck(screenChunks, this, movingDirY, 1, y);
                                 if(yHitWallCheck) {
-                                    System.out.println("-Hit-");
+                                    // System.out.println("-Hit-");
                                     break;
                                 }
                             }
@@ -566,7 +566,7 @@ public class Player extends CollidableObject {
                             if(targetTile != null) {
                                 yHitWallCheck = targetTile.collisionCheck(screenChunks, this, movingDirY, 2, y);
                                 if(yHitWallCheck) {
-                                    System.out.println("-Hit-");
+                                    // System.out.println("-Hit-");
                                     break;
                                 }
                             }
@@ -586,7 +586,7 @@ public class Player extends CollidableObject {
                                 if(targetTile != null) {
                                     yHitWallCheck = targetTile.collisionCheck(screenChunks, this, movingDirY, 3 + x, y);
                                     if(yHitWallCheck) {
-                                        System.out.println("-Hit-");
+                                        // System.out.println("-Hit-");
                                         break;
                                     }
                                 }
@@ -615,7 +615,7 @@ public class Player extends CollidableObject {
             if(targetTile.tileShape.length() >= 4
             && targetTile.tileShape.substring(0, 4).equals("Ramp")) {
                 if(targetTile.collisionCheck(screenChunks, this, "Middle", 2, 0)) {
-                    System.out.println("-Hit-");
+                    // System.out.println("-Hit-");
                 }
             }
         }
