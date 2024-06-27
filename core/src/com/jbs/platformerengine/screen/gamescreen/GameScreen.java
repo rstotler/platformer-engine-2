@@ -25,7 +25,6 @@ import com.jbs.platformerengine.screen.Screen;
  * Background - Clouds, Stars, Pixelate Moon Glow
  * Areas - Tower, Underground
  * Re-Add 'Hit Wall' For Mob Movement
- * Player Inherits From Mob
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping

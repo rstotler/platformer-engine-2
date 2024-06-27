@@ -1,13 +1,12 @@
 package com.jbs.platformerengine.gamedata.entity.mob.logic.movement;
 
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
-import com.jbs.platformerengine.gamedata.entity.player.Player;
 
 public class MovementPattern {
     public void update(Mob mob) {}
 
     public static void trackTarget(Mob mob) {
-        Player target = mob.enemyTargetList.get(0);
+        Mob target = mob.enemyTargetList.get(0);
 
         // Flying //
         if(mob.flying) { 

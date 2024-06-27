@@ -2,7 +2,7 @@ package com.jbs.platformerengine.screen.gamescreen;
 
 import com.badlogic.gdx.Gdx;
 import com.jbs.platformerengine.gamedata.Point;
-import com.jbs.platformerengine.gamedata.entity.player.Player;
+import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 
 public class Tile {
     public String tileSet;
@@ -97,7 +97,7 @@ public class Tile {
         }
     }
 
-    public boolean collisionCheck(ScreenChunk[][] screenChunks, Player player, String movingDir, int locationXIndex, int locationYIndex) {
+    public boolean collisionCheck(ScreenChunk[][] screenChunks, Mob player, String movingDir, int locationXIndex, int locationYIndex) {
         // System.out.println(tileShape + " " + movingDir + " " + locationXIndex + " " + locationYIndex + " " + tileX + " " + tileY + " " + player.falling);
 
         float baseFloorSpeed = -4.00f;
