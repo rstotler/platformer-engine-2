@@ -829,8 +829,8 @@ public class Player extends CollidableObject {
     }
 
     public void dash(String direction) {
-        // if(dashPercent < .15) {
-        if(dashPercent < .75) {
+        if(dashPercent < .75
+        && superJumpPercent < .30) {
             dashCheck = true;
             dashTimer = 0f;
             dashDirection = direction;

@@ -144,12 +144,14 @@ public class Tile {
                 if(!(player.hitBoxArea.x < getLocation().x
                 && leftTile != null
                 && (leftTile.tileShape.equals("Ramp-Right")
-                || leftTile.tileShape.equals("Ramp-Right-Half-Top")))
+                || leftTile.tileShape.equals("Ramp-Right-Half-Top"))
+                && player.hitBoxArea.width > 16)
                 
                 && !(player.hitBoxArea.x + player.hitBoxArea.width >= getLocation().x + 16
                 && rightTile != null
                 && (rightTile.tileShape.equals("Ramp-Left")
-                || rightTile.tileShape.equals("Ramp-Left-Half-Top")))
+                || rightTile.tileShape.equals("Ramp-Left-Half-Top"))
+                && player.hitBoxArea.width > 16)
                 
                 && !(player.justFellInRamp != null
                 && (player.justFellInRamp.tileShape.equals("Ramp-Right")
@@ -203,11 +205,13 @@ public class Tile {
                 
                 && !(player.hitBoxArea.x < getLocation().x
                 && leftTile != null
-                && leftTile.tileShape.equals("Ramp-Right-Half-Bottom"))
+                && leftTile.tileShape.equals("Ramp-Right-Half-Bottom")
+                && player.hitBoxArea.width > 16)
                 
                 && !(player.hitBoxArea.x + player.hitBoxArea.width >= getLocation().x + 16
                 && rightTile != null
-                && rightTile.tileShape.equals("Ramp-Left-Half-Bottom"))
+                && rightTile.tileShape.equals("Ramp-Left-Half-Bottom")
+                && player.hitBoxArea.width > 16)
                 
                 && !(player.justFellInRamp != null
                 && player.justFellInRamp.tileShape.contains("Bottom"))
@@ -248,14 +252,17 @@ public class Tile {
                 if(!(rightTile != null
                 && (rightTile.tileShape.equals("Square")
                 || rightTile.tileShape.equals("Ramp-Left")
-                || rightTile.tileShape.equals("Ramp-Left-Half-Top")))) {
+                || rightTile.tileShape.equals("Ramp-Left-Half-Top")))
+                
+                && !(player.hitBoxArea.getMiddle().x < getLocation().x + 16)) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     player.velocity.x = 0;
                     return true;
                 }
             }
             
-            else if(movingDir.equals("Down") || movingDir.equals("Middle")) {
+            else if((movingDir.equals("Down") || movingDir.equals("Middle"))
+            && player.velocity.y <= 0) {
                 Tile rightTile = getTargetTile(screenChunks, 1, 0);
                 
                 // Left Of Ramp //
@@ -334,7 +341,9 @@ public class Tile {
                 if(!(leftTile != null
                 && (leftTile.tileShape.equals("Square")
                 || leftTile.tileShape.equals("Ramp-Right")
-                || leftTile.tileShape.equals("Ramp-Right-Half-Top")))) {
+                || leftTile.tileShape.equals("Ramp-Right-Half-Top")))
+                
+                && !(player.hitBoxArea.getMiddle().x >= getLocation().x)) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     player.velocity.x = 0;
                     return true;
@@ -356,7 +365,8 @@ public class Tile {
                 }
             }
             
-            else if(movingDir.equals("Down") || movingDir.equals("Middle")) {
+            else if((movingDir.equals("Down") || movingDir.equals("Middle"))
+            && player.velocity.y <= 0) {
                 Tile leftTile = getTargetTile(screenChunks, -1, 0);
 
                 // Left Of Ramp //
@@ -451,14 +461,17 @@ public class Tile {
                 && (rightTile.tileShape.equals("Square-Half")
                 || rightTile.tileShape.equals("Ramp-Left-Half-Bottom")))
                 
-                && player.hitBoxArea.y < getLocation().y + 8) {
+                && player.hitBoxArea.y < getLocation().y + 8
+                
+                && !(player.hitBoxArea.getMiddle().x < getLocation().x + 16)) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     player.velocity.x = 0;
                     return true;
                 }
             }
             
-            else if(movingDir.equals("Down") || movingDir.equals("Middle")) {
+            else if((movingDir.equals("Down") || movingDir.equals("Middle"))
+            && player.velocity.y <= 0) {
                 Tile rightTile = getTargetTile(screenChunks, 1, 0);
                 
                 // Left Of Ramp //
@@ -537,7 +550,9 @@ public class Tile {
                 && (leftTile.tileShape.equals("Square-Half")
                 || leftTile.tileShape.equals("Ramp-Right-Half-Bottom")))
                 
-                && player.hitBoxArea.y < getLocation().y + 8) {
+                && player.hitBoxArea.y < getLocation().y + 8
+                
+                && !(player.hitBoxArea.getMiddle().x >= getLocation().x)) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     player.velocity.x = 0;
                     return true;
@@ -559,7 +574,8 @@ public class Tile {
                 }
             }
             
-            else if(movingDir.equals("Down") || movingDir.equals("Middle")) {
+            else if((movingDir.equals("Down") || movingDir.equals("Middle"))
+            && player.velocity.y <= 0) {
                 Tile leftTile = getTargetTile(screenChunks, -1, 0);
                 
                 // Left Of Ramp //
@@ -651,14 +667,17 @@ public class Tile {
                 if(!(rightTile != null
                 && (rightTile.tileShape.equals("Square")
                 || rightTile.tileShape.equals("Ramp-Left-Half-Top")
-                || rightTile.tileShape.equals("Ramp-Left")))) {
+                || rightTile.tileShape.equals("Ramp-Left")))
+                
+                && !(player.hitBoxArea.getMiddle().x < getLocation().x + 16)) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     player.velocity.x = 0;
                     return true;
                 }
             }
             
-            else if(movingDir.equals("Down") || movingDir.equals("Middle")) {
+            else if((movingDir.equals("Down") || movingDir.equals("Middle"))
+            && player.velocity.y <= 0) {
                 Tile rightTile = getTargetTile(screenChunks, 1, 0);
                 
                 // Left Of Ramp //
@@ -737,7 +756,9 @@ public class Tile {
                 if(!(leftTile != null
                 && (leftTile.tileShape.equals("Square")
                 || leftTile.tileShape.equals("Ramp-Right-Half-Top")
-                || leftTile.tileShape.equals("Ramp-Right")))) {
+                || leftTile.tileShape.equals("Ramp-Right")))
+                
+                && !(player.hitBoxArea.getMiddle().x >= getLocation().x)) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     player.velocity.x = 0;
                     return true;
@@ -758,7 +779,8 @@ public class Tile {
                 }
             }
             
-            else if(movingDir.equals("Down") || movingDir.equals("Middle")) {
+            else if((movingDir.equals("Down") || movingDir.equals("Middle"))
+            && player.velocity.y <= 0) {
                 Tile leftTile = getTargetTile(screenChunks, -1, 0);
                 
                 // Left Of Ramp //
