@@ -16,7 +16,6 @@ import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.screen.ImageManager;
 
 public class ScreenChunk {
-    ShapeRenderer shapeRenderer;
     FrameBuffer frameBufferTiles;
     public FrameBuffer frameBufferWalls;
     public FrameBuffer frameBufferAnimation;
@@ -30,7 +29,6 @@ public class ScreenChunk {
     ArrayList<BreakableObject> breakableList;
 
     public ScreenChunk(int x, int y) {
-        shapeRenderer = new ShapeRenderer();
         location = new Point(x, y);
         tiles = new Tile[80][48];
 
@@ -91,17 +89,10 @@ public class ScreenChunk {
         spriteBatch.end();
     }
 
-    public void bufferAnimations(OrthographicCamera camera, SpriteBatch spriteBatch, ImageManager imageManager, int areaTimer) {
+    public void bufferAnimations(OrthographicCamera camera, SpriteBatch spriteBatch, ImageManager imageManager, ShapeRenderer shapeRenderer, int areaTimer) {
         for(BreakableObject breakableObject : breakableList) {
-            
-            // Sprite //
-            Texture objectTexture = imageManager.breakableImage.get(breakableObject.imageName).get("Default").get(breakableObject.currentFrameNum);
-            int spriteX = (int) breakableObject.hitBoxArea.x - ((objectTexture.getWidth() - breakableObject.hitBoxArea.width) / 2);
-            int spriteY = (int) breakableObject.hitBoxArea.y - ((objectTexture.getHeight() - breakableObject.hitBoxArea.height) / 2);
-            
-            spriteBatch.begin();
-            spriteBatch.draw(objectTexture, spriteX, spriteY);
-            spriteBatch.end();
+            breakableObject.renderAnimatedObject(imageManager, spriteBatch, breakableObject.hitBoxArea, "Right", true);
+            breakableObject.updateAnimation();
 
             // Hit Box Outline //
             // shapeRenderer.setProjectionMatrix(camera.combined);
@@ -109,39 +100,23 @@ public class ScreenChunk {
             // shapeRenderer.setColor(140/255f, 0/255f, 140/255f, 1f);
             // shapeRenderer.rect(breakableObject.hitBoxArea.x, breakableObject.hitBoxArea.y, breakableObject.hitBoxArea.width, breakableObject.hitBoxArea.height);
             // shapeRenderer.end();
-
-            breakableObject.updateAnimation();
         }
         
         for(Mob mobObject : mobList) {
-
-            // Sprite //
-            if(mobObject.updateAnimationTimer != areaTimer && imageManager.mobImage.containsKey(mobObject.imageName)) {
-                Texture mobTexture = imageManager.mobImage.get(mobObject.imageName).get("Default").get(mobObject.currentFrameNum);
-                int spriteX = (int) mobObject.hitBoxArea.x - ((mobTexture.getWidth() - mobObject.hitBoxArea.width) / 2);
-                int spriteY = (int) mobObject.hitBoxArea.y - ((mobTexture.getHeight() - mobObject.hitBoxArea.height) / 2);
-                boolean flipDirection = false;
-                if(mobObject.facingDirection.equals("Left")) {
-                    flipDirection = true;
-                }
-
-                spriteBatch.begin();
-                spriteBatch.draw(mobTexture, spriteX, spriteY, mobTexture.getWidth(), mobTexture.getHeight(), 0, 0, mobTexture.getWidth(), mobTexture.getHeight(), flipDirection, false);
-                spriteBatch.end();
-                
+            if(mobObject.updateAnimationTimer != areaTimer) {
+                mobObject.renderAnimatedObject(imageManager, spriteBatch, mobObject.hitBoxArea, mobObject.facingDirection, true);
                 mobObject.updateAnimation();
                 mobObject.updateAnimationTimer = areaTimer;
             }
 
             // Hit Box Outline //
             if(!imageManager.mobImage.containsKey(mobObject.imageName)) {
-                mobObject.render(camera);
+                mobObject.renderHitBox(camera, shapeRenderer);
             }
         }
     }
 
     public void initChunk() {
-        shapeRenderer = new ShapeRenderer();
         frameBufferWalls = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
         frameBufferAnimation = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
         frameBufferForeground = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
@@ -179,7 +154,6 @@ public class ScreenChunk {
     }
 
     public void dispose() {
-        shapeRenderer.dispose();
         frameBufferTiles.dispose();
         frameBufferWalls.dispose();
         frameBufferAnimation.dispose();

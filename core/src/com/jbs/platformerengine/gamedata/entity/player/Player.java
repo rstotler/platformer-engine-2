@@ -2,14 +2,13 @@ package com.jbs.platformerengine.gamedata.entity.player;
 
 import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.Point;
-import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 
 public class Player extends Mob {
     public Player(ImageManager imageManager) {
-        super("Bat", new Point(3750, 600), imageManager, true);
+        super("", new Point(3750, 600), imageManager, true);
     }
 
     public void update(Keyboard keyboard, ScreenChunk[][] screenChunks) {

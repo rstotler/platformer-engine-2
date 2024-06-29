@@ -9,6 +9,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.area.*;
@@ -22,14 +23,15 @@ import com.jbs.platformerengine.screen.Screen;
 /* To-Do List:
  * Wave Shader When Walking Past Grass
  * Combat - Charged Attacks, Spells/Abilities, Class Out Different Attacks, Multiple Hitboxes Per Attack
+ * Movement - Flying Modifier, Fast Movement Ability
  * Background - Clouds, Stars, Pixelate Moon Glow
  * Areas - Tower, Underground
+ * 
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
- * Can't dropkick Bat After Targeting From Sword Attack
- * Y Movement Fuzz?
+ * Can't Dropkick Bat After Targeting From Sword Attack
  */
 
 public class GameScreen extends Screen {
@@ -39,6 +41,7 @@ public class GameScreen extends Screen {
     public static AreaData areaData;
     public static HashMap<String, AreaData> unusedAreaData;
     
+    ShapeRenderer shapeRenderer;
     ImageManager imageManager;
 
     int displayDebugData;
@@ -57,6 +60,7 @@ public class GameScreen extends Screen {
         unusedAreaData.put("AreaDebug", new AreaDebug());
         unusedAreaData.put("Area02", new Area02());
 
+        shapeRenderer = new ShapeRenderer();
         imageManager = new ImageManager(areaData.tileSetList, areaData.breakableImageList, areaData.mobImageList, areaData.outside);
         
         displayDebugData = 1;
@@ -274,11 +278,11 @@ public class GameScreen extends Screen {
 
         // Update Camera //
         if(player.hitBoxArea.getMiddle().x < 336) {
-            camera.position.set(336, (player.hitBoxArea.y + 80), 0);
+            camera.position.set(336, ((int) player.hitBoxArea.y + 80), 0);
         } else if(player.hitBoxArea.getMiddle().x > 944 + (Gdx.graphics.getWidth() * (areaData.screenChunks.length - 1))) {
-            camera.position.set(944 + (Gdx.graphics.getWidth() * (areaData.screenChunks.length - 1)), (player.hitBoxArea.y + 80), 0);
+            camera.position.set(944 + (Gdx.graphics.getWidth() * (areaData.screenChunks.length - 1)), ((int) player.hitBoxArea.y + 80), 0);
         } else if(player.hitBoxArea.getMiddle().x >= 336) {
-            camera.position.set(player.hitBoxArea.getMiddle().x, (player.hitBoxArea.y + 80), 0);
+            camera.position.set(player.hitBoxArea.getMiddle().x, ((int) player.hitBoxArea.y + 80), 0);
         }
         camera.update();
 
@@ -309,7 +313,7 @@ public class GameScreen extends Screen {
                     int xLoc = x * Gdx.graphics.getWidth();
                     int yLoc = y * Gdx.graphics.getHeight();
                     
-                    areaData.screenChunks[x][y].bufferAnimations(camera, spriteBatch, imageManager, areaData.areaTimer);
+                    areaData.screenChunks[x][y].bufferAnimations(camera, spriteBatch, imageManager, shapeRenderer, areaData.areaTimer);
 
                     spriteBatch.begin();
                     spriteBatch.draw(areaData.screenChunks[x][y].frameBufferAnimation.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
@@ -318,7 +322,7 @@ public class GameScreen extends Screen {
             }
         }
 
-        player.render(camera);
+        player.renderHitBox(camera, shapeRenderer);
 
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {

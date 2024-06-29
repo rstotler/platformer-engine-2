@@ -20,8 +20,6 @@ import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
 
 public class Mob extends CollidableObject {
-    ShapeRenderer shapeRenderer;
-
     public PointF velocity;
     public int moveSpeed;
     public float runMod;
@@ -84,7 +82,6 @@ public class Mob extends CollidableObject {
     public Mob(String imageName, Point location, ImageManager imageManager, boolean isPlayer) {
         super(imageName, imageManager);
 
-        shapeRenderer = new ShapeRenderer();
         hitBoxArea = new Rect(location.x, location.y, 16, 48);
 
         velocity = new PointF(0, 0);
@@ -670,7 +667,7 @@ public class Mob extends CollidableObject {
         }
     }
 
-    public void render(OrthographicCamera camera) {
+    public void renderHitBox(OrthographicCamera camera, ShapeRenderer shapeRenderer) {
         
         // Area Rectangle //
         shapeRenderer.setProjectionMatrix(camera.combined);
