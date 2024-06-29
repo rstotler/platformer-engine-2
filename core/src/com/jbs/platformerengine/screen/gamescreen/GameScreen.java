@@ -24,7 +24,6 @@ import com.jbs.platformerengine.screen.Screen;
  * Combat - Charged Attacks, Spells/Abilities, Class Out Different Attacks, Multiple Hitboxes Per Attack
  * Background - Clouds, Stars, Pixelate Moon Glow
  * Areas - Tower, Underground
- * Re-Add 'Hit Wall' For Mob Movement
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
@@ -116,22 +115,22 @@ public class GameScreen extends Screen {
             player.jumpTimer = player.jumpTimerMax;
         }
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && !player.flying) {
             player.superJump();
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.Q) && !player.flying) {
             player.dash("Left");
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.E) && !player.flying) {
             player.dash("Right");
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
             player.attack();
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+        } else if((Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) && !player.flying) {
             player.duck(true);
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
             displayDebugData += 1;
             if(displayDebugData >= 3) {
                 displayDebugData = 0;
             }
-        } else if(keyboard.lastUp.contains("S") || keyboard.lastUp.contains("Down")) {
+        } else if((keyboard.lastUp.contains("S") || keyboard.lastUp.contains("Down")) && !player.flying) {
             player.duck(false);
         }
 

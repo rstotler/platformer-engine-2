@@ -11,7 +11,7 @@ public class PlatformerEngine extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
-		player = new Player("", null);
+		player = new Player(null);
 		screen = new GameScreen(player);
 	}
 

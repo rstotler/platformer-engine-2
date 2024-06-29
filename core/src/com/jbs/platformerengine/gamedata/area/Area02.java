@@ -16,7 +16,7 @@ import com.jbs.platformerengine.screen.gamescreen.Tile;
 public class Area02 extends AreaData {
     public Area02() {
         levelName = "Area02";
-        size = new Rect(2, 3);
+        size = new Rect(2, 2);
     
         defaultTileSet = "Debug";
         defaultTileName = "Square";
@@ -151,13 +151,12 @@ public class Area02 extends AreaData {
 
         // Test Mobs //
         if(!initCheck) {
-            GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Default", new Point(250, 250), imageManager));
-            GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Bat", new Point(250, 262), imageManager));
-            // for(int i = 0; i < 50; i++) {
-            //     int xLoc = new Random().nextInt((screenChunks.length * Gdx.graphics.getWidth()) - 60) + 30;
-            //     int yLoc = new Random().nextInt((screenChunks[0].length * Gdx.graphics.getHeight()) - 250) + 200;
-            //     GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Bat", new Point(xLoc, yLoc), imageManager));
-            // }
+            GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Default", new Point(250, 250), imageManager, false));
+            for(int i = 0; i < 250; i++) {
+                int xLoc = new Random().nextInt((screenChunks.length * Gdx.graphics.getWidth()) - 60) + 30;
+                int yLoc = new Random().nextInt((screenChunks[0].length * Gdx.graphics.getHeight()) - 250) + 200;
+                GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Bat", new Point(xLoc, yLoc), imageManager, false));
+            }
         }
         
         // Exit To Area01 Bridge //

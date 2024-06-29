@@ -97,18 +97,23 @@ public class Tile {
         }
     }
 
-    public boolean collisionCheck(ScreenChunk[][] screenChunks, Mob player, String movingDir, int locationXIndex, int locationYIndex) {
+    public Tile collisionCheck(ScreenChunk[][] screenChunks, Mob player, String movingDir, int locationXIndex, int locationYIndex) {
         // System.out.println(tileShape + " " + movingDir + " " + locationXIndex + " " + locationYIndex + " " + tileX + " " + tileY + " " + player.falling);
 
         float baseFloorSpeed = -4.00f;
+        if(player.flying) {
+            baseFloorSpeed = 0.00f;
+        }
 
         // Up Collision (All But Ceiling Tiles) //
         if(movingDir.equals("Up")
         && !tileShape.contains("Ceiling")) {
-            player.hitBoxArea.y = getLocation().y - player.hitBoxArea.height;
-            player.velocity.y = 0;
-            player.hitCeiling();
-            return true;
+            if(player.hitBoxArea.y + player.hitBoxArea.height - 1 < getLocation().y + 16) {
+                player.hitBoxArea.y = getLocation().y - player.hitBoxArea.height;
+                player.velocity.y = 0;
+                player.hitCeiling();
+                return this;
+            }
         }
 
         // Square //
@@ -120,8 +125,7 @@ public class Tile {
                 || leftTile.tileShape.equals("Square-Half")
                 || leftTile.tileShape.equals("Ramp-Right-Half-Bottom")) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
-                    player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -132,8 +136,7 @@ public class Tile {
                 || rightTile.tileShape.equals("Square-Half")
                 || rightTile.tileShape.equals("Ramp-Left-Half-Bottom")) {
                     player.hitBoxArea.x = getLocation().x + 16;
-                    player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -168,7 +171,7 @@ public class Tile {
                     player.onRamp = null;
                     player.onHalfRampBottom = null;
                     player.onHalfRampTop = null;
-                    return true;
+                    return this;
                 }
             }
         }
@@ -181,8 +184,7 @@ public class Tile {
                 if(player.hitBoxArea.y < getLocation().y + 8
                 && leftTile == null) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
-                    player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -192,8 +194,7 @@ public class Tile {
                 if(player.hitBoxArea.y < getLocation().y + 8
                 && rightTile == null) {
                     player.hitBoxArea.x = getLocation().x + 16;
-                    player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -224,7 +225,7 @@ public class Tile {
                     player.onRamp = null;
                     player.onHalfRampBottom = null;
                     player.onHalfRampTop = null;
-                    return true;
+                    return this;
                 }
             }
         }
@@ -242,7 +243,7 @@ public class Tile {
                 && player.hitBoxArea.y < getLocation().y) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -256,8 +257,7 @@ public class Tile {
                 
                 && !(player.hitBoxArea.getMiddle().x < getLocation().x + 16)) {
                     player.hitBoxArea.x = getLocation().x + 16;
-                    player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -275,7 +275,7 @@ public class Tile {
                         player.onRamp = this;
                         player.onHalfRampBottom = null;
                         player.onHalfRampTop = null;
-                        return true;
+                        return this;
                     }
                 }
 
@@ -292,7 +292,7 @@ public class Tile {
                         player.onRamp = this;
                         player.onHalfRampBottom = null;
                         player.onHalfRampTop = null;
-                        return true;
+                        return this;
                     }
                 }
             
@@ -327,7 +327,7 @@ public class Tile {
                         player.onRamp = this;
                         player.onHalfRampBottom = null;
                         player.onHalfRampTop = null;
-                        return true;
+                        return this;
                     }
                 }
             }
@@ -345,8 +345,7 @@ public class Tile {
                 
                 && !(player.hitBoxArea.getMiddle().x >= getLocation().x)) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
-                    player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -361,7 +360,7 @@ public class Tile {
                 && player.hitBoxArea.y < getLocation().y) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -382,7 +381,7 @@ public class Tile {
                         player.onRamp = this;
                         player.onHalfRampBottom = null;
                         player.onHalfRampTop = null;
-                        return true;
+                        return this;
                     }
                 }
 
@@ -396,7 +395,7 @@ public class Tile {
                         player.onRamp = this;
                         player.onHalfRampBottom = null;
                         player.onHalfRampTop = null;
-                        return true;
+                        return this;
                     }
                 }
 
@@ -431,7 +430,7 @@ public class Tile {
                         player.onRamp = this;
                         player.onHalfRampBottom = null;
                         player.onHalfRampTop = null;
-                        return true;
+                        return this;
                     }
                 }
             }
@@ -450,7 +449,7 @@ public class Tile {
                 && player.hitBoxArea.y < getLocation().y) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -465,8 +464,7 @@ public class Tile {
                 
                 && !(player.hitBoxArea.getMiddle().x < getLocation().x + 16)) {
                     player.hitBoxArea.x = getLocation().x + 16;
-                    player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -484,7 +482,7 @@ public class Tile {
                         player.onRamp = null;
                         player.onHalfRampBottom = this;
                         player.onHalfRampTop = null;
-                        return true;
+                        return this;
                     }
                 }
 
@@ -502,7 +500,7 @@ public class Tile {
                         player.onRamp = null;
                         player.onHalfRampBottom = this;
                         player.onHalfRampTop = null;
-                        return true;
+                        return this;
                     }
                 }
 
@@ -535,7 +533,7 @@ public class Tile {
                         player.onRamp = null;
                         player.onHalfRampBottom = this;
                         player.onHalfRampTop = null;
-                        return true;
+                        return this;
                     }
                 }
             }
@@ -554,8 +552,7 @@ public class Tile {
                 
                 && !(player.hitBoxArea.getMiddle().x >= getLocation().x)) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
-                    player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -570,7 +567,7 @@ public class Tile {
                 && player.hitBoxArea.y < getLocation().y) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -592,7 +589,7 @@ public class Tile {
                         player.onRamp = null;
                         player.onHalfRampBottom = this;
                         player.onHalfRampTop = null;
-                        return true;
+                        return this;
                     }
                 }
 
@@ -606,7 +603,7 @@ public class Tile {
                         player.onRamp = null;
                         player.onHalfRampBottom = this;
                         player.onHalfRampTop = null;
-                        return true;
+                        return this;
                     }
                 }
 
@@ -639,7 +636,7 @@ public class Tile {
                         player.onRamp = null;
                         player.onHalfRampBottom = this;
                         player.onHalfRampTop = null;
-                        return true;
+                        return this;
                     }
                 }
             }
@@ -657,7 +654,7 @@ public class Tile {
                 && player.hitBoxArea.y < getLocation().y + 8) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -671,8 +668,7 @@ public class Tile {
                 
                 && !(player.hitBoxArea.getMiddle().x < getLocation().x + 16)) {
                     player.hitBoxArea.x = getLocation().x + 16;
-                    player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -690,7 +686,7 @@ public class Tile {
                         player.onRamp = null;
                         player.onHalfRampBottom = null;
                         player.onHalfRampTop = this;
-                        return true;
+                        return this;
                     }
                 }
 
@@ -707,7 +703,7 @@ public class Tile {
                         player.onRamp = null;
                         player.onHalfRampBottom = null;
                         player.onHalfRampTop = this;
-                        return true;
+                        return this;
                     }
                 }
             
@@ -742,7 +738,7 @@ public class Tile {
                         player.onRamp = null;
                         player.onHalfRampBottom = null;
                         player.onHalfRampTop = this;
-                        return true;
+                        return this;
                     }
                 }
             }
@@ -760,8 +756,7 @@ public class Tile {
                 
                 && !(player.hitBoxArea.getMiddle().x >= getLocation().x)) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
-                    player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -775,7 +770,7 @@ public class Tile {
                 && player.hitBoxArea.y < getLocation().y + 8) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     player.velocity.x = 0;
-                    return true;
+                    return this;
                 }
             }
             
@@ -796,7 +791,7 @@ public class Tile {
                         player.onRamp = null;
                         player.onHalfRampBottom = null;
                         player.onHalfRampTop = this;
-                        return true;
+                        return this;
                     }
                 }
 
@@ -810,7 +805,7 @@ public class Tile {
                         player.onRamp = null;
                         player.onHalfRampBottom = null;
                         player.onHalfRampTop = this;
-                        return true;
+                        return this;
                     }
                 }
             
@@ -845,7 +840,7 @@ public class Tile {
                         player.onRamp = null;
                         player.onHalfRampBottom = null;
                         player.onHalfRampTop = this;
-                        return true;
+                        return this;
                     }
                 }
             }
@@ -875,7 +870,7 @@ public class Tile {
             }
         }
 
-        return false;
+        return null;
     }
 
     public Point getLocation() {

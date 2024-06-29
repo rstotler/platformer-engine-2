@@ -81,7 +81,7 @@ public class Mob extends CollidableObject {
 
     public ArrayList<Mob> enemyTargetList;
 
-    public Mob(String imageName, Point location, ImageManager imageManager) {
+    public Mob(String imageName, Point location, ImageManager imageManager, boolean isPlayer) {
         super(imageName, imageManager);
 
         shapeRenderer = new ShapeRenderer();
@@ -143,10 +143,17 @@ public class Mob extends CollidableObject {
 
         enemyTargetList = new ArrayList<>();
 
-        loadMob(imageName);
+        loadMob(imageName, isPlayer);
     }
 
-    public void loadMob(String imageName) {
+    public void loadMob(String imageName, boolean isPlayer) {
+        if(!isPlayer) {
+            facingDirection = "Left";
+            if(new Random().nextInt(2) == 0) {
+                facingDirection = "Right";
+            }
+        }
+        
         if(imageName.equals("Default")) {
             
         }
@@ -158,12 +165,9 @@ public class Mob extends CollidableObject {
 
             frameLength = 3;
 
-            movementPattern = new Wander(this);
-        }
-
-        facingDirection = "Left";
-        if(new Random().nextInt(2) == 0) {
-            facingDirection = "Right";
+            if(!isPlayer) {
+                movementPattern = new Wander(this);
+            }
         }
     }
 
@@ -194,8 +198,9 @@ public class Mob extends CollidableObject {
         int updateCount = -1;
         float updateXMove = -1;
         float updateYMove = -1;
-        boolean xHitWallCheck = false;
-        boolean yHitWallCheck = false;
+        Tile xHitWallCheck = null;
+        Tile yHitWallCheck = null;
+        boolean hitLevelEdge = false;
 
         // Longer Left & Right //
         if(Math.abs(xDistance) >= Math.abs(yDistance)) {
@@ -252,21 +257,22 @@ public class Mob extends CollidableObject {
             hitBoxArea.y = (int) hitBoxArea.y;
         }
 
+        // Collision Checks //
         for(int i = 0; i < updateCount; i++) {
             
             // Update X Location //
             if(i == updateCount - 1) {
-                if(!xHitWallCheck) {
+                if(xHitWallCheck == null) {
                     hitBoxArea.x = startPoint.x + xDistance;
                 }
             } else {
-                if(!xHitWallCheck) {
+                if(xHitWallCheck == null) {
                     hitBoxArea.x += updateXMove;
                 }
             }
 
             // X Collision Check //
-            if(!xHitWallCheck) {
+            if(xHitWallCheck == null) {
                 int yCount = (hitBoxArea.height / 16) + 1;
                 if(hitBoxArea.height % 16 != 0) {
                     yCount += 1;
@@ -282,8 +288,10 @@ public class Mob extends CollidableObject {
                 // Screen Boundary Collision Detection //
                 if(hitBoxArea.x < 0) {
                     hitBoxArea.x = 0;
+                    hitLevelEdge = true;
                 } else if(hitBoxArea.x + hitBoxArea.width >= screenChunks.length * Gdx.graphics.getWidth()) {
                     hitBoxArea.x = (screenChunks.length * Gdx.graphics.getWidth()) - hitBoxArea.width;
+                    hitLevelEdge = true;
                 }
                 
                 // Tile Collision Detection //
@@ -299,7 +307,7 @@ public class Mob extends CollidableObject {
                             Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.x, (int) hitBoxArea.y + (16 * y) + yMod);
                             if(targetTile != null) {
                                 xHitWallCheck = targetTile.collisionCheck(screenChunks, this, movingDirX, 0, y);
-                                if(xHitWallCheck) {
+                                if(xHitWallCheck != null) {
                                     // System.out.println("-Hit-");
                                     break;
                                 }
@@ -311,7 +319,7 @@ public class Mob extends CollidableObject {
                             Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.x + hitBoxArea.width - 1, (int) hitBoxArea.y + (16 * y) + yMod);
                             if(targetTile != null) {
                                 xHitWallCheck = targetTile.collisionCheck(screenChunks, this, movingDirX, 1, y);
-                                if(xHitWallCheck) {
+                                if(xHitWallCheck != null) {
                                     // System.out.println("-Hit-");
                                     break;
                                 }
@@ -323,7 +331,7 @@ public class Mob extends CollidableObject {
                             Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y + (16 * y) + yMod);
                             if(targetTile != null) {
                                 yHitWallCheck = targetTile.collisionCheck(screenChunks, this, "Middle", 2, y);
-                                if(yHitWallCheck) {
+                                if(yHitWallCheck != null) {
                                     // System.out.println("-(Non-Breaking) Hit-");
                                 }
                             }
@@ -333,7 +341,7 @@ public class Mob extends CollidableObject {
             }
 
             // Update Y Location //
-            if(!yHitWallCheck && velocity.y != 0) {
+            if(yHitWallCheck == null && velocity.y != 0) {
                 if(i == updateCount - 1) {
                     hitBoxArea.y = startPoint.y + yDistance;
                 } else {
@@ -434,7 +442,7 @@ public class Mob extends CollidableObject {
             }
 
             // Y Collision Check //
-            if(!yHitWallCheck && velocity.y != 0) {
+            if(yHitWallCheck == null && velocity.y != 0) {
                 int yOffset = 0;
                 String movingDirY = "";
                 if(velocity.y > 0) {
@@ -473,7 +481,7 @@ public class Mob extends CollidableObject {
                             Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y + yOffset);
                             if(targetTile != null) {
                                 yHitWallCheck = targetTile.collisionCheck(screenChunks, this, movingDirY, 0, y);
-                                if(yHitWallCheck) {
+                                if(yHitWallCheck != null) {
                                     // System.out.println("-Hit-");
                                     break;
                                 }
@@ -485,7 +493,7 @@ public class Mob extends CollidableObject {
                             Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.x, (int) hitBoxArea.y + yOffset);
                             if(targetTile != null) {
                                 yHitWallCheck = targetTile.collisionCheck(screenChunks, this, movingDirY, 1, y);
-                                if(yHitWallCheck) {
+                                if(yHitWallCheck != null) {
                                     // System.out.println("-Hit-");
                                     break;
                                 }
@@ -497,7 +505,7 @@ public class Mob extends CollidableObject {
                             Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.x + hitBoxArea.width - 1, (int) hitBoxArea.y + yOffset);
                             if(targetTile != null) {
                                 yHitWallCheck = targetTile.collisionCheck(screenChunks, this, movingDirY, 2, y);
-                                if(yHitWallCheck) {
+                                if(yHitWallCheck != null) {
                                     // System.out.println("-Hit-");
                                     break;
                                 }
@@ -505,7 +513,7 @@ public class Mob extends CollidableObject {
                         }
                         
                         // Index Collision Check //
-                        if(hitBoxArea.width >= 32 && velocity.y != 0 && !yHitWallCheck) {
+                        if(hitBoxArea.width >= 32 && velocity.y != 0 && yHitWallCheck == null) {
                             int xCount = hitBoxArea.width / 16;
             
                             for(int x = 0; x < xCount; x++) {
@@ -517,7 +525,7 @@ public class Mob extends CollidableObject {
                                 Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.x + xOffset, (int) hitBoxArea.y + yOffset);
                                 if(targetTile != null) {
                                     yHitWallCheck = targetTile.collisionCheck(screenChunks, this, movingDirY, 3 + x, y);
-                                    if(yHitWallCheck) {
+                                    if(yHitWallCheck != null) {
                                         // System.out.println("-Hit-");
                                         break;
                                     }
@@ -528,7 +536,7 @@ public class Mob extends CollidableObject {
                 }
 
                 if(velocity.y < 0
-                && !yHitWallCheck) {
+                && yHitWallCheck == null) {
                     falling = true;
                 }
             }
@@ -546,9 +554,19 @@ public class Mob extends CollidableObject {
         if(targetTile != null) {
             if(targetTile.tileShape.length() >= 4
             && targetTile.tileShape.substring(0, 4).equals("Ramp")) {
-                if(targetTile.collisionCheck(screenChunks, this, "Middle", 2, 0)) {
+                if(targetTile.collisionCheck(screenChunks, this, "Middle", 2, 0) != null) {
                     // System.out.println("-Hit-");
                 }
+            }
+        }
+
+        // Update Mob Movement Check //
+        if(getClass().toString().substring(getClass().toString().lastIndexOf(".") + 1).equals("Mob")
+        && (hitLevelEdge || xHitWallCheck != null)) {
+            if(hitLevelEdge
+            || xHitWallCheck.tileShape.contains("Square")
+            || (flying && (xHitWallCheck.tileShape.contains("Ramp")))) {
+                updateActionList.add("Hit Wall");
             }
         }
     }
@@ -873,12 +891,7 @@ public class Mob extends CollidableObject {
     }
 
     public void updateVelocity(float targetXSpeed, float targetYSpeed) {
-        if(facingDirection.equals("Left")) {
-            velocity.x = -targetXSpeed;
-        } else {
-            velocity.x = targetXSpeed;
-        }
-
+        velocity.x = targetXSpeed;
         velocity.y = targetYSpeed;
     }
 

@@ -18,6 +18,9 @@ public class Wander extends MovementPattern {
         if(mob.flying) {
             float flyingXVelocity = new Random().nextFloat() * mob.moveSpeed;
             float flyingYVelocity = mob.moveSpeed - flyingXVelocity;
+            if(mob.facingDirection.equals("Left")) {
+                flyingXVelocity *= -1;
+            }
             if(new Random().nextInt(2) == 0) {
                 flyingYVelocity *= -1;
             }
@@ -49,18 +52,21 @@ public class Wander extends MovementPattern {
                 walkTimerMax = new Random().nextInt(420) + 60;
                 pauseTimerMax = -1;
 
+                if(new Random().nextInt(3) == 0) {
+                    mob.reverseDirection();
+                }
+
                 if(mob.flying) {
                     float flyingXVelocity = new Random().nextFloat() * mob.moveSpeed;
                     float flyingYVelocity = mob.moveSpeed - flyingXVelocity;
+                    if(mob.facingDirection.equals("Left")) {
+                        flyingXVelocity *= -1;
+                    }
                     if(new Random().nextInt(2) == 0) {
                         flyingYVelocity *= -1;
                     }
 
                     mob.updateVelocity(flyingXVelocity, flyingYVelocity);
-                }
-
-                if(new Random().nextInt(3) == 0) {
-                    mob.reverseDirection();
                 }
             }
         }

@@ -993,6 +993,7 @@ public class AreaData {
                                 if(mob.movementPattern != null) {
                                     if(mob.updateActionList.contains("Hit Wall")) {
                                         mob.reverseDirection();
+                                        mob.velocity.x *= -1;
                                     }
                                     mob.movementPattern.update(mob);
                                 }
