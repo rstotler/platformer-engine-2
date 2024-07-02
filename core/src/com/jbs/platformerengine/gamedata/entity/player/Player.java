@@ -4,18 +4,10 @@ import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.screen.ImageManager;
-import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 
 public class Player extends Mob {
     public Player(ImageManager imageManager) {
-        super("", new Point(3750, 600), imageManager, true);
-    }
-
-    public void update(Keyboard keyboard, ScreenChunk[][] screenChunks) {
-        updateInput(keyboard);
-        updateTileCollisions(screenChunks);
-        updateAttack();
-        updateCollidables(screenChunks);
+        super("Bat", new Point(3750, 600), imageManager, true);
     }
 
     public void updateInput(Keyboard keyboard) {
@@ -42,8 +34,14 @@ public class Player extends Mob {
                 velocity.y = 0;
             }
 
-            if(velocity.x != 0 && keyboard.shift) {
-                velocity.x *= runMod;
+            if(keyboard.shift
+            && !(flying && flyingAcceleration < 1.0)) {
+                if(velocity.x != 0) {
+                    velocity.x *= runMod;
+                }
+                if(velocity.y != 0) {
+                    velocity.y *= runMod;
+                }
             }
         }
 

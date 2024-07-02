@@ -242,7 +242,6 @@ public class Tile {
                 && !(leftTile != null && leftTile.tileShape.equals("Ramp-Left-Half-Bottom"))
                 && player.hitBoxArea.y < getLocation().y) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
-                    player.velocity.x = 0;
                     return this;
                 }
             }

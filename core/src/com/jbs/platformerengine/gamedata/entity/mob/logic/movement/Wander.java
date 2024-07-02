@@ -15,20 +15,7 @@ public class Wander extends MovementPattern {
         walkTimerMax = new Random().nextInt(420) + 60;
         pauseTimerMax = -1;
 
-        if(mob.flying) {
-            float flyingXVelocity = new Random().nextFloat() * mob.moveSpeed;
-            float flyingYVelocity = mob.moveSpeed - flyingXVelocity;
-            if(mob.facingDirection.equals("Left")) {
-                flyingXVelocity *= -1;
-            }
-            if(new Random().nextInt(2) == 0) {
-                flyingYVelocity *= -1;
-            }
-
-            mob.updateVelocity(flyingXVelocity, flyingYVelocity);
-        } else {
-            mob.updateVelocity("X", mob.moveSpeed);
-        }
+        setVelocity(mob);
     }
 
     public void update(Mob mob) {
@@ -36,11 +23,17 @@ public class Wander extends MovementPattern {
         // Move //
         if(pauseTimerMax == -1) {
             walkTimer += 1;
-            if(walkTimer >= walkTimerMax) {
-                mob.updateVelocity(0, 0);
+            if(walkTimer < walkTimerMax) {
+                mob.velocity.x = xVelocity;
+                if(mob.flying) {
+                    mob.velocity.y = yVelocity;
+                }
+            }
 
+            else {
                 pauseTimer = 0;
                 pauseTimerMax = new Random().nextInt(420) + 90;
+                mob.updateVelocity(0, 0);
             }
         }
 
@@ -56,19 +49,25 @@ public class Wander extends MovementPattern {
                     mob.reverseDirection();
                 }
 
-                if(mob.flying) {
-                    float flyingXVelocity = new Random().nextFloat() * mob.moveSpeed;
-                    float flyingYVelocity = mob.moveSpeed - flyingXVelocity;
-                    if(mob.facingDirection.equals("Left")) {
-                        flyingXVelocity *= -1;
-                    }
-                    if(new Random().nextInt(2) == 0) {
-                        flyingYVelocity *= -1;
-                    }
-
-                    mob.updateVelocity(flyingXVelocity, flyingYVelocity);
-                }
+                setVelocity(mob);
             }
+        }
+    }
+
+    public void setVelocity(Mob mob) {
+        if(mob.flying) {
+            xVelocity = new Random().nextFloat() * mob.moveSpeed;
+            yVelocity = mob.moveSpeed - xVelocity;
+            
+            if(new Random().nextInt(2) == 0) {
+                yVelocity *= -1;
+            }
+        } else {
+            xVelocity = mob.moveSpeed;
+        }
+
+        if(mob.facingDirection.equals("Left")) {
+            xVelocity *= -1;
         }
     }
 }

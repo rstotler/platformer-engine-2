@@ -15,6 +15,7 @@ import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.gamedata.entity.mob.logic.movement.*;
 import com.jbs.platformerengine.gamedata.entity.player.AttackData;
 import com.jbs.platformerengine.screen.ImageManager;
+import com.jbs.platformerengine.screen.gamescreen.CellCollidables;
 import com.jbs.platformerengine.screen.gamescreen.GameScreen;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
@@ -69,6 +70,10 @@ public class Mob extends CollidableObject {
     public boolean justLanded;
 
     public boolean flying;
+    public float flyingAcceleration;
+    public float flyingAccelerationMin;
+    public float runAcceleration;
+    public float runAccelerationMin;
 
     public int healthPoints;
 
@@ -129,9 +134,14 @@ public class Mob extends CollidableObject {
         ducking = false;
         falling = false;
         justLanded = false;
-        flying = false;
 
-        healthPoints = 5;
+        flying = false;
+        flyingAccelerationMin = .17f;
+        flyingAcceleration = flyingAccelerationMin;
+        runAccelerationMin = .17f;
+        runAcceleration = runAccelerationMin;
+
+        healthPoints = 1;
         
         updateTimer = -1;
         updateAnimationTimer = -1;
@@ -144,6 +154,8 @@ public class Mob extends CollidableObject {
     }
 
     public void loadMob(String imageName, boolean isPlayer) {
+        
+        // Randomize Facing Direction //
         if(!isPlayer) {
             facingDirection = "Left";
             if(new Random().nextInt(2) == 0) {
@@ -151,8 +163,7 @@ public class Mob extends CollidableObject {
             }
         }
         
-        if(imageName.equals("Default")) {
-            
+        if(imageName.equals("")) {
         }
         
         else if(imageName.equals("Bat")) {
@@ -166,6 +177,50 @@ public class Mob extends CollidableObject {
                 movementPattern = new Wander(this);
             }
         }
+    }
+
+    public void update(ScreenChunk[][] screenChunks, HashMap<Mob, ArrayList<CellCollidables>> updateMobScreenChunkMap) {
+        if(updateMobScreenChunkMap != null) {
+            updateMovement(screenChunks, updateMobScreenChunkMap);
+        }
+        updateActionList.clear();
+
+        // Update Flying Move Acceleration //
+        if(flying) {
+            if(velocity.x != 0 || velocity.y != 0) {
+                if(flyingAcceleration < 1) {
+                    flyingAcceleration += .015;
+                    if(flyingAcceleration > 1) {
+                        flyingAcceleration = 1.0f;
+                    }
+                }
+            } else if(flyingAcceleration > 0) {
+                flyingAcceleration -= .05;
+                if(flyingAcceleration < flyingAccelerationMin) {
+                    flyingAcceleration = flyingAccelerationMin;
+                }
+            }
+
+            velocity.x *= flyingAcceleration;
+            velocity.y *= flyingAcceleration;
+        }
+        
+        // Collision Check //
+        ArrayList<CellCollidables> oldCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, this);
+        updateTileCollisions(screenChunks);
+
+        // Update Mob Cell Collidables //
+        ArrayList<CellCollidables> newCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, this);
+        if(!oldCellCollidables.equals(newCellCollidables)) {
+            ArrayList<CellCollidables> removeFromScreenChunkList = GameScreen.updateObjectCellCollidables(screenChunks, this, oldCellCollidables, newCellCollidables);
+            if(removeFromScreenChunkList.size() > 0) {
+                updateMobScreenChunkMap.put(this, removeFromScreenChunkList);
+            }
+        }
+
+        // Update Attacks //
+        updateAttack();
+        updateCollidables(screenChunks);
     }
 
     public void updateTileCollisions(ScreenChunk[][] screenChunks) {
@@ -202,7 +257,7 @@ public class Mob extends CollidableObject {
         // Longer Left & Right //
         if(Math.abs(xDistance) >= Math.abs(yDistance)) {
             updateCount = ((int) Math.abs(xDistance) / 16);
-            if((int) xDistance % 16 != 0) {
+            if(xDistance % 16 != 0) {
                 updateCount += 1;
             }
 
@@ -225,7 +280,7 @@ public class Mob extends CollidableObject {
         // Longer Top & Bottom //
         else {
             updateCount = ((int) Math.abs(yDistance) / 16);
-            if((int) yDistance % 16 != 0) {
+            if(yDistance % 16 != 0) {
                 updateCount += 1;
             }
 
@@ -532,18 +587,16 @@ public class Mob extends CollidableObject {
                     }
                 }
 
+                // Falling Check //
                 if(velocity.y < 0
-                && yHitWallCheck == null) {
+                && yHitWallCheck == null
+                && !falling) {
                     falling = true;
+                    onRamp = null;
+                    onHalfRampBottom = null;
+                    onHalfRampTop = null;
                 }
             }
-        }
-
-        // Falling Check //
-        if(falling) {
-            onRamp = null;
-            onHalfRampBottom = null;
-            onHalfRampTop = null;
         }
 
         // Inside Ramp Check //
@@ -557,7 +610,7 @@ public class Mob extends CollidableObject {
             }
         }
 
-        // Update Mob Movement Check //
+        // Update Mob Movement (Hit Wall) Check //
         if(getClass().toString().substring(getClass().toString().lastIndexOf(".") + 1).equals("Mob")
         && (hitLevelEdge || xHitWallCheck != null)) {
             if(hitLevelEdge
@@ -611,6 +664,30 @@ public class Mob extends CollidableObject {
                     }
                 }
             }
+        }
+    }
+
+    public void updateMovement(ScreenChunk[][] screenChunks, HashMap<Mob, ArrayList<CellCollidables>> updateMobScreenChunkMap) {
+
+        // Update Movement Pattern //
+        if(!enemyTargetList.isEmpty()) {
+            MovementPattern.trackTarget(this);
+        } else {
+            if(movementPattern != null) {
+                if(updateActionList.contains("Hit Wall")) {
+                    reverseDirection();
+                    velocity.x *= -1;
+                    movementPattern.xVelocity *= -1;
+                }
+                movementPattern.update(this);
+            }
+        }
+
+        // Update Facing Direction //
+        if(velocity.x < 0 && facingDirection.equals("Right")) {
+            facingDirection = "Left";
+        } else if(velocity.x > 0 && facingDirection.equals("Left")) {
+            facingDirection = "Right";
         }
     }
 

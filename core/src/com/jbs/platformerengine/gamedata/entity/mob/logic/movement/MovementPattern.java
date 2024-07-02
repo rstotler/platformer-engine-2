@@ -3,6 +3,14 @@ package com.jbs.platformerengine.gamedata.entity.mob.logic.movement;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 
 public class MovementPattern {
+    public float xVelocity;
+    public float yVelocity;
+
+    public MovementPattern() {
+        xVelocity = 0;
+        yVelocity = 0;
+    }
+
     public void update(Mob mob) {}
 
     public static void trackTarget(Mob mob) {

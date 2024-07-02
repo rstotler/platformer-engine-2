@@ -15,7 +15,6 @@ import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.area.entity.Cloud;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
-import com.jbs.platformerengine.gamedata.entity.mob.logic.movement.MovementPattern;
 import com.jbs.platformerengine.gamedata.entity.player.Player;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.CellCollidables;
@@ -981,39 +980,7 @@ public class AreaData {
                     for(Mob mob : screenChunks[x][y].mobList) {
                         if(mob.updateTimer != areaTimer) {
                             mob.updateTimer = areaTimer;
-                            mob.updateActionList.clear();
-                            
-                            ArrayList<CellCollidables> oldCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, mob);
-                            mob.updateTileCollisions(screenChunks);
-                            
-                            // Update Movement Pattern //
-                            if(!mob.enemyTargetList.isEmpty()) {
-                                MovementPattern.trackTarget(mob);
-                            } else {
-                                if(mob.movementPattern != null) {
-                                    if(mob.updateActionList.contains("Hit Wall")) {
-                                        mob.reverseDirection();
-                                        mob.velocity.x *= -1;
-                                    }
-                                    mob.movementPattern.update(mob);
-                                }
-                            }
-
-                            // Update Facing Direction //
-                            if(mob.velocity.x < 0 && mob.facingDirection.equals("Right")) {
-                                mob.facingDirection = "Left";
-                            } else if(mob.velocity.x > 0 && mob.facingDirection.equals("Left")) {
-                                mob.facingDirection = "Right";
-                            }
-                            
-                            // Update Mob Cell Collidables //
-                            ArrayList<CellCollidables> newCellCollidables = GameScreen.getObjectCellCollidables(screenChunks, mob);
-                            if(!oldCellCollidables.equals(newCellCollidables)) {
-                                ArrayList<CellCollidables> removeFromScreenChunkList = GameScreen.updateObjectCellCollidables(screenChunks, mob, oldCellCollidables, newCellCollidables);
-                                if(removeFromScreenChunkList.size() > 0) {
-                                    updateMobScreenChunkMap.put(mob, removeFromScreenChunkList);
-                                }
-                            }
+                            mob.update(screenChunks, updateMobScreenChunkMap);
                         }
                     }
 

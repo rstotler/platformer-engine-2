@@ -23,15 +23,17 @@ import com.jbs.platformerengine.screen.Screen;
 /* To-Do List:
  * Wave Shader When Walking Past Grass
  * Combat - Charged Attacks, Spells/Abilities, Class Out Different Attacks, Multiple Hitboxes Per Attack
- * Movement - Flying Modifier, Fast Movement Ability
+ * Movement - Run Modifier, Fast Movement Ability, Mob After Images, Fall Speed Off Of Tiles
  * Background - Clouds, Stars, Pixelate Moon Glow
  * Areas - Tower, Underground
- * 
+ * Audit Enemies In GameScreen.getObjectCellCollidables()
+ * No Combos When Dashing
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
  * Can't Dropkick Bat After Targeting From Sword Attack
+ * Left/Right Collision Error On Small Hitboxes?
  */
 
 public class GameScreen extends Screen {
@@ -220,7 +222,8 @@ public class GameScreen extends Screen {
 
     public void update(Player player) {
         areaData.update(player);
-        player.update(keyboard, areaData.screenChunks);
+        player.updateInput(keyboard);
+        player.update(areaData.screenChunks, null);
         
         // Change Area Check //
         int chunkX = player.hitBoxArea.getMiddle().x / Gdx.graphics.getWidth();
@@ -344,7 +347,7 @@ public class GameScreen extends Screen {
 
     public void renderBackground(Player player) {
         float xPercent = (player.hitBoxArea.getMiddle().x - 336.0f) / ((Gdx.graphics.getWidth() * areaData.screenChunks.length) - 640 - 32);
-        float yPercent = (player.hitBoxArea.y - 0.0f) / ((Gdx.graphics.getHeight() * areaData.screenChunks[0].length));
+        float yPercent = ((int) player.hitBoxArea.y - 0.0f) / ((Gdx.graphics.getHeight() * areaData.screenChunks[0].length));
         if(xPercent > 1) {
             xPercent = 1;
         }
@@ -456,8 +459,8 @@ public class GameScreen extends Screen {
         font.draw(spriteBatch, "FPS: " + String.valueOf(Gdx.graphics.getFramesPerSecond()), 1205, 767);
 
         if(displayDebugData == 1) {
-            font.draw(spriteBatch, "Pos: X - " + player.hitBoxArea.x + " (" + (player.hitBoxArea.x % Gdx.graphics.getWidth()) + ") " + " Y - " + player.hitBoxArea.y + " (" + (player.hitBoxArea.y % Gdx.graphics.getHeight()) + ") " + " Size: " + player.hitBoxArea.width + "x" + player.hitBoxArea.height, 3, 765);
-            font.draw(spriteBatch, "Velocity: X - " + player.velocity.x + " Y - " + player.velocity.y, 3, 750);
+            font.draw(spriteBatch, "Pos X: " + player.hitBoxArea.x + " (" + (player.hitBoxArea.x % Gdx.graphics.getWidth()) + ") " + " Y: " + player.hitBoxArea.y + " (" + (player.hitBoxArea.y % Gdx.graphics.getHeight()) + ") " + " Size: " + player.hitBoxArea.width + "x" + player.hitBoxArea.height, 3, 765);
+            font.draw(spriteBatch, "Velocity X: " + player.velocity.x + " Y: " + player.velocity.y + " Fly Acc: " + player.flyingAcceleration, 3, 750);
             font.draw(spriteBatch, "R: " + player.onRamp + " - HRB: " + player.onHalfRampBottom + " - HRT: " + player.onHalfRampTop, 3, 735);
             font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount + " Falling: " + player.falling, 3, 720);
             
