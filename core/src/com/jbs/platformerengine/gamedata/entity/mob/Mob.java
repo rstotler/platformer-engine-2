@@ -69,11 +69,11 @@ public class Mob extends CollidableObject {
     public boolean falling;
     public boolean justLanded;
 
-    public boolean flying;
-    public float flyingAcceleration;
-    public float flyingAccelerationMin;
+    public boolean running;
     public float runAcceleration;
-    public float runAccelerationMin;
+    public boolean flying;
+    public float flyingAccelerationMin;
+    public float flyingAcceleration;
 
     public int healthPoints;
 
@@ -91,7 +91,7 @@ public class Mob extends CollidableObject {
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
-        runMod = 1.5f;
+        runMod = 1.75f;
         facingDirection = "Right";
 
         jumpCheck = false;
@@ -135,11 +135,11 @@ public class Mob extends CollidableObject {
         falling = false;
         justLanded = false;
 
+        running = false;
+        runAcceleration = 0f;
         flying = false;
-        flyingAccelerationMin = .17f;
+        flyingAccelerationMin = 0f;
         flyingAcceleration = flyingAccelerationMin;
-        runAccelerationMin = .17f;
-        runAcceleration = runAccelerationMin;
 
         healthPoints = 1;
         
@@ -185,7 +185,38 @@ public class Mob extends CollidableObject {
         }
         updateActionList.clear();
 
-        // Update Flying Move Acceleration //
+        // Run Acceleration //
+        if(running && !inAir()) {
+            if(velocity.x != 0) {
+                if(runAcceleration < 1) {
+                    runAcceleration += .010;
+                    if(runAcceleration > 1) {
+                        runAcceleration = 1.0f;
+                    }
+                }
+                velocity.x = moveSpeed + (runMod * runAcceleration);
+                if(facingDirection.equals("Left")) {
+                    velocity.x *= -1;
+                }
+            }
+        } else {
+            if(velocity.x != 0) {
+                if(runAcceleration > 0) {
+                    runAcceleration -= .015;
+                    if(runAcceleration < 0) {
+                        runAcceleration = 0;
+                    }
+                    velocity.x = moveSpeed + (runMod * runAcceleration);
+                    if(facingDirection.equals("Left")) {
+                        velocity.x *= -1;
+                    }
+                }
+            } else {
+                runAcceleration = 0;
+            }
+        }
+
+        // Flying Acceleration //
         if(flying) {
             if(velocity.x != 0 || velocity.y != 0) {
                 if(flyingAcceleration < 1) {

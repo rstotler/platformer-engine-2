@@ -7,7 +7,7 @@ import com.jbs.platformerengine.screen.ImageManager;
 
 public class Player extends Mob {
     public Player(ImageManager imageManager) {
-        super("Bat", new Point(3750, 600), imageManager, true);
+        super("", new Point(3750, 600), imageManager, true);
     }
 
     public void updateInput(Keyboard keyboard) {
@@ -35,7 +35,7 @@ public class Player extends Mob {
             }
 
             if(keyboard.shift
-            && !(flying && flyingAcceleration < 1.0)) {
+            && flyingAcceleration >= 1.0) {
                 if(velocity.x != 0) {
                     velocity.x *= runMod;
                 }
@@ -47,7 +47,8 @@ public class Player extends Mob {
 
         else {
 
-            // Sideways Velocity //
+            // Sideways Movement //
+            boolean moveCheck = false;
             velocity.x = 0;
             if(keyboard.left && !keyboard.right && (attackCount == 0 || inAir())) {
                 if(!ducking) {
@@ -56,6 +57,7 @@ public class Player extends Mob {
                 if(facingDirection.equals("Right")) {
                     facingDirection = "Left";
                 }
+                moveCheck = true;
             } else if(!keyboard.left && keyboard.right && (attackCount == 0 || inAir())) {
                 if(!ducking) {
                     velocity.x = moveSpeed;
@@ -63,12 +65,17 @@ public class Player extends Mob {
                 if(facingDirection.equals("Left")) {
                     facingDirection = "Right";
                 }
+                moveCheck = true;
             }
-            if(velocity.x != 0 && keyboard.shift) {
-                velocity.x *= runMod;
+
+            // Run Check //
+            if(keyboard.shift && moveCheck) {
+                running = true;
+            } else {
+                running = false;
             }
             
-            // Jump Velocity //
+            // Jump/Drop Kick //
             if(keyboard.up || dropKickBounceCheck) {
                 if(((keyboard.lastDown.contains("Up") || keyboard.lastDown.contains("W")))
                 && !ducking) {

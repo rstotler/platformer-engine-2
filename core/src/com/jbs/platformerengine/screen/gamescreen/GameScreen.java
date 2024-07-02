@@ -23,7 +23,7 @@ import com.jbs.platformerengine.screen.Screen;
 /* To-Do List:
  * Wave Shader When Walking Past Grass
  * Combat - Charged Attacks, Spells/Abilities, Class Out Different Attacks, Multiple Hitboxes Per Attack
- * Movement - Run Modifier, Fast Movement Ability, Mob After Images, Fall Speed Off Of Tiles
+ * Movement - Fast Movement Ability, Mob After Images, Fall Speed Off Of Tiles
  * Background - Clouds, Stars, Pixelate Moon Glow
  * Areas - Tower, Underground
  * Audit Enemies In GameScreen.getObjectCellCollidables()
@@ -230,13 +230,12 @@ public class GameScreen extends Screen {
         int chunkY = player.hitBoxArea.getMiddle().y / Gdx.graphics.getHeight();
         int tileX = (player.hitBoxArea.getMiddle().x % Gdx.graphics.getWidth()) / 16;
         int tileY = (player.hitBoxArea.getMiddle().y % Gdx.graphics.getHeight()) / 16;
-        if(chunkX >= 0 && chunkX < areaData.screenChunks.length
-        && chunkY >= 0 && chunkY < areaData.screenChunks[0].length
-        && tileX >= 0 && tileX < areaData.screenChunks[chunkX][chunkY].tiles.length
-        && tileY >= 0 && tileY < areaData.screenChunks[chunkX][chunkY].tiles[0].length
-        && areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY] != null
-        && !areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY].changeArea.equals("None")) {
-            changeArea(player, areaData.screenChunks[chunkX][chunkY].tiles[tileX][tileY]);
+        int xLoc = (chunkX * Gdx.graphics.getWidth()) + (tileX * 16);
+        int yLoc = (chunkY * Gdx.graphics.getHeight()) + (tileY * 16);
+        Tile changeAreaTile = ScreenChunk.getTile(areaData.screenChunks, xLoc, yLoc);
+        if(changeAreaTile != null
+        && !changeAreaTile.changeArea.equals("None")) {
+            changeArea(player, changeAreaTile);
         }
     }
 
@@ -460,7 +459,7 @@ public class GameScreen extends Screen {
 
         if(displayDebugData == 1) {
             font.draw(spriteBatch, "Pos X: " + player.hitBoxArea.x + " (" + (player.hitBoxArea.x % Gdx.graphics.getWidth()) + ") " + " Y: " + player.hitBoxArea.y + " (" + (player.hitBoxArea.y % Gdx.graphics.getHeight()) + ") " + " Size: " + player.hitBoxArea.width + "x" + player.hitBoxArea.height, 3, 765);
-            font.draw(spriteBatch, "Velocity X: " + player.velocity.x + " Y: " + player.velocity.y + " Fly Acc: " + player.flyingAcceleration, 3, 750);
+            font.draw(spriteBatch, "Velocity X: " + player.velocity.x + " Y: " + player.velocity.y, 3, 750);
             font.draw(spriteBatch, "R: " + player.onRamp + " - HRB: " + player.onHalfRampBottom + " - HRT: " + player.onHalfRampTop, 3, 735);
             font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount + " Falling: " + player.falling, 3, 720);
             
@@ -469,6 +468,8 @@ public class GameScreen extends Screen {
                 attackString = " (" + player.attackDecayTimer + "/" + player.attackData.get(player.getCurrentAttack()).attackDecayTimerMax[player.attackCount - 1] + ")";
             }
             font.draw(spriteBatch, "Attack: " + player.attackCount + attackString + " - DK: " + player.dropKickCheck + " SJ: " + player.superJumpCheck, 3, 705);
+            font.draw(spriteBatch, "Run Acc: " + player.runAcceleration + " Fly Acc: " + player.flyingAcceleration, 3, 690);
+            
         }
         
         spriteBatch.end();
