@@ -1,4 +1,4 @@
-package com.jbs.platformerengine.gamedata.entity.mob.logic.movement;
+package com.jbs.platformerengine.gamedata.entity.mob.movement;
 
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 

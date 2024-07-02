@@ -1,4 +1,4 @@
-package com.jbs.platformerengine.gamedata.entity.player;
+package com.jbs.platformerengine.gamedata.entity.mob.attack;
 
 import java.util.HashMap;
 

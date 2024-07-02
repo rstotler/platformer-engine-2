@@ -22,12 +22,14 @@ import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
  * Wave Shader When Walking Past Grass
- * Combat - Charged Attacks, Spells/Abilities, Class Out Different Attacks, Multiple Hitboxes Per Attack
- * Movement - Fast Movement Ability, Mob After Images, Fall Speed Off Of Tiles
+ * Combat - Charged Attacks, Class Out Different Attacks, Multiple Hitboxes Per Attack, Knife Ability
+ * Movement - Mob After Images, Fall Speed Off Of Tiles, No Quick Turnaround
  * Background - Clouds, Stars, Pixelate Moon Glow
  * Areas - Tower, Underground
  * Audit Enemies In GameScreen.getObjectCellCollidables()
  * No Combos When Dashing
+ * Going Through Tiles Other Than Square At High Speed? (Debug Area)
+ * Reset RunAcceleration After Hitting Wall
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping

@@ -12,8 +12,8 @@ import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.PointF;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
-import com.jbs.platformerengine.gamedata.entity.mob.logic.movement.*;
-import com.jbs.platformerengine.gamedata.entity.player.AttackData;
+import com.jbs.platformerengine.gamedata.entity.mob.attack.AttackData;
+import com.jbs.platformerengine.gamedata.entity.mob.movement.*;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.CellCollidables;
 import com.jbs.platformerengine.screen.gamescreen.GameScreen;
@@ -70,6 +70,8 @@ public class Mob extends CollidableObject {
     public boolean justLanded;
 
     public boolean running;
+    public float runAccelerationMin;
+    public float runAccelerationMax;
     public float runAcceleration;
     public boolean flying;
     public float flyingAccelerationMin;
@@ -91,7 +93,7 @@ public class Mob extends CollidableObject {
 
         velocity = new PointF(0, 0);
         moveSpeed = 2;
-        runMod = 1.75f;
+        runMod = 2.50f;
         facingDirection = "Right";
 
         jumpCheck = false;
@@ -136,12 +138,14 @@ public class Mob extends CollidableObject {
         justLanded = false;
 
         running = false;
-        runAcceleration = 0f;
+        runAccelerationMin = 0f;
+        runAccelerationMax = 4.00f;
+        runAcceleration = runAccelerationMin;
         flying = false;
         flyingAccelerationMin = 0f;
         flyingAcceleration = flyingAccelerationMin;
 
-        healthPoints = 1;
+        healthPoints = 2;
         
         updateTimer = -1;
         updateAnimationTimer = -1;
@@ -188,10 +192,10 @@ public class Mob extends CollidableObject {
         // Run Acceleration //
         if(running && !inAir()) {
             if(velocity.x != 0) {
-                if(runAcceleration < 1) {
-                    runAcceleration += .010;
-                    if(runAcceleration > 1) {
-                        runAcceleration = 1.0f;
+                if(runAcceleration < runAccelerationMax) {
+                    runAcceleration += .008;
+                    if(runAcceleration > runAccelerationMax) {
+                        runAcceleration = runAccelerationMax;
                     }
                 }
                 velocity.x = moveSpeed + (runMod * runAcceleration);
@@ -201,10 +205,12 @@ public class Mob extends CollidableObject {
             }
         } else {
             if(velocity.x != 0) {
-                if(runAcceleration > 0) {
-                    runAcceleration -= .015;
-                    if(runAcceleration < 0) {
-                        runAcceleration = 0;
+                if(runAcceleration > runAccelerationMin) {
+                    if(!inAir()) {
+                        runAcceleration -= .015;
+                        if(runAcceleration < runAccelerationMin) {
+                            runAcceleration = runAccelerationMin;
+                        }
                     }
                     velocity.x = moveSpeed + (runMod * runAcceleration);
                     if(facingDirection.equals("Left")) {
@@ -212,7 +218,7 @@ public class Mob extends CollidableObject {
                     }
                 }
             } else {
-                runAcceleration = 0;
+                runAcceleration = runAccelerationMin;
             }
         }
 
