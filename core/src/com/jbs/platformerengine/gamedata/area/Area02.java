@@ -93,7 +93,7 @@ public class Area02 extends AreaData {
 
         int pillarX = 7 * 16;
         int pillarY = 9 * 16;
-        int pillarCount = 11;
+        int pillarCount = (((screenChunks.length * Gdx.graphics.getWidth()) - 10) / 16) / 14;
         for(int i = 0; i < pillarCount; i++) {
             int chunkX = pillarX / Gdx.graphics.getWidth();
             int chunkY = pillarY / Gdx.graphics.getHeight();
@@ -146,7 +146,7 @@ public class Area02 extends AreaData {
             spriteBatch.end();
             screenChunks[chunkX][chunkY].frameBufferWalls.end();
 
-            pillarX += 224;
+            pillarX += 14 * 16;
         }
 
         // Test Mobs //

@@ -27,7 +27,7 @@ import com.jbs.platformerengine.screen.Screen;
  * Background - Clouds, Stars, Pixelate Moon Glow
  * Areas - Tower, Underground
  * Audit Enemies In GameScreen.getObjectCellCollidables()
- * No Combos When Dashing
+ * No Combos When Dashing, No Dashing While Running, Don't Disable Run On Release Shift If Other Shift Is Pressed
  * Going Through Tiles Other Than Square At High Speed? (Debug Area)
  * Reset RunAcceleration After Hitting Wall
  * 

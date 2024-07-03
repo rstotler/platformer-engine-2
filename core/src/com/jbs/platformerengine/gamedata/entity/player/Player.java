@@ -7,48 +7,52 @@ import com.jbs.platformerengine.screen.ImageManager;
 
 public class Player extends Mob {
     public Player(ImageManager imageManager) {
-        super("", new Point(3750, 600), imageManager, true);
+        super("Bat", new Point(3750, 600), imageManager, true);
     }
 
     public void updateInput(Keyboard keyboard) {
+        boolean moveCheck = false;
+
+        // Flying Movement //
         if(flying) {
             if(keyboard.left) {
                 velocity.x = -moveSpeed;
                 if(facingDirection.equals("Right")) {
                     facingDirection = "Left";
                 }
+                moveCheck = true;
             } else if(keyboard.right) {
                 velocity.x = moveSpeed;
                 if(facingDirection.equals("Left")) {
                     facingDirection = "Right";
                 }
+                moveCheck = true;
             } else {
                 velocity.x = 0;
             }
 
             if(keyboard.up) {
                 velocity.y = moveSpeed;
+                moveCheck = true;
             } else if(keyboard.down) {
                 velocity.y = -moveSpeed;
+                moveCheck = true;
             } else {
                 velocity.y = 0;
             }
 
-            if(keyboard.shift
-            && flyingAcceleration >= 1.0) {
-                if(velocity.x != 0) {
-                    velocity.x *= runMod;
-                }
-                if(velocity.y != 0) {
-                    velocity.y *= runMod;
-                }
+            // Run Check //
+            if(keyboard.shift && moveCheck) {
+                running = true;
+            } else {
+                running = false;
             }
         }
 
+        // Non-Flying Movement //
         else {
 
             // Sideways Movement //
-            boolean moveCheck = false;
             velocity.x = 0;
             if(keyboard.left && !keyboard.right && (attackCount == 0 || inAir())) {
                 if(!ducking) {

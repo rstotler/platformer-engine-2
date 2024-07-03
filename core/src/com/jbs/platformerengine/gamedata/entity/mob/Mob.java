@@ -190,7 +190,9 @@ public class Mob extends CollidableObject {
         updateActionList.clear();
 
         // Run Acceleration //
-        if(running && !inAir()) {
+        if(running
+        && !(!flying && inAir())
+        && !(flying && flyingAcceleration < 1.0)) {
             if(velocity.x != 0) {
                 if(runAcceleration < runAccelerationMax) {
                     runAcceleration += .008;
