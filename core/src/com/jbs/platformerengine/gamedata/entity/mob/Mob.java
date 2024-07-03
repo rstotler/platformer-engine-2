@@ -3,8 +3,6 @@ package com.jbs.platformerengine.gamedata.entity.mob;
 import java.util.*;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.jbs.platformerengine.gamedata.CollidableObject;
@@ -142,7 +140,7 @@ public class Mob extends CollidableObject {
         runAccelerationMax = 4.00f;
         runAcceleration = runAccelerationMin;
         flying = false;
-        flyingAccelerationMin = 0f;
+        flyingAccelerationMin = .25f;
         flyingAcceleration = flyingAccelerationMin;
 
         healthPoints = 2;
@@ -155,6 +153,8 @@ public class Mob extends CollidableObject {
         enemyTargetList = new ArrayList<>();
 
         loadMob(imageName, isPlayer);
+
+        displayHitBox = true;
     }
 
     public void loadMob(String imageName, boolean isPlayer) {
@@ -167,10 +167,7 @@ public class Mob extends CollidableObject {
             }
         }
         
-        if(imageName.equals("")) {
-        }
-        
-        else if(imageName.equals("Bat")) {
+        if(imageName.equals("Bat")) {
             hitBoxArea.width = 18;
             hitBoxArea.height = 12;
             flying = true;
@@ -180,6 +177,12 @@ public class Mob extends CollidableObject {
             if(!isPlayer) {
                 movementPattern = new Wander(this);
             }
+        }
+
+        else {
+            hitBoxArea.width = 16;
+            hitBoxArea.height = 48;
+            flying = false;
         }
     }
 
@@ -717,6 +720,7 @@ public class Mob extends CollidableObject {
                     reverseDirection();
                     velocity.x *= -1;
                     movementPattern.xVelocity *= -1;
+                    flyingAcceleration = flyingAccelerationMin;
                 }
                 movementPattern.update(this);
             }
@@ -783,40 +787,11 @@ public class Mob extends CollidableObject {
         }
     }
 
-    public void renderHitBox(OrthographicCamera camera, ShapeRenderer shapeRenderer) {
-        
-        // Area Rectangle //
-        shapeRenderer.setProjectionMatrix(camera.combined);
-        shapeRenderer.begin(ShapeType.Filled);
-
-        if(getClass().toString().substring(getClass().toString().lastIndexOf(".") + 1).equals("Player")) {
-            shapeRenderer.setColor(82/255f, 0/255f, 0/255f, 1f);
-        } else {
-            shapeRenderer.setColor(140/255f, 0/255f, 140/255f, 1f);
-        }
-
-        shapeRenderer.rect((int) hitBoxArea.x, (int) hitBoxArea.y, hitBoxArea.width, hitBoxArea.height);
-        
-        // X & Y (Location) //
-        // shapeRenderer.setColor(Color.GREEN);
-        // shapeRenderer.circle(hitBoxArea.x, hitBoxArea.y, 2);
-
-        // Facing Direction //
-        shapeRenderer.setColor(Color.YELLOW);
-        if(facingDirection.equals("Right")) {
-            shapeRenderer.circle((int) hitBoxArea.x + hitBoxArea.width, (int) hitBoxArea.y + (hitBoxArea.height / 2), 1);
-        } else {
-            shapeRenderer.circle((int) hitBoxArea.x, (int) hitBoxArea.y + (hitBoxArea.height / 2), 1);
-        }
-
-        // X & Y (Screen Center)
-        // shapeRenderer.setColor(Color.YELLOW);
-        // shapeRenderer.circle(hitBoxArea.x, hitBoxArea.y + 146, 2);
-
-        // Attack Hit Box //
-        if(attackCount > 0
-        && attackDecayTimer >= attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1]
+    public void renderAttackHitBox(ShapeRenderer shapeRenderer) {
+        if(attackDecayTimer >= attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1]
         && attackDecayTimer < attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1]) {
+            shapeRenderer.begin(ShapeType.Filled);
+
             if(attackCount == 1) {
                 shapeRenderer.setColor(82/255f, 0/255f, 0/255f, 1f);
             } else if(attackCount == 2) {
@@ -827,9 +802,8 @@ public class Mob extends CollidableObject {
 
             Rect attackHitBox = getAttackHitBox();
             shapeRenderer.rect((int) attackHitBox.x, (int) attackHitBox.y, attackHitBox.width, attackHitBox.height);
+            shapeRenderer.end();
         }
-
-        shapeRenderer.end();
     }
 
     public void changeSize(int num) {
@@ -845,6 +819,16 @@ public class Mob extends CollidableObject {
         else if(num == 3) {
             hitBoxArea.height += 1;
         }
+    }
+
+    public void changeForm(boolean isPlayer) {
+        if(imageName.equals("")) {
+            imageName = "Bat";
+        } else if(imageName.equals("Bat")) {
+            imageName = "";
+        }
+
+        loadMob(imageName, isPlayer);
     }
 
     public void attack() {

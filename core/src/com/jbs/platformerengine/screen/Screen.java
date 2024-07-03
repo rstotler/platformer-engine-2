@@ -11,7 +11,7 @@ public class Screen {
     protected SpriteBatch spriteBatch;
     protected BitmapFont font;
 
-    public Screen(Player player) {
+    public Screen() {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
         spriteBatch = new SpriteBatch();

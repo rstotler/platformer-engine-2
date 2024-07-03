@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
-import com.jbs.platformerengine.gamedata.entity.player.Player;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.GameScreen;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
@@ -30,7 +29,7 @@ public class Area02 extends AreaData {
         loadScreenChunks();
     }
     
-    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager, Player player) {
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {
         createFloor("Debug", false);
 
         // Stone Stairs Background //
@@ -152,11 +151,11 @@ public class Area02 extends AreaData {
         // Test Mobs //
         if(!initCheck) {
             GameScreen.addObjectToCellCollidables(screenChunks, new Mob("", new Point(250, 250), imageManager, false));
-            // for(int i = 0; i < 250; i++) {
-            //     int xLoc = new Random().nextInt((screenChunks.length * Gdx.graphics.getWidth()) - 60) + 30;
-            //     int yLoc = new Random().nextInt((screenChunks[0].length * Gdx.graphics.getHeight()) - 250) + 200;
-            //     GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Bat", new Point(xLoc, yLoc), imageManager, false));
-            // }
+            for(int i = 0; i < 250; i++) {
+                int xLoc = new Random().nextInt((screenChunks.length * Gdx.graphics.getWidth()) - 60) + 30;
+                int yLoc = new Random().nextInt((screenChunks[0].length * Gdx.graphics.getHeight()) - 250) + 200;
+                GameScreen.addObjectToCellCollidables(screenChunks, new Mob("Bat", new Point(xLoc, yLoc), imageManager, false));
+            }
         }
         
         // Exit To Area01 Bridge //
@@ -166,7 +165,7 @@ public class Area02 extends AreaData {
             int tileY = (exitYLoc + y) % 48;
             int exitX = 100;
             if(GameScreen.getAreaData("Area01") != null) {
-                exitX = (GameScreen.getAreaData("Area01").screenChunks.length * Gdx.graphics.getWidth()) - (player.hitBoxArea.width * 2);
+                exitX = (GameScreen.getAreaData("Area01").screenChunks.length * Gdx.graphics.getWidth()) - 32; // Update 32 With Player Width
             }
             screenChunks[0][chunkY].tiles[0][tileY] = new Tile("Area01", new Point(exitX, 600), 0, chunkY, 0, tileY);
         }

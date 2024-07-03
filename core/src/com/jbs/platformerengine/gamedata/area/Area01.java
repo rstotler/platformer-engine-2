@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.area.entity.Cloud;
-import com.jbs.platformerengine.gamedata.entity.player.Player;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.GameScreen;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
@@ -24,6 +23,7 @@ public class Area01 extends AreaData {
 
         tileSetList = new ArrayList<>(Arrays.asList("Dirt-Floor", "Dirt-Platform", "Stone", "Wood"));
         breakableImageList = new ArrayList<>(Arrays.asList("Torch_01"));
+        mobImageList = new ArrayList<>(Arrays.asList("Bat"));
 
         outside = true;
         nightTimer = 0;
@@ -32,7 +32,7 @@ public class Area01 extends AreaData {
         loadScreenChunks();
     }
 
-    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager, Player player) {
+    public void loadArea(SpriteBatch spriteBatch, ImageManager imageManager) {
         if(!initCheck) {
 
             // Base Floor //
@@ -196,7 +196,7 @@ public class Area01 extends AreaData {
             int tileY = (exitYLoc + y) % 48;
             int exitX = 100;
             if(GameScreen.getAreaData("AreaDebug") != null) {
-                exitX = (GameScreen.getAreaData("AreaDebug").screenChunks.length * Gdx.graphics.getWidth()) - (player.hitBoxArea.width * 2);
+                exitX = (GameScreen.getAreaData("AreaDebug").screenChunks.length * Gdx.graphics.getWidth()) - 32; // Update 32 With Player Width
             }
             screenChunks[0][chunkY].tiles[0][tileY] = new Tile("AreaDebug", new Point(exitX, 16), 0, chunkY, 0, tileY);
         }

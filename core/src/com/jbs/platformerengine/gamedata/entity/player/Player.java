@@ -8,44 +8,42 @@ import com.jbs.platformerengine.screen.ImageManager;
 public class Player extends Mob {
     public Player(ImageManager imageManager) {
         super("Bat", new Point(3750, 600), imageManager, true);
+
+        displayHitBox = true;
     }
 
     public void updateInput(Keyboard keyboard) {
         boolean moveCheck = false;
+        boolean turnAroundCheck = false;
 
         // Flying Movement //
         if(flying) {
-            if(keyboard.left) {
+            if(keyboard.left && !keyboard.right) {
                 velocity.x = -moveSpeed;
                 if(facingDirection.equals("Right")) {
                     facingDirection = "Left";
+                    turnAroundCheck = true;
                 }
                 moveCheck = true;
-            } else if(keyboard.right) {
+            } else if(keyboard.right && !keyboard.left) {
                 velocity.x = moveSpeed;
                 if(facingDirection.equals("Left")) {
                     facingDirection = "Right";
+                    turnAroundCheck = true;
                 }
                 moveCheck = true;
             } else {
                 velocity.x = 0;
             }
 
-            if(keyboard.up) {
+            if(keyboard.up && !keyboard.down) {
                 velocity.y = moveSpeed;
                 moveCheck = true;
-            } else if(keyboard.down) {
+            } else if(keyboard.down && !keyboard.up) {
                 velocity.y = -moveSpeed;
                 moveCheck = true;
             } else {
                 velocity.y = 0;
-            }
-
-            // Run Check //
-            if(keyboard.shift && moveCheck) {
-                running = true;
-            } else {
-                running = false;
             }
         }
 
@@ -60,6 +58,7 @@ public class Player extends Mob {
                 }
                 if(facingDirection.equals("Right")) {
                     facingDirection = "Left";
+                    turnAroundCheck = true;
                 }
                 moveCheck = true;
             } else if(!keyboard.left && keyboard.right && (attackCount == 0 || inAir())) {
@@ -68,17 +67,11 @@ public class Player extends Mob {
                 }
                 if(facingDirection.equals("Left")) {
                     facingDirection = "Right";
+                    turnAroundCheck = true;
                 }
                 moveCheck = true;
             }
 
-            // Run Check //
-            if(keyboard.shift && moveCheck) {
-                running = true;
-            } else {
-                running = false;
-            }
-            
             // Jump/Drop Kick //
             if(keyboard.up || dropKickBounceCheck) {
                 if(((keyboard.lastDown.contains("Up") || keyboard.lastDown.contains("W")))
@@ -132,6 +125,19 @@ public class Player extends Mob {
                     dashCheck = false;
                 }
             }
+        }
+
+        // Run Check //
+        if(keyboard.shift && moveCheck) {
+            running = true;
+        } else {
+            running = false;
+        }
+
+        // Turn Around Check //
+        if(turnAroundCheck) {
+            flyingAcceleration = flyingAccelerationMin;
+            runAcceleration = runAccelerationMin;
         }
         
         keyboard.lastDown.clear();

@@ -18,10 +18,10 @@ public class AnimatedObject {
     public AnimatedObject(String imageName, ImageManager imageManager) {
         this.imageName = imageName;
         imageType = "";
-
+        
         this.currentFrameTick = 0;
         frameLength = 1;
-
+        
         maxFrameNum = 0;
         if(imageManager != null) {
             if(imageManager.breakableImage.containsKey(imageName)) {

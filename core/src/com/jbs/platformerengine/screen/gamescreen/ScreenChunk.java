@@ -76,6 +76,8 @@ public class ScreenChunk {
     }
 
     public void renderTiles(OrthographicCamera camera, SpriteBatch spriteBatch) {
+
+        // 
         // shapeRenderer.setProjectionMatrix(camera.combined);
         // shapeRenderer.begin(ShapeType.Filled);
         // shapeRenderer.setColor(0, (10 + (location.y * 5))/255f, (10 + (location.x * 5))/255f, 0);
@@ -90,27 +92,23 @@ public class ScreenChunk {
 
     public void bufferAnimations(OrthographicCamera camera, SpriteBatch spriteBatch, ImageManager imageManager, ShapeRenderer shapeRenderer, int areaTimer) {
         for(BreakableObject breakableObject : breakableList) {
+            if(breakableObject.displayHitBox) {
+                breakableObject.renderHitBox(camera, shapeRenderer, "Right");
+            }
+
             breakableObject.renderAnimatedObject(imageManager, spriteBatch, breakableObject.hitBoxArea, "Right", true);
             breakableObject.updateAnimation();
-
-            // Hit Box Outline //
-            // shapeRenderer.setProjectionMatrix(camera.combined);
-            // shapeRenderer.begin(ShapeType.Filled);
-            // shapeRenderer.setColor(140/255f, 0/255f, 140/255f, 1f);
-            // shapeRenderer.rect(breakableObject.hitBoxArea.x, breakableObject.hitBoxArea.y, breakableObject.hitBoxArea.width, breakableObject.hitBoxArea.height);
-            // shapeRenderer.end();
         }
         
         for(Mob mobObject : mobList) {
+            if(mobObject.displayHitBox) {
+                mobObject.renderHitBox(camera, shapeRenderer, mobObject.facingDirection);
+            }
+
             if(mobObject.updateAnimationTimer != areaTimer) {
                 mobObject.renderAnimatedObject(imageManager, spriteBatch, mobObject.hitBoxArea, mobObject.facingDirection, true);
                 mobObject.updateAnimation();
                 mobObject.updateAnimationTimer = areaTimer;
-            }
-
-            // Hit Box Outline //
-            if(!imageManager.mobImage.containsKey(mobObject.imageName)) {
-                mobObject.renderHitBox(camera, shapeRenderer);
             }
         }
     }

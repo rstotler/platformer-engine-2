@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.jbs.platformerengine.PlatformerEngine;
 import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.area.*;
 import com.jbs.platformerengine.gamedata.area.entity.Cloud;
@@ -22,14 +23,14 @@ import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
  * Wave Shader When Walking Past Grass
- * Combat - Charged Attacks, Class Out Different Attacks, Multiple Hitboxes Per Attack, Knife Ability
- * Movement - Mob After Images, Fall Speed Off Of Tiles, No Quick Turnaround
+ * Combat - Charged Attacks, Class Out Different Attacks, Multiple Hitboxes Per Attack, Knife Throw Ability
+ * Movement - Mob After Images, Fall Speed Off Of Tiles
  * Background - Clouds, Stars, Pixelate Moon Glow
  * Areas - Tower, Underground
  * Audit Enemies In GameScreen.getObjectCellCollidables()
  * No Combos When Dashing, No Dashing While Running, Don't Disable Run On Release Shift If Other Shift Is Pressed
  * Going Through Tiles Other Than Square At High Speed? (Debug Area)
- * Reset RunAcceleration After Hitting Wall
+ * Reset RunAcceleration After Hitting Wall, Clipping Through Ramps Running Too Fast
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
@@ -50,8 +51,8 @@ public class GameScreen extends Screen {
 
     int displayDebugData;
     
-    public GameScreen(Player player) {
-        super(player);
+    public GameScreen(PlatformerEngine platformerEngine) {
+        super();
         
         cameraDebug = new OrthographicCamera();
         cameraDebug.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -69,10 +70,12 @@ public class GameScreen extends Screen {
         
         displayDebugData = 1;
 
-        areaData.loadArea(spriteBatch, imageManager, player);
+        areaData.loadArea(spriteBatch, imageManager);
         areaData.loadBackgroundFrameBuffers(spriteBatch);
 
         bufferChunks();
+
+        platformerEngine.player = new Player(imageManager);
     }
 
     public void initInputAdapter() {
@@ -149,6 +152,8 @@ public class GameScreen extends Screen {
             player.changeSize(2);
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
             player.changeSize(3);
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
+            player.changeForm(true);
         }
 
         // Click Screen //
@@ -295,6 +300,7 @@ public class GameScreen extends Screen {
         int chunkStartX = (((int) player.hitBoxArea.x) / Gdx.graphics.getWidth()) - 1;
         int chunkStartY = (((int) player.hitBoxArea.y) / Gdx.graphics.getHeight()) - 1;
 
+        // Walls & Tiles //
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
                 if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
@@ -311,6 +317,7 @@ public class GameScreen extends Screen {
             }
         }
 
+        // Animations //
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
                 if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
@@ -326,8 +333,18 @@ public class GameScreen extends Screen {
             }
         }
 
-        player.renderHitBox(camera, shapeRenderer);
+        if(player.displayHitBox) {
+            player.renderHitBox(camera, shapeRenderer, player.facingDirection);
+        }
+        
+        player.renderAnimatedObject(imageManager, spriteBatch, player.hitBoxArea, player.facingDirection, true);
+        player.updateAnimation();
 
+        if(player.attackCount > 0) {
+            player.renderAttackHitBox(shapeRenderer);
+        }
+
+        // Foreground //
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
                 if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
