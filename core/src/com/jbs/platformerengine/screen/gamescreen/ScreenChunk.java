@@ -76,8 +76,6 @@ public class ScreenChunk {
     }
 
     public void renderTiles(OrthographicCamera camera, SpriteBatch spriteBatch) {
-
-        // 
         // shapeRenderer.setProjectionMatrix(camera.combined);
         // shapeRenderer.begin(ShapeType.Filled);
         // shapeRenderer.setColor(0, (10 + (location.y * 5))/255f, (10 + (location.x * 5))/255f, 0);
@@ -109,6 +107,10 @@ public class ScreenChunk {
                 mobObject.renderAnimatedObject(imageManager, spriteBatch, mobObject.hitBoxArea, mobObject.facingDirection, true);
                 mobObject.updateAnimation();
                 mobObject.updateAnimationTimer = areaTimer;
+            }
+
+            if(mobObject.attackCount > 0) {
+                mobObject.renderAttackHitBox(shapeRenderer);
             }
         }
     }

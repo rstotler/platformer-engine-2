@@ -28,15 +28,15 @@ import com.jbs.platformerengine.screen.Screen;
  * Background - Clouds, Stars, Pixelate Moon Glow
  * Areas - Tower, Underground
  * Audit Enemies In GameScreen.getObjectCellCollidables()
- * No Combos When Dashing, No Dashing While Running, Don't Disable Run On Release Shift If Other Shift Is Pressed
- * Going Through Tiles Other Than Square At High Speed? (Debug Area)
- * Reset RunAcceleration After Hitting Wall, Clipping Through Ramps Running Too Fast
+ * No Combos When Dashing
  * 
  * Bugs:
- * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping
+ * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping (Still)
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
  * Can't Dropkick Bat After Targeting From Sword Attack
  * Left/Right Collision Error On Small Hitboxes?
+ * Going Through Tiles Other Than Square At High Speed? (Debug Area)
+ * Reset RunAcceleration After Hitting Wall, Clipping Through Ramps Running Too Fast
  */
 
 public class GameScreen extends Screen {
@@ -126,22 +126,22 @@ public class GameScreen extends Screen {
             player.jumpTimer = player.jumpTimerMax;
         }
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && !player.flying) {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             player.superJump();
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.Q) && !player.flying) {
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
             player.dash("Left");
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.E) && !player.flying) {
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.E)) {
             player.dash("Right");
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
             player.attack();
-        } else if((Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) && !player.flying) {
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
             player.duck(true);
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
             displayDebugData += 1;
             if(displayDebugData >= 3) {
                 displayDebugData = 0;
             }
-        } else if((keyboard.lastUp.contains("S") || keyboard.lastUp.contains("Down")) && !player.flying) {
+        } else if(keyboard.lastUp.contains("S") || keyboard.lastUp.contains("Down")) {
             player.duck(false);
         }
 

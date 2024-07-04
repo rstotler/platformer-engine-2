@@ -872,8 +872,16 @@ public class Mob extends CollidableObject {
         middleJustFellInRamp = null;
     }
 
+    public void dropKick() {
+        dropKickCheck = true;
+        hitObjectList.clear();
+    }
+
     public void superJump() {
-        if(!ducking && !dropKickCheck && superJumpPercent < .05) {
+        if(!flying
+        && !ducking
+        && !dropKickCheck
+        && superJumpPercent < .05) {
             superJumpCheck = true;
             superJumpTimer = 0f;
             if(jumpCount == 0) {
@@ -891,7 +899,9 @@ public class Mob extends CollidableObject {
     }
 
     public void dash(String direction) {
-        if(dashPercent < .75
+        if(!flying
+        && runAcceleration <= runAccelerationMin
+        && dashPercent < .75
         && superJumpPercent < .30) {
             dashCheck = true;
             dashTimer = 0f;
@@ -900,15 +910,17 @@ public class Mob extends CollidableObject {
     }
 
     public void duck(boolean keyDown) {
-        if(keyDown && !inAir()) {
-            int duckHeightDiff = 13;
-            hitBoxArea.height = 48 - duckHeightDiff;
-            ducking = true;
-        }
-
-        else if(ducking && !keyDown) {
-            hitBoxArea.height = 48;
-            ducking = false;
+        if(!flying) {
+            if(keyDown && !inAir()) {
+                int duckHeightDiff = 13;
+                hitBoxArea.height = 48 - duckHeightDiff;
+                ducking = true;
+            }
+    
+            else if(ducking && !keyDown) {
+                hitBoxArea.height = 48;
+                ducking = false;
+            }
         }
     }
 

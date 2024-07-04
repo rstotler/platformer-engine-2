@@ -84,7 +84,7 @@ public class Player extends Mob {
                     // Drop Kick (Button Press) //
                     } else {
                         if(!dropKickCheck && (superJumpTimer == 0 || superJumpTimer >= superJumpTimerMax)) {
-                            dropKickCheck = true;
+                            dropKick();
                         }
                     }
 
@@ -128,7 +128,7 @@ public class Player extends Mob {
         }
 
         // Run Check //
-        if(keyboard.shift && moveCheck) {
+        if(keyboard.shiftIsPressed() && moveCheck) {
             running = true;
         } else {
             running = false;
