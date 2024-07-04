@@ -60,9 +60,9 @@ public class GameScreen extends Screen {
         keyboard = new Keyboard();
         initInputAdapter();
         
-        areaData = new Area01();
+        areaData = new AreaDebug();
         unusedAreaData = new HashMap<>();
-        unusedAreaData.put("AreaDebug", new AreaDebug());
+        unusedAreaData.put("Area01", new Area01());
         unusedAreaData.put("Area02", new Area02());
 
         shapeRenderer = new ShapeRenderer();

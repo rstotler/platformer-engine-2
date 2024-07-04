@@ -202,7 +202,8 @@ public class Mob extends CollidableObject {
         && !(flying && flyingAcceleration < 1.0)) {
             if(velocity.x != 0) {
                 if(runAcceleration < runAccelerationMax) {
-                    runAcceleration += .008;
+                    // runAcceleration += .008;
+                    runAcceleration = runAccelerationMax;
                     if(runAcceleration > runAccelerationMax) {
                         runAcceleration = runAccelerationMax;
                     }
@@ -215,7 +216,7 @@ public class Mob extends CollidableObject {
         } else {
             if(velocity.x != 0) {
                 if(runAcceleration > runAccelerationMin) {
-                    if(!inAir()) {
+                    if(!(!flying && inAir())) {
                         runAcceleration -= .015;
                         if(runAcceleration < runAccelerationMin) {
                             runAcceleration = runAccelerationMin;

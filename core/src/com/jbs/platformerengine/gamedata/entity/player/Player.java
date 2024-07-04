@@ -7,7 +7,7 @@ import com.jbs.platformerengine.screen.ImageManager;
 
 public class Player extends Mob {
     public Player(ImageManager imageManager) {
-        super("Bat", new Point(3750, 600), imageManager, true);
+        super("", new Point(3640, 30), imageManager, true);
 
         displayHitBox = true;
         displayAfterImage = true;
@@ -39,10 +39,8 @@ public class Player extends Mob {
 
             if(keyboard.up && !keyboard.down) {
                 velocity.y = moveSpeed;
-                moveCheck = true;
             } else if(keyboard.down && !keyboard.up) {
                 velocity.y = -moveSpeed;
-                moveCheck = true;
             } else {
                 velocity.y = 0;
             }
