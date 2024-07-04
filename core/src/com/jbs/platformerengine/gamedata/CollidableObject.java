@@ -4,8 +4,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.jbs.platformerengine.screen.AnimatedObject;
 import com.jbs.platformerengine.screen.ImageManager;
+import com.jbs.platformerengine.screen.animatedobject.AnimatedObject;
 
 public class CollidableObject extends AnimatedObject {
     public Rect hitBoxArea;

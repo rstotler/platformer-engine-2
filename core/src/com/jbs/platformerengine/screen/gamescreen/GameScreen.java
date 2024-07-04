@@ -24,7 +24,7 @@ import com.jbs.platformerengine.screen.Screen;
 /* To-Do List:
  * Wave Shader When Walking Past Grass
  * Combat - Charged Attacks, Class Out Different Attacks, Multiple Hitboxes Per Attack, Knife Throw Ability
- * Movement - Mob After Images, Fall Speed Off Of Tiles
+ * Movement - After Images Color Channel Mod, Fall Speed Off Of Tiles
  * Background - Clouds, Stars, Pixelate Moon Glow
  * Areas - Tower, Underground
  * Audit Enemies In GameScreen.getObjectCellCollidables()
@@ -337,6 +337,11 @@ public class GameScreen extends Screen {
             player.renderHitBox(camera, shapeRenderer, player.facingDirection);
         }
         
+        if(player.displayAfterImage) {
+            player.renderAfterImage(imageManager, spriteBatch);
+            player.removeAfterImage(player);
+        }
+
         player.renderAnimatedObject(imageManager, spriteBatch, player.hitBoxArea, player.facingDirection, true);
         player.updateAnimation();
 

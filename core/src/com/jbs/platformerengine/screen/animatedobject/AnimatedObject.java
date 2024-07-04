@@ -1,10 +1,12 @@
-package com.jbs.platformerengine.screen;
+package com.jbs.platformerengine.screen.animatedobject;
 
-import java.util.Random;
+import java.util.*;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.jbs.platformerengine.gamedata.Rect;
+import com.jbs.platformerengine.gamedata.entity.mob.Mob;
+import com.jbs.platformerengine.screen.ImageManager;
 
 public class AnimatedObject {
     public String imageName;
@@ -15,12 +17,20 @@ public class AnimatedObject {
     public int maxFrameNum;
     public int frameLength;
 
+    public boolean displayAfterImage;
+    public ArrayList<AfterImageFrame> afterImageFrameList;
+    public int afterImageLength;
+
     public AnimatedObject(String imageName, ImageManager imageManager) {
         this.imageName = imageName;
         imageType = "";
         
         this.currentFrameTick = 0;
         frameLength = 1;
+
+        displayAfterImage = false;
+        afterImageFrameList = new ArrayList<>();
+        afterImageLength = 7;
         
         maxFrameNum = 0;
         if(imageManager != null) {
@@ -76,6 +86,58 @@ public class AnimatedObject {
                     currentFrameNum = 0;
                 }
             }
+        }
+    }
+
+    public void updateAfterImage(Mob mob) {
+        int lastFrameNumIndex = afterImageFrameList.size() - 1;
+
+        if((mob.velocity.x != 0 || mob.velocity.y != 0 || (mob.inAir() && !mob.flying))
+        && !(afterImageFrameList.size() > 0 && afterImageFrameList.get(lastFrameNumIndex).targetFrame == currentFrameNum)) {
+            AfterImageFrame afterImageFrame = new AfterImageFrame(imageName, imageType, "Default", currentFrameNum, mob.hitBoxArea, mob.facingDirection);
+            afterImageFrameList.add(afterImageFrame);
+        }
+    }
+
+    public void renderAfterImage(ImageManager imageManager, SpriteBatch spriteBatch) {
+        spriteBatch.begin();
+        for(int i = 0; i < afterImageFrameList.size(); i++) {
+            AfterImageFrame afterImageFrame = afterImageFrameList.get(i);
+            Texture texture = null;
+            if(imageManager.mobImage.containsKey(afterImageFrame.imageName)) {
+                texture = imageManager.mobImage.get(afterImageFrame.imageName).get("Default").get(afterImageFrame.targetFrame);
+            }
+
+            if(texture != null) {
+                int spriteX = (int) afterImageFrame.displayRect.x;
+                int spriteY = (int) afterImageFrame.displayRect.y;
+                
+                // Center Sprite //
+                spriteX = (int) afterImageFrame.displayRect.x - ((texture.getWidth() - afterImageFrame.displayRect.width) / 2);
+                spriteY = (int) afterImageFrame.displayRect.y - ((texture.getHeight() - afterImageFrame.displayRect.height) / 2);
+
+                boolean flipDirection = false;
+                if(afterImageFrame.facingDirection.equals("Left")) {
+                    flipDirection = true;
+                }
+
+                float spriteAlpha = (i + 1.0f) / afterImageFrameList.size();
+                spriteBatch.setColor(1, 1, 1, spriteAlpha);
+                spriteBatch.draw(texture, spriteX, spriteY, texture.getWidth(), texture.getHeight(), 0, 0, texture.getWidth(), texture.getHeight(), flipDirection, false);
+            }
+        }
+        spriteBatch.setColor(1, 1, 1, 1);
+        spriteBatch.end();
+    }
+
+    public void removeAfterImage(Mob mob) {
+        if(afterImageFrameList.size() > afterImageLength
+
+        || (afterImageFrameList.size() > 0
+        && mob.velocity.x == 0
+        && mob.velocity.y == 0
+        && currentFrameTick == frameLength - 1)) {
+            afterImageFrameList.remove(0);
         }
     }
 }

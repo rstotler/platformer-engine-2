@@ -20,6 +20,13 @@ public class Rect {
         this.height = height;
     }
 
+    public Rect(Rect rect) {
+        this.x = rect.x;
+        this.y = rect.y;
+        this.width = rect.width;
+        this.height = rect.height;
+    }
+
     public boolean rectCollide(Rect rect) {
         return x + width >= rect.x
             && x <= rect.x + rect.width

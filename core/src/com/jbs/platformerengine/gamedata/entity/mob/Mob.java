@@ -187,6 +187,10 @@ public class Mob extends CollidableObject {
     }
 
     public void update(ScreenChunk[][] screenChunks, HashMap<Mob, ArrayList<CellCollidables>> updateMobScreenChunkMap) {
+        if(displayAfterImage) {
+            updateAfterImage(this);
+        }
+        
         if(updateMobScreenChunkMap != null) {
             updateMovement(screenChunks, updateMobScreenChunkMap);
         }

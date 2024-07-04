@@ -10,6 +10,7 @@ public class Player extends Mob {
         super("Bat", new Point(3750, 600), imageManager, true);
 
         displayHitBox = true;
+        displayAfterImage = true;
     }
 
     public void updateInput(Keyboard keyboard) {
