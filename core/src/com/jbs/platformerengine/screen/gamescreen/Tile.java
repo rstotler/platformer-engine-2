@@ -254,7 +254,8 @@ public class Tile {
                 || rightTile.tileShape.equals("Ramp-Left")
                 || rightTile.tileShape.equals("Ramp-Left-Half-Top")))
                 
-                && !(player.hitBoxArea.getMiddle().x < getLocation().x + 16)) {
+                && !(player.middleJustFellInRamp != null
+                && player.middleJustFellInRamp == this)) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     return this;
                 }
@@ -342,7 +343,8 @@ public class Tile {
                 || leftTile.tileShape.equals("Ramp-Right")
                 || leftTile.tileShape.equals("Ramp-Right-Half-Top")))
                 
-                && !(player.hitBoxArea.getMiddle().x >= getLocation().x)) {
+                && !(player.middleJustFellInRamp != null
+                && player.middleJustFellInRamp == this)) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     return this;
                 }
@@ -461,7 +463,8 @@ public class Tile {
                 
                 && player.hitBoxArea.y < getLocation().y + 8
                 
-                && !(player.hitBoxArea.getMiddle().x < getLocation().x + 16)) {
+                && !(player.middleJustFellInRamp != null
+                && player.middleJustFellInRamp == this)) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     return this;
                 }
@@ -549,7 +552,8 @@ public class Tile {
                 
                 && player.hitBoxArea.y < getLocation().y + 8
                 
-                && !(player.hitBoxArea.getMiddle().x >= getLocation().x)) {
+                && !(player.middleJustFellInRamp != null
+                && player.middleJustFellInRamp == this)) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     return this;
                 }
@@ -665,7 +669,8 @@ public class Tile {
                 || rightTile.tileShape.equals("Ramp-Left-Half-Top")
                 || rightTile.tileShape.equals("Ramp-Left")))
                 
-                && !(player.hitBoxArea.getMiddle().x < getLocation().x + 16)) {
+                && !(player.middleJustFellInRamp != null
+                && player.middleJustFellInRamp == this)) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     return this;
                 }
@@ -753,7 +758,8 @@ public class Tile {
                 || leftTile.tileShape.equals("Ramp-Right-Half-Top")
                 || leftTile.tileShape.equals("Ramp-Right")))
                 
-                && !(player.hitBoxArea.getMiddle().x >= getLocation().x)) {
+                && !(player.middleJustFellInRamp != null
+                && player.middleJustFellInRamp == this)) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     return this;
                 }
