@@ -22,13 +22,29 @@ import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
- * Wave Shader When Walking Past Grass
- * Combat - Charged Attacks, Class Out Different Attacks, Multiple Hitboxes Per Attack, Knife Throw Ability
- * Movement - After Images Color Channel Mod, Fall Speed Off Of Tiles
- * Background - Clouds, Stars, Pixelate Moon Glow
- * Areas - Tower, Underground
- * Audit Enemies In GameScreen.getObjectCellCollidables()
- * No Combos When Dashing
+ * -Audit Enemies In GameScreen.getObjectCellCollidables()
+ * -No Combos When Dashing
+ * 
+ * Combat
+ *  -Charged Attacks
+ *  -Class Out Different Attacks
+ *  -Real Combos
+ *  -Multiple Hitboxes Per Attack
+ *  -Knife Throw Ability
+ * 
+ * Movement
+ *  -After Images Color Channel Mod
+ *  -Fall Speed Off Of Tiles
+ * 
+ * Background
+ *  -Clouds
+ *  -Stars
+ *  -Pixelate Moon Glow
+ *  -Wave Shader When Walking Past Grass
+ * 
+ * Areas
+ *  -Tower
+ *  -Underground
  * 
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping (Still)
