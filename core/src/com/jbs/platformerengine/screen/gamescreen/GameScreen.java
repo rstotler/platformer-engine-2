@@ -22,8 +22,8 @@ import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
- * -Audit Enemies In GameScreen.getObjectCellCollidables()
- * -No Combos When Dashing
+ *  -Audit Enemies In GameScreen.getObjectCellCollidables()
+ *  -No Combos When Dashing
  * 
  * Combat
  *  -Charged Attacks
@@ -51,7 +51,6 @@ import com.jbs.platformerengine.screen.Screen;
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
  * Can't Dropkick Bat After Targeting From Sword Attack
  * Left/Right Collision Error On Small Hitboxes?
- * Going Through Tiles Other Than Square At High Speed? (Debug Area)
  * Reset RunAcceleration After Hitting Wall, Clipping Through Ramps Running Too Fast
  */
 
@@ -169,7 +168,7 @@ public class GameScreen extends Screen {
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
             player.changeSize(3);
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
-            player.changeForm(true);
+            player.changeForm(imageManager, true);
         }
 
         // Click Screen //

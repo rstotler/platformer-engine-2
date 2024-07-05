@@ -29,6 +29,8 @@ public class CollidableObject extends AnimatedObject {
     public Tile rightFellInRampLastFrame;
     public Tile justFellInSquareHalf;
     public Tile fellInSquareHalfLastFrame;
+    public Tile sideSpeedMiddleTile;
+    public Tile sideSpeedMiddleTileLastFrame;
 
     public CollidableObject(String imageName, ImageManager imageManager) {
         this(imageName, new Point(-1, -1), imageManager);
@@ -51,6 +53,8 @@ public class CollidableObject extends AnimatedObject {
         middleFellInRampLastFrame = null;
         rightJustFellInRamp = null;
         rightFellInRampLastFrame = null;
+        sideSpeedMiddleTile = null;
+        sideSpeedMiddleTileLastFrame = null;
     }
 
     public void updateTileCollisions(ScreenChunk[][] screenChunks, Mob mob) {
@@ -85,18 +89,19 @@ public class CollidableObject extends AnimatedObject {
         boolean hitLevelEdge = false;
 
         // Longer Left & Right //
+        int updateDistance = 16;
         if(Math.abs(xDistance) >= Math.abs(yDistance)) {
-            updateCount = ((int) Math.abs(xDistance) / 16);
-            if(xDistance % 16 != 0) {
+            updateCount = ((int) Math.abs(xDistance) / updateDistance);
+            if(xDistance % updateDistance != 0) {
                 updateCount += 1;
             }
 
-            if((int) Math.abs(xDistance) < 16) {
+            if((int) Math.abs(xDistance) < updateDistance) {
                 updateXMove = xDistance;
                 updateYMove = slope * (int) xDistance;
             } else {
-                updateXMove = 16;
-                updateYMove = Math.abs(slope) * 16;
+                updateXMove = updateDistance;
+                updateYMove = Math.abs(slope) * updateDistance;
 
                 if(xDistance < 0) {
                     updateXMove *= -1;
@@ -109,19 +114,19 @@ public class CollidableObject extends AnimatedObject {
         
         // Longer Top & Bottom //
         else {
-            updateCount = ((int) Math.abs(yDistance) / 16);
-            if(yDistance % 16 != 0) {
+            updateCount = ((int) Math.abs(yDistance) / updateDistance);
+            if(yDistance % updateDistance != 0) {
                 updateCount += 1;
             }
 
             slope = xDistance / yDistance;
 
-            if((int) Math.abs(yDistance) < 16) {
+            if((int) Math.abs(yDistance) < updateDistance) {
                 updateYMove = yDistance;
                 updateXMove = slope * (int) yDistance;
             } else {
-                updateYMove = 16;
-                updateXMove = Math.abs(slope) * 16;
+                updateYMove = updateDistance;
+                updateXMove = Math.abs(slope) * updateDistance;
 
                 if(yDistance < 0) {
                     updateYMove *= -1;
@@ -150,6 +155,41 @@ public class CollidableObject extends AnimatedObject {
             } else {
                 if(xHitWallCheck == null) {
                     hitBoxArea.x += updateXMove;
+                }
+            }
+
+            // Get Side Speed Middle Tile //
+            sideSpeedMiddleTileLastFrame = sideSpeedMiddleTile;
+            sideSpeedMiddleTile = null;
+            Tile targetSpeedMiddleTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y);
+            if(targetSpeedMiddleTile != null
+            && targetSpeedMiddleTile.tileShape.contains("Ramp")) {
+                sideSpeedMiddleTile = targetSpeedMiddleTile;
+            }
+            
+            // Move Player Left/Right One Tile (SideSpeedMiddleTileLastFrame Check) testing //
+            if(sideSpeedMiddleTileLastFrame != null
+            && onRamp == null
+            && onHalfRampBottom == null
+            && onHalfRampTop == null) {
+                if(sideSpeedMiddleTileLastFrame != null
+                && velocity.x < 0
+                && sideSpeedMiddleTileLastFrame.tileShape.contains("Left")
+                && (sideSpeedMiddleTileLastFrame.getLocation().x / 16) > ((int) hitBoxArea.x / 16)) {
+                    if(sideSpeedMiddleTile == null
+                    || sideSpeedMiddleTile.getLocation().x < sideSpeedMiddleTileLastFrame.getLocation().x) {
+                        hitBoxArea.x = sideSpeedMiddleTileLastFrame.getLocation().x - (hitBoxArea.width / 2);
+                    }
+                }
+
+                else if(sideSpeedMiddleTileLastFrame != null
+                && velocity.x > 0
+                && sideSpeedMiddleTileLastFrame.tileShape.contains("Right")
+                && (sideSpeedMiddleTileLastFrame.getLocation().x / 16) < ((int) hitBoxArea.x / 16)) {
+                    if(sideSpeedMiddleTile == null
+                    || sideSpeedMiddleTile.getLocation().x > sideSpeedMiddleTileLastFrame.getLocation().x) {
+                        hitBoxArea.x = sideSpeedMiddleTileLastFrame.getLocation().x + 16 - (hitBoxArea.width / 2) - 1;
+                    }
                 }
             }
 
@@ -200,7 +240,12 @@ public class CollidableObject extends AnimatedObject {
                         else if(updateXMove > 0) {
                             Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.x + hitBoxArea.width - 1, (int) hitBoxArea.y + (16 * y) + yMod);
                             if(targetTile != null) {
+                                float oldPlayerY = hitBoxArea.y;
                                 xHitWallCheck = targetTile.collisionCheck(screenChunks, mob, movingDirX, 1, y);
+                                if(oldPlayerY != hitBoxArea.y) {
+                                    yHitWallCheck = xHitWallCheck;
+                                }
+
                                 if(xHitWallCheck != null) {
                                     // System.out.println("-Hit-");
                                     break;
@@ -223,7 +268,8 @@ public class CollidableObject extends AnimatedObject {
             }
 
             // Update Y Location //
-            if(yHitWallCheck == null && velocity.y != 0) {
+            if(yHitWallCheck == null
+            && velocity.y != 0) {
                 if(i == updateCount - 1) {
                     hitBoxArea.y = startPoint.y + yDistance;
                 } else {
@@ -278,8 +324,7 @@ public class CollidableObject extends AnimatedObject {
                 // MiddleJustFellInRamp Check //
                 Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y);
                 if(targetTile != null
-                && targetTile.tileShape.length() >= 4
-                && targetTile.tileShape.substring(0, 4).equals("Ramp")) {
+                && targetTile.tileShape.contains("Ramp")) {
                     middleJustFellInRamp = targetTile;
                 }
 
@@ -305,7 +350,7 @@ public class CollidableObject extends AnimatedObject {
                         targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y);
                         if(targetTile == null
                         || targetTile.getLocation().y < middleFellInRampLastFrame.getLocation().y) {
-                            hitBoxArea.y = (int) hitBoxArea.y + (16 - (((int) hitBoxArea.y) % 16));
+                            hitBoxArea.y = middleFellInRampLastFrame.getLocation().y;
                         }
                     }
                     
@@ -317,7 +362,7 @@ public class CollidableObject extends AnimatedObject {
 
                         || (targetTile != null
                         && targetTile.getLocation().y < fellInSquareHalfLastFrame.getLocation().y)) {
-                            hitBoxArea.y = (int) hitBoxArea.y + (16 - (((int) hitBoxArea.y) % 16));
+                            hitBoxArea.y = fellInSquareHalfLastFrame.getLocation().y;
                         }
                     }
                 }

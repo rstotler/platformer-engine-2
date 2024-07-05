@@ -126,12 +126,12 @@ public class Mob extends CollidableObject {
 
         enemyTargetList = new ArrayList<>();
 
-        loadMob(imageName, isPlayer);
+        loadMob(imageManager, imageName, isPlayer);
 
         displayHitBox = true;
     }
 
-    public void loadMob(String imageName, boolean isPlayer) {
+    public void loadMob(ImageManager imageManager, String imageName, boolean isPlayer) {
         
         // Randomize Facing Direction //
         if(!isPlayer) {
@@ -141,6 +141,8 @@ public class Mob extends CollidableObject {
             }
         }
         
+        imageType = "Mob";
+
         if(imageName.equals("Bat")) {
             hitBoxArea.width = 18;
             hitBoxArea.height = 12;
@@ -157,6 +159,12 @@ public class Mob extends CollidableObject {
             hitBoxArea.width = 16;
             hitBoxArea.height = 48;
             flying = false;
+        }
+
+        // Reload Animated Object Data //
+        if(imageManager.mobImage.containsKey(imageName)) {
+            maxFrameNum = imageManager.mobImage.get(imageName).get("Default").size();
+            currentFrameNum = new Random().nextInt(maxFrameNum);
         }
     }
 
@@ -402,14 +410,14 @@ public class Mob extends CollidableObject {
         }
     }
 
-    public void changeForm(boolean isPlayer) {
+    public void changeForm(ImageManager imageManager, boolean isPlayer) {
         if(imageName.equals("")) {
             imageName = "Bat";
         } else if(imageName.equals("Bat")) {
             imageName = "";
         }
 
-        loadMob(imageName, isPlayer);
+        loadMob(imageManager, imageName, isPlayer);
     }
 
     public void attack() {

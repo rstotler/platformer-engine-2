@@ -18,6 +18,7 @@ public class AreaDebug extends AreaData {
         defaultTileNum = 1;
         
         tileSetList = new ArrayList<>(Arrays.asList("Debug"));
+        mobImageList = new ArrayList<>(Arrays.asList("Bat"));
 
         outside = false;
 
