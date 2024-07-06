@@ -23,18 +23,17 @@ import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
  *  -Audit Enemies In GameScreen.getObjectCellCollidables()
- *  -No Combos When Dashing
  * 
  * Combat
- *  -Charged Attacks
  *  -Class Out Different Attacks
+ *  -Charged Attacks
  *  -Real Combos
  *  -Multiple Hitboxes Per Attack
  *  -Knife Throw Ability
+ *  -No Combos When Dashing
  * 
  * Movement
  *  -After Images Color Channel Mod
- *  -Fall Speed Off Of Tiles
  * 
  * Background
  *  -Clouds
@@ -50,8 +49,6 @@ import com.jbs.platformerengine.screen.Screen;
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping (Still)
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
  * Can't Dropkick Bat After Targeting From Sword Attack
- * Left/Right Collision Error On Small Hitboxes?
- * Reset RunAcceleration After Hitting Wall, Clipping Through Ramps Running Too Fast
  */
 
 public class GameScreen extends Screen {
@@ -169,6 +166,15 @@ public class GameScreen extends Screen {
             player.changeSize(3);
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
             player.changeForm(imageManager, true);
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
+            if(player.displayAfterImage) {
+                player.displayAfterImage = false;
+            } else if(player.displaySprite) {
+                player.displaySprite = false;
+            } else {
+                player.displayAfterImage = true;
+                player.displaySprite = true;
+            }
         }
 
         // Click Screen //
@@ -357,9 +363,11 @@ public class GameScreen extends Screen {
             player.removeAfterImage(player);
         }
 
-        player.renderAnimatedObject(imageManager, spriteBatch, player.hitBoxArea, player.facingDirection, true);
-        player.updateAnimation();
-
+        if(player.displaySprite) {
+            player.renderAnimatedObject(imageManager, spriteBatch, player.hitBoxArea, player.facingDirection, true);
+            player.updateAnimation();
+        }
+        
         if(player.attackCount > 0) {
             player.renderAttackHitBox(shapeRenderer);
         }
@@ -500,7 +508,7 @@ public class GameScreen extends Screen {
             font.draw(spriteBatch, "Pos X: " + player.hitBoxArea.x + " (" + (player.hitBoxArea.x % Gdx.graphics.getWidth()) + ") " + " Y: " + player.hitBoxArea.y + " (" + (player.hitBoxArea.y % Gdx.graphics.getHeight()) + ") " + " Size: " + player.hitBoxArea.width + "x" + player.hitBoxArea.height, 3, 765);
             font.draw(spriteBatch, "Velocity X: " + player.velocity.x + " Y: " + player.velocity.y, 3, 750);
             font.draw(spriteBatch, "R: " + player.onRamp + " - HRB: " + player.onHalfRampBottom + " - HRT: " + player.onHalfRampTop, 3, 735);
-            font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount + " Falling: " + player.falling, 3, 720);
+            font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount + " Falling: " + player.falling + " Running: " + player.running, 3, 720);
             
             String attackString = " (0)";
             if(player.attackCount > 0) {

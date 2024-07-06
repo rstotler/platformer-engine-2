@@ -17,6 +17,7 @@ public class AnimatedObject {
     public int maxFrameNum;
     public int frameLength;
 
+    public boolean displaySprite;
     public boolean displayAfterImage;
     public ArrayList<AfterImageFrame> afterImageFrameList;
     public int afterImageLength;
@@ -28,6 +29,7 @@ public class AnimatedObject {
         this.currentFrameTick = 0;
         frameLength = 1;
 
+        displaySprite = true;
         displayAfterImage = false;
         afterImageFrameList = new ArrayList<>();
         afterImageLength = 7;

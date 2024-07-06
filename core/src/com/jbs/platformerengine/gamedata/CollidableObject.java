@@ -61,14 +61,15 @@ public class CollidableObject extends AnimatedObject {
         // System.out.println("---New Frame---");
 
         // Apply Gravity (Or Drop Kick) //
+        float gravityLevel = -.7f;
         if(mob.dropKickCheck) {
             velocity.y = -15;
         }
         else if(!mob.flying && velocity.y > mob.maxFallVelocity) {
             if(mob.jumpTimer == mob.jumpTimerMax) {
-                velocity.y -= .7;
+                velocity.y += gravityLevel;
             } else {
-                velocity.y -= .07;
+                velocity.y += (gravityLevel / 10.0);
             }
         }
         
@@ -167,7 +168,7 @@ public class CollidableObject extends AnimatedObject {
                 sideSpeedMiddleTile = targetSpeedMiddleTile;
             }
             
-            // Move Player Left/Right One Tile (SideSpeedMiddleTileLastFrame Check) testing //
+            // Move Player Left/Right One Tile (SideSpeedMiddleTileLastFrame Check) //
             if(sideSpeedMiddleTileLastFrame != null
             && onRamp == null
             && onHalfRampBottom == null
@@ -219,16 +220,21 @@ public class CollidableObject extends AnimatedObject {
                 // Tile Collision Detection //
                 else {
                     for(int y = 0; y < yCount; y++) {
-                        int yMod = 0;
+                        int yOffset = (16 * y);
                         if(y == yCount - 1) {
-                            yMod = -1;
+                            yOffset = hitBoxArea.height - 1;
                         }
     
                         // Left Side Collision //
                         if(updateXMove < 0) {
-                            Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.x, (int) hitBoxArea.y + (16 * y) + yMod);
+                            Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.x, (int) hitBoxArea.y + yOffset);
                             if(targetTile != null) {
                                 xHitWallCheck = targetTile.collisionCheck(screenChunks, mob, movingDirX, 0, y);
+                                if(targetTile.moveOntoCheck) {
+                                    yHitWallCheck = xHitWallCheck;
+                                    xHitWallCheck = null;
+                                }
+                                
                                 if(xHitWallCheck != null) {
                                     // System.out.println("-Hit-");
                                     break;
@@ -238,12 +244,12 @@ public class CollidableObject extends AnimatedObject {
     
                         // Right Side Collision //
                         else if(updateXMove > 0) {
-                            Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.x + hitBoxArea.width - 1, (int) hitBoxArea.y + (16 * y) + yMod);
+                            Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.x + hitBoxArea.width - 1, (int) hitBoxArea.y + yOffset);
                             if(targetTile != null) {
-                                float oldPlayerY = hitBoxArea.y;
                                 xHitWallCheck = targetTile.collisionCheck(screenChunks, mob, movingDirX, 1, y);
-                                if(oldPlayerY != hitBoxArea.y) {
+                                if(targetTile.moveOntoCheck) {
                                     yHitWallCheck = xHitWallCheck;
+                                    xHitWallCheck = null;
                                 }
 
                                 if(xHitWallCheck != null) {
@@ -255,7 +261,7 @@ public class CollidableObject extends AnimatedObject {
     
                         // Middle Collision (Ramps) //
                         if(y == 0 && updateXMove != 0) {
-                            Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y + (16 * y) + yMod);
+                            Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y + yOffset);
                             if(targetTile != null) {
                                 yHitWallCheck = targetTile.collisionCheck(screenChunks, mob, "Middle", 2, y);
                                 if(yHitWallCheck != null) {
@@ -369,13 +375,14 @@ public class CollidableObject extends AnimatedObject {
             }
 
             // Y Collision Check //
-            if(yHitWallCheck == null && velocity.y != 0) {
+            if(yHitWallCheck == null
+            && (velocity.y != 0 || mob.flying)) {
                 int yOffset = 0;
                 String movingDirY = "";
                 if(velocity.y > 0) {
                     yOffset = hitBoxArea.height - 1;
                     movingDirY = "Up";
-                } else if(velocity.y < 0) {
+                } else if(velocity.y < 0 || mob.flying) {
                     movingDirY = "Down";
                 }
 
@@ -391,20 +398,11 @@ public class CollidableObject extends AnimatedObject {
                     int yCount = 2;
                     for(int y = 0; y < yCount; y++) {
                         if(y == yCount - 1) {
-                            int yMod = 0;
-                            if(hitBoxArea.height < 16) {
-                                yMod = hitBoxArea.height;
-                            } else {
-                                yMod = 16;
-                            }
-                            if(movingDirY.equals("Up")) {
-                                yMod *= -1;
-                            }
-                            yOffset += yMod;
+                            yOffset = hitBoxArea.height - 1;
                         }
                         
                         // Middle Collision Check //
-                        if(velocity.y != 0) {
+                        if(velocity.y != 0 || mob.flying) {
                             Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y + yOffset);
                             if(targetTile != null) {
                                 yHitWallCheck = targetTile.collisionCheck(screenChunks, mob, movingDirY, 0, y);
@@ -416,7 +414,7 @@ public class CollidableObject extends AnimatedObject {
                         }
 
                         // Left Side Collision Check //
-                        if(velocity.y != 0) {
+                        if(velocity.y != 0 || mob.flying) {
                             Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.x, (int) hitBoxArea.y + yOffset);
                             if(targetTile != null) {
                                 yHitWallCheck = targetTile.collisionCheck(screenChunks, mob, movingDirY, 1, y);
@@ -428,7 +426,7 @@ public class CollidableObject extends AnimatedObject {
                         }
 
                         // Right Side Collision Check //
-                        if(velocity.y != 0) {
+                        if(velocity.y != 0 || mob.flying) {
                             Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.x + hitBoxArea.width - 1, (int) hitBoxArea.y + yOffset);
                             if(targetTile != null) {
                                 yHitWallCheck = targetTile.collisionCheck(screenChunks, mob, movingDirY, 2, y);
@@ -440,7 +438,9 @@ public class CollidableObject extends AnimatedObject {
                         }
                         
                         // Index Collision Check //
-                        if(hitBoxArea.width >= 32 && velocity.y != 0 && yHitWallCheck == null) {
+                        if(hitBoxArea.width >= 32
+                        && (velocity.y != 0 || mob.flying)
+                        && yHitWallCheck == null) {
                             int xCount = hitBoxArea.width / 16;
             
                             for(int x = 0; x < xCount; x++) {
@@ -470,6 +470,9 @@ public class CollidableObject extends AnimatedObject {
                     onRamp = null;
                     onHalfRampBottom = null;
                     onHalfRampTop = null;
+
+                    mob.hitBoxArea.y -= mob.velocity.y;
+                    mob.velocity.y = gravityLevel;
                 }
             }
         }
@@ -492,6 +495,16 @@ public class CollidableObject extends AnimatedObject {
             || xHitWallCheck.tileShape.contains("Square")
             || (mob.flying && (xHitWallCheck.tileShape.contains("Ramp")))) {
                 mob.updateActionList.add("Hit Wall");
+            }
+        }
+    
+        // Reset Run & Flying Acceleration If Hit A Wall // 
+        if(xHitWallCheck != null) {
+            if(mob.runAcceleration > mob.runAccelerationMin) {
+                mob.runAcceleration = mob.runAccelerationMin;
+            }
+            if(mob.flyingAcceleration > mob.flyingAccelerationMin) {
+                mob.flyingAcceleration = mob.flyingAccelerationMin;
             }
         }
     }

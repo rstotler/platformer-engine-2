@@ -19,6 +19,8 @@ public class Tile {
     public String changeArea;
     public Point changeLocation;
 
+    public boolean moveOntoCheck;
+
     public Tile(String tileSet, String tileName, int num, int chunkX, int chunkY, int tileX, int tileY){ 
         this.tileSet = tileSet;
         this.tileName = tileName;
@@ -105,6 +107,8 @@ public class Tile {
             baseFloorSpeed = 0.00f;
         }
 
+        moveOntoCheck = false;
+
         float locationDiffRight = player.hitBoxArea.getMiddle().x - getLocation().x;
         float locationDiffLeft = 16 - (player.hitBoxArea.getMiddle().x - getLocation().x);
         float anglePercentRight = locationDiffRight / 16;
@@ -119,7 +123,7 @@ public class Tile {
         // Up Collision (All But Ceiling Tiles) //
         if(movingDir.equals("Up")
         && !tileShape.contains("Ceiling")) {
-            if(player.hitBoxArea.y + player.hitBoxArea.height - 1 < getLocation().y + 16) {
+            if(player.hitBoxArea.y + player.hitBoxArea.height - 1 > getLocation().y) {
                 player.hitBoxArea.y = getLocation().y - player.hitBoxArea.height;
                 player.velocity.y = 0;
                 player.hitCeiling();
@@ -134,7 +138,8 @@ public class Tile {
 
                 if(leftTile == null
                 || leftTile.tileShape.equals("Square-Half")
-                || leftTile.tileShape.equals("Ramp-Right-Half-Bottom")) {
+                || leftTile.tileShape.equals("Ramp-Right-Half-Bottom")
+                || leftTile.tileShape.equals("Ceiling-Ramp-Right")) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     return this;
                 }
@@ -145,7 +150,8 @@ public class Tile {
 
                 if(rightTile == null
                 || rightTile.tileShape.equals("Square-Half")
-                || rightTile.tileShape.equals("Ramp-Left-Half-Bottom")) {
+                || rightTile.tileShape.equals("Ramp-Left-Half-Bottom")
+                || rightTile.tileShape.equals("Ceiling-Ramp-Left")) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     return this;
                 }
@@ -256,13 +262,14 @@ public class Tile {
                     return this;
                 }
 
-                else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentRight)) {
+                else if((int) player.hitBoxArea.y <= getLocation().y + (int) (16 * anglePercentRight)) {
                     player.hitBoxArea.y = getLocation().y + (int) (16 * anglePercentRight);
                     player.velocity.y = baseFloorSpeed;
                     player.land(this);
                     player.onRamp = this;
                     player.onHalfRampBottom = null;
                     player.onHalfRampTop = null;
+                    moveOntoCheck = true;
                     return this;
                 }
             }
@@ -388,6 +395,7 @@ public class Tile {
                     player.onRamp = this;
                     player.onHalfRampBottom = null;
                     player.onHalfRampTop = null;
+                    moveOntoCheck = true;
                     return this;
                 }
             }
@@ -481,6 +489,7 @@ public class Tile {
                     player.onRamp = null;
                     player.onHalfRampBottom = this;
                     player.onHalfRampTop = null;
+                    moveOntoCheck = true;
                     return this;
                 }
             }
@@ -609,6 +618,7 @@ public class Tile {
                     player.onRamp = null;
                     player.onHalfRampBottom = this;
                     player.onHalfRampTop = null;
+                    moveOntoCheck = true;
                     return this;
                 }
             }
@@ -700,6 +710,7 @@ public class Tile {
                     player.onRamp = null;
                     player.onHalfRampBottom = null;
                     player.onHalfRampTop = this;
+                    moveOntoCheck = true;
                     return this;
                 }
             }
@@ -824,6 +835,7 @@ public class Tile {
                     player.onRamp = null;
                     player.onHalfRampBottom = null;
                     player.onHalfRampTop = this;
+                    moveOntoCheck = true;
                     return this;
                 }
             }
