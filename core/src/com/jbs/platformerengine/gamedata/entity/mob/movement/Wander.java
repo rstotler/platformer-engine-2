@@ -33,7 +33,8 @@ public class Wander extends MovementPattern {
             else {
                 pauseTimer = 0;
                 pauseTimerMax = new Random().nextInt(420) + 90;
-                mob.updateVelocity(0, 0);
+                mob.velocity.x = 0;
+                mob.velocity.y = 0;
             }
         }
 

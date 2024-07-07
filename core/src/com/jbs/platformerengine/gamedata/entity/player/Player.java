@@ -7,8 +7,10 @@ import com.jbs.platformerengine.screen.ImageManager;
 
 public class Player extends Mob {
     public Player(ImageManager imageManager) {
-        super("", new Point(350, 30), imageManager, true);
+        super("", new Point(3500, 600), imageManager, true);
 
+        isPlayer = true;
+        
         displayHitBox = true;
         displayAfterImage = true;
     }

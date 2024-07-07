@@ -22,7 +22,6 @@ import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
- *  -Create CombatObject Class
  *  -Audit Enemies In GameScreen.getObjectCellCollidables()
  *  -Fix Room Exits For Large Mob Sizes
  *  -Finish ImageManager.dispose()
@@ -72,9 +71,9 @@ public class GameScreen extends Screen {
         keyboard = new Keyboard();
         initInputAdapter();
         
-        areaData = new AreaDebug();
+        areaData = new Area01();
         unusedAreaData = new HashMap<>();
-        unusedAreaData.put("Area01", new Area01());
+        unusedAreaData.put("AreaDebug", new AreaDebug());
         unusedAreaData.put("Area02", new Area02());
 
         shapeRenderer = new ShapeRenderer();
@@ -300,6 +299,7 @@ public class GameScreen extends Screen {
 
             player.hitBoxArea.x = targetTile.changeLocation.x;
             player.hitBoxArea.y = targetTile.changeLocation.y;
+            player.resetRamps();
         }
     }
 

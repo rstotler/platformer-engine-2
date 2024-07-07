@@ -1,10 +1,13 @@
-package com.jbs.platformerengine.gamedata;
+package com.jbs.platformerengine.gamedata.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.jbs.platformerengine.gamedata.Point;
+import com.jbs.platformerengine.gamedata.PointF;
+import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.animatedobject.AnimatedObject;
@@ -32,29 +35,15 @@ public class CollidableObject extends AnimatedObject {
     public Tile sideSpeedMiddleTile;
     public Tile sideSpeedMiddleTileLastFrame;
 
-    public CollidableObject(String imageName, ImageManager imageManager) {
-        this(imageName, new Point(-1, -1), imageManager);
-    }
+    public CollidableObject(String imageName, ImageManager imageManager, Point location) {
+        super(imageName, imageManager);
 
-    public CollidableObject(String objectName, Point spriteLocation, ImageManager imageManager) {
-        super(objectName, imageManager);
-
-        hitBoxArea = new Rect(spriteLocation.x, spriteLocation.y, 0, 0);
+        hitBoxArea = new Rect(location.x, location.y, 0, 0);
         displayHitBox = false;
 
-        onRamp = null;
-        onHalfRampBottom = null;
-        onHalfRampTop = null;
+        velocity = new PointF(0, 0);
 
-        justFellInRamp = null;
-        fellInRampLastFrame = null;
-        justFellInSquareHalf = null;
-        middleJustFellInRamp = null;
-        middleFellInRampLastFrame = null;
-        rightJustFellInRamp = null;
-        rightFellInRampLastFrame = null;
-        sideSpeedMiddleTile = null;
-        sideSpeedMiddleTileLastFrame = null;
+        resetRamps();
     }
 
     public void updateTileCollisions(ScreenChunk[][] screenChunks, Mob mob) {
@@ -555,5 +544,36 @@ public class CollidableObject extends AnimatedObject {
         }
 
         shapeRenderer.end();
+    }
+
+    public void changeSize(int num) {
+        if(num == 1) {
+            hitBoxArea.width = 12;
+            hitBoxArea.height = 12;
+        }
+
+        else if(num == 2) {
+            hitBoxArea.width += 1;
+        }
+
+        else if(num == 3) {
+            hitBoxArea.height += 1;
+        }
+    }
+
+    public void resetRamps() {
+        onRamp = null;
+        onHalfRampBottom = null;
+        onHalfRampTop = null;
+
+        justFellInRamp = null;
+        fellInRampLastFrame = null;
+        justFellInSquareHalf = null;
+        middleJustFellInRamp = null;
+        middleFellInRampLastFrame = null;
+        rightJustFellInRamp = null;
+        rightFellInRampLastFrame = null;
+        sideSpeedMiddleTile = null;
+        sideSpeedMiddleTileLastFrame = null;
     }
 }

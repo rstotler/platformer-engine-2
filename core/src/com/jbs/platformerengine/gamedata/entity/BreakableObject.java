@@ -1,12 +1,11 @@
 package com.jbs.platformerengine.gamedata.entity;
 
-import com.jbs.platformerengine.gamedata.CollidableObject;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.screen.ImageManager;
 
 public class BreakableObject extends CollidableObject {
-    public BreakableObject(String objectName, Point spriteLocation, ImageManager imageManager) {
-        super(objectName, spriteLocation, imageManager);
+    public BreakableObject(String objectName, Point location, ImageManager imageManager) {
+        super(objectName, imageManager, location);
 
         loadBreakableObject(objectName);
     }
