@@ -24,7 +24,5 @@ public class Screen {
 
     public void render(Player player) {}
 
-    public void dispose() {
-        spriteBatch.dispose();
-    }
+    public void dispose() {}
 }

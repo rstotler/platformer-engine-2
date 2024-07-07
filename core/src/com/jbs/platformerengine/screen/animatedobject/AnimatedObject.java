@@ -103,6 +103,10 @@ public class AnimatedObject {
 
     public void renderAfterImage(ImageManager imageManager, SpriteBatch spriteBatch) {
         spriteBatch.begin();
+        int srcFunc = spriteBatch.getBlendSrcFunc();
+        int destFunc = spriteBatch.getBlendDstFunc();
+        spriteBatch.setShader(imageManager.shaderProgramColorChannel);
+        
         for(int i = 0; i < afterImageFrameList.size(); i++) {
             AfterImageFrame afterImageFrame = afterImageFrameList.get(i);
             Texture texture = null;
@@ -123,12 +127,18 @@ public class AnimatedObject {
                     flipDirection = true;
                 }
 
-                float spriteAlpha = (i + 1.0f) / afterImageFrameList.size();
-                spriteBatch.setColor(1, 1, 1, spriteAlpha);
+                float alphaPercent = ((i + 1.0f) / (afterImageFrameList.size() + 1)) / 1.35f;
+                float greenPercent = ((i + 0.0f) / afterImageFrameList.size()) / 1.75f;
+                imageManager.shaderProgramColorChannel.setUniformf("target_r", 1.0f);
+                imageManager.shaderProgramColorChannel.setUniformf("target_g", greenPercent);
+                imageManager.shaderProgramColorChannel.setUniformf("target_b", 1.0f);
+                imageManager.shaderProgramColorChannel.setUniformf("target_alpha", alphaPercent);
                 spriteBatch.draw(texture, spriteX, spriteY, texture.getWidth(), texture.getHeight(), 0, 0, texture.getWidth(), texture.getHeight(), flipDirection, false);
             }
         }
-        spriteBatch.setColor(1, 1, 1, 1);
+
+        spriteBatch.setShader(null);
+        spriteBatch.setBlendFunction(srcFunc, destFunc);
         spriteBatch.end();
     }
 

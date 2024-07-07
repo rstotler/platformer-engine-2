@@ -6,18 +6,25 @@ import java.util.HashMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 public class ImageManager {
     public HashMap<String, HashMap<String, ArrayList<Texture>>> tile;
     public HashMap<String, HashMap<String, ArrayList<Texture>>> breakableImage;
     public HashMap<String, HashMap<String, ArrayList<Texture>>> mobImage;
     public HashMap<String, ArrayList<Texture>> outsideImage;
+
+    public ShaderProgram shaderProgramColorChannel;
     
     public ImageManager(ArrayList<String> tileSetList, ArrayList<String> breakableImageList, ArrayList<String> mobImageList, boolean areaHasOutsideImages) {
         tile = new HashMap<String, HashMap<String, ArrayList<Texture>>>();
         breakableImage = new HashMap<String, HashMap<String, ArrayList<Texture>>>();
         mobImage = new HashMap<String, HashMap<String, ArrayList<Texture>>>();
         outsideImage = new HashMap<String, ArrayList<Texture>>();
+
+        String vertexShader = Gdx.files.internal("shaders/vertex.glsl").readString();
+        String fragmentShader = Gdx.files.internal("shaders/color_channel.glsl").readString();
+        shaderProgramColorChannel = new ShaderProgram(vertexShader, fragmentShader);
 
         loadImages(tileSetList, breakableImageList, mobImageList, areaHasOutsideImages);
     }
@@ -158,5 +165,9 @@ public class ImageManager {
             }
             outsideImage.clear();
         }
+    }
+
+    public void dispose() {
+        
     }
 }

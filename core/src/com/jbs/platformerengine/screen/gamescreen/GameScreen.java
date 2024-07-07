@@ -24,6 +24,8 @@ import com.jbs.platformerengine.screen.Screen;
 /* To-Do List:
  *  -Create CombatObject Class
  *  -Audit Enemies In GameScreen.getObjectCellCollidables()
+ *  -Fix Room Exits For Large Mob Sizes
+ *  -Finish ImageManager.dispose()
  * 
  * Combat
  *  -Class Out Different Attacks
@@ -32,9 +34,6 @@ import com.jbs.platformerengine.screen.Screen;
  *  -Multiple Hitboxes Per Attack
  *  -Knife Throw Ability
  *  -No Combos When Dashing
- * 
- * Movement
- *  -After Images Color Channel Mod
  * 
  * Background
  *  -Clouds
@@ -521,6 +520,13 @@ public class GameScreen extends Screen {
         }
         
         spriteBatch.end();
+    }
+
+    public void dispose() {
+        areaData.dispose();
+        imageManager.dispose();
+        spriteBatch.dispose();
+        shapeRenderer.dispose();
     }
 
     // Utility Functions //
