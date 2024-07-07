@@ -58,7 +58,7 @@ public class CollidableObject extends AnimatedObject {
     }
 
     public void updateTileCollisions(ScreenChunk[][] screenChunks, Mob mob) {
-        System.out.println("---New Frame---");
+        // System.out.println("---New Frame---");
 
         // Apply Gravity (Or Drop Kick) //
         float gravityLevel = -.7f;
@@ -170,11 +170,11 @@ public class CollidableObject extends AnimatedObject {
             
             // Move Player Left/Right One Tile (SideSpeedMiddleTileLastFrame Check) //
             if(sideSpeedMiddleTileLastFrame != null
+            && sideSpeedMiddleTileLastFrame.getLocation().y / 16 == (int) hitBoxArea.y / 16
             && onRamp == null
             && onHalfRampBottom == null
             && onHalfRampTop == null) {
-                if(sideSpeedMiddleTileLastFrame != null
-                && velocity.x < 0
+                if(velocity.x < 0
                 && sideSpeedMiddleTileLastFrame.tileShape.contains("Left")
                 && (sideSpeedMiddleTileLastFrame.getLocation().x / 16) > ((int) hitBoxArea.x / 16)) {
                     if(sideSpeedMiddleTile == null
@@ -183,8 +183,7 @@ public class CollidableObject extends AnimatedObject {
                     }
                 }
 
-                else if(sideSpeedMiddleTileLastFrame != null
-                && velocity.x > 0
+                else if(velocity.x > 0
                 && sideSpeedMiddleTileLastFrame.tileShape.contains("Right")
                 && (sideSpeedMiddleTileLastFrame.getLocation().x / 16) < ((int) hitBoxArea.x / 16)) {
                     if(sideSpeedMiddleTile == null
@@ -265,7 +264,7 @@ public class CollidableObject extends AnimatedObject {
                             if(targetTile != null) {
                                 yHitWallCheck = targetTile.collisionCheck(screenChunks, mob, "Middle", 2, y);
                                 if(yHitWallCheck != null) {
-                                    // System.out.println("-(Non-Breaking) Hit-");
+                                    // System.out.println("-(Non-Breaking, X) Hit-");
                                 }
                             }
                         }
@@ -509,7 +508,7 @@ public class CollidableObject extends AnimatedObject {
             if(targetTile.tileShape.length() >= 4
             && targetTile.tileShape.substring(0, 4).equals("Ramp")) {
                 if(targetTile.collisionCheck(screenChunks, mob, "Middle", 2, 0) != null) {
-                    // System.out.println("-Hit-");
+                    // System.out.println("-Hit- (Inside Ramp Check)");
                 }
             }
         }

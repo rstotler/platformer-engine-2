@@ -100,7 +100,7 @@ public class Tile {
     }
 
     public Tile collisionCheck(ScreenChunk[][] screenChunks, Mob player, String movingDir, int locationXIndex, int locationYIndex) {
-        System.out.println(tileShape + " " + movingDir + " " + locationXIndex + " " + locationYIndex + " " + tileX + " " + tileY + " " + player.sideSpeedMiddleTileLastFrame);
+        // System.out.println(tileShape + " " + movingDir + " " + locationXIndex + " " + locationYIndex + " " + tileX + " " + tileY + " " + player.sideSpeedMiddleTileLastFrame);
 
         float baseFloorSpeed = -4.00f;
         if(player.flying) {
@@ -140,10 +140,12 @@ public class Tile {
             if(movingDir.equals("Right")) {
                 Tile leftTile = getTargetTile(screenChunks, -1, 0);
 
-                if(leftTile == null
+                if((leftTile == null
                 || leftTile.tileShape.equals("Square-Half")
                 || leftTile.tileShape.equals("Ramp-Right-Half-Bottom")
-                || leftTile.tileShape.equals("Ceiling-Ramp-Right")) {
+                || leftTile.tileShape.equals("Ceiling-Ramp-Right"))
+                
+                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     return this;
                 }
@@ -151,11 +153,13 @@ public class Tile {
             
             else if(movingDir.equals("Left")) {
                 Tile rightTile = getTargetTile(screenChunks, 1, 0);
-
-                if(rightTile == null
+                
+                if((rightTile == null
                 || rightTile.tileShape.equals("Square-Half")
                 || rightTile.tileShape.equals("Ramp-Left-Half-Bottom")
-                || rightTile.tileShape.equals("Ceiling-Ramp-Left")) {
+                || rightTile.tileShape.equals("Ceiling-Ramp-Left"))
+                
+                && player.hitBoxArea.x >= getLocation().x) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     return this;
                 }
@@ -203,7 +207,9 @@ public class Tile {
                 Tile leftTile = getTargetTile(screenChunks, -1, 0);
 
                 if(player.hitBoxArea.y < getLocation().y + 8
-                && leftTile == null) {
+                && leftTile == null
+                
+                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     return this;
                 }
@@ -213,7 +219,9 @@ public class Tile {
                 Tile rightTile = getTargetTile(screenChunks, 1, 0);
 
                 if(player.hitBoxArea.y < getLocation().y + 8
-                && rightTile == null) {
+                && rightTile == null
+                
+                && player.hitBoxArea.x >= getLocation().x) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     return this;
                 }
@@ -266,7 +274,10 @@ public class Tile {
                     return this;
                 }
 
-                else if((int) player.hitBoxArea.y <= getLocation().y + (int) (16 * anglePercentRight)) {
+                else if((int) player.hitBoxArea.y <= getLocation().y + (int) (16 * anglePercentRight)
+                && player.hitBoxArea.x >= getLocation().x
+                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16
+                && player.velocity.y <= 0) {
                     player.hitBoxArea.y = getLocation().y + (int) (16 * anglePercentRight);
                     player.velocity.y = baseFloorSpeed;
                     player.land(this);
@@ -396,7 +407,10 @@ public class Tile {
                     return this;
                 }
 
-                else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentLeft)) {
+                else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentLeft)
+                && player.hitBoxArea.x >= getLocation().x
+                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16
+                && player.velocity.y <= 0) {
                     player.hitBoxArea.y = getLocation().y + (int) (16 * anglePercentLeft);
                     player.velocity.y = baseFloorSpeed;
                     player.land(this);
@@ -490,7 +504,10 @@ public class Tile {
                     return this;
                 }
 
-                else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentRight)) {
+                else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentRight)
+                && player.hitBoxArea.x >= getLocation().x
+                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16
+                && player.velocity.y <= 0) {
                     player.hitBoxArea.y = getLocation().y + (int) (8 * anglePercentRight);
                     player.velocity.y = baseFloorSpeed;
                     player.land(this);
@@ -623,7 +640,10 @@ public class Tile {
                     return this;
                 }
 
-                else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentLeft)) {
+                else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentLeft)
+                && player.hitBoxArea.x >= getLocation().x
+                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16
+                && player.velocity.y <= 0) {
                     player.hitBoxArea.y = getLocation().y + (int) (8 * anglePercentLeft);
                     player.velocity.y = baseFloorSpeed;
                     player.land(this);
@@ -715,7 +735,10 @@ public class Tile {
                     return this;
                 }
 
-                else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentRight)) {
+                else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentRight)
+                && player.hitBoxArea.x >= getLocation().x
+                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16
+                && player.velocity.y <= 0) {
                     player.hitBoxArea.y = getLocation().y + 8 + (int) (8 * anglePercentRight);
                     player.velocity.y = baseFloorSpeed;
                     player.land(this);
@@ -748,11 +771,13 @@ public class Tile {
             else if((movingDir.equals("Down") || movingDir.equals("Middle"))
             && player.velocity.y <= 0) {
                 Tile rightTile = getTargetTile(screenChunks, 1, 0);
+                Tile leftTile = getTargetTile(screenChunks, -1, 0);
                 
                 // Left Of Ramp //
                 if(player.hitBoxArea.getMiddle().x < getLocation().x) {
                     if(isBottomRamp(screenChunks)
-                    && player.hitBoxArea.y <= getLocation().y + 8) {
+                    && player.hitBoxArea.y <= getLocation().y + 8
+                    && leftTile == null) {
                         player.hitBoxArea.y = getLocation().y + 8;
                         player.velocity.y = 0;
                         player.land(this);
@@ -844,7 +869,10 @@ public class Tile {
                     return this;
                 }
 
-                else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentLeft)) {
+                else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentLeft)
+                && player.hitBoxArea.x >= getLocation().x
+                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16
+                && player.velocity.y <= 0) {
                     player.hitBoxArea.y = getLocation().y + 8 + (int) (8 * anglePercentLeft);
                     player.velocity.y = baseFloorSpeed;
                     player.land(this);
@@ -859,6 +887,7 @@ public class Tile {
             else if((movingDir.equals("Down") || movingDir.equals("Middle"))
             && player.velocity.y <= 0) {
                 Tile leftTile = getTargetTile(screenChunks, -1, 0);
+                Tile rightTile = getTargetTile(screenChunks, 1, 0);
                 
                 // Left Of Ramp //
                 if(player.hitBoxArea.getMiddle().x < getLocation().x) {
@@ -880,7 +909,8 @@ public class Tile {
                 // Right Of Ramp //
                 else if(player.hitBoxArea.getMiddle().x >= getLocation().x + 16) {
                     if(isBottomRamp(screenChunks)
-                    && player.hitBoxArea.y <= getLocation().y + 8) {
+                    && player.hitBoxArea.y <= getLocation().y + 8
+                    && rightTile == null) {
                         player.hitBoxArea.y = getLocation().y + 8;
                         player.velocity.y = 0;
                         player.land(this);

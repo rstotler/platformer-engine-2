@@ -22,6 +22,7 @@ import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
+ *  -Create CombatObject Class
  *  -Audit Enemies In GameScreen.getObjectCellCollidables()
  * 
  * Combat

@@ -76,7 +76,7 @@ public class Mob extends CollidableObject {
         hitBoxArea = new Rect(location.x, location.y, 16, 48);
 
         velocity = new PointF(0, 0);
-        moveSpeed = 1;
+        moveSpeed = 2;
         runMod = 2.50f;
         facingDirection = "Right";
 
