@@ -76,7 +76,7 @@ public class Mob extends CollidableObject {
         hitBoxArea = new Rect(location.x, location.y, 16, 48);
 
         velocity = new PointF(0, 0);
-        moveSpeed = 2;
+        moveSpeed = 1;
         runMod = 2.50f;
         facingDirection = "Right";
 
@@ -398,8 +398,8 @@ public class Mob extends CollidableObject {
 
     public void changeSize(int num) {
         if(num == 1) {
-            hitBoxArea.width = 16;
-            hitBoxArea.height = 48;
+            hitBoxArea.width = 12;
+            hitBoxArea.height = 12;
         }
 
         else if(num == 2) {

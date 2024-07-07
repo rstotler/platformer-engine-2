@@ -58,7 +58,7 @@ public class CollidableObject extends AnimatedObject {
     }
 
     public void updateTileCollisions(ScreenChunk[][] screenChunks, Mob mob) {
-        // System.out.println("---New Frame---");
+        System.out.println("---New Frame---");
 
         // Apply Gravity (Or Drop Kick) //
         float gravityLevel = -.7f;
@@ -269,6 +269,29 @@ public class CollidableObject extends AnimatedObject {
                                 }
                             }
                         }
+                    
+                        // Index Collision Check //
+                        if(hitBoxArea.width >= 32
+                        && velocity.x != 0
+                        && yHitWallCheck == null) {
+                            int xCount = hitBoxArea.width / 16;
+            
+                            for(int x = 0; x < xCount; x++) {
+                                int xOffset = 16 + (x * 16);
+                                if(x == xCount - 1) {
+                                    xOffset -= 1;
+                                }
+
+                                Tile targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.x + xOffset, (int) hitBoxArea.y + yOffset);
+                                if(targetTile != null) {
+                                    yHitWallCheck = targetTile.collisionCheck(screenChunks, mob, movingDirX, 3 + x, y);
+                                    if(yHitWallCheck != null) {
+                                        // System.out.println("-Hit-");
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -395,7 +418,10 @@ public class CollidableObject extends AnimatedObject {
                 
                 // Tile Collision Detection //
                 else {
-                    int yCount = 2;
+                    int yCount = (hitBoxArea.height / 16) + 1;
+                    if(hitBoxArea.height % 16 != 0) {
+                        yCount += 1;
+                    }
                     for(int y = 0; y < yCount; y++) {
                         if(y == yCount - 1) {
                             yOffset = hitBoxArea.height - 1;

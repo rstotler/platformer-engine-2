@@ -100,7 +100,7 @@ public class Tile {
     }
 
     public Tile collisionCheck(ScreenChunk[][] screenChunks, Mob player, String movingDir, int locationXIndex, int locationYIndex) {
-        // System.out.println(tileShape + " " + movingDir + " " + locationXIndex + " " + locationYIndex + " " + tileX + " " + tileY + " " + player.sideSpeedMiddleTileLastFrame);
+        System.out.println(tileShape + " " + movingDir + " " + locationXIndex + " " + locationYIndex + " " + tileX + " " + tileY + " " + player.sideSpeedMiddleTileLastFrame);
 
         float baseFloorSpeed = -4.00f;
         if(player.flying) {
@@ -123,7 +123,11 @@ public class Tile {
         // Up Collision (All But Ceiling Tiles) //
         if(movingDir.equals("Up")
         && !tileShape.contains("Ceiling")) {
-            if(player.hitBoxArea.y + player.hitBoxArea.height - 1 > getLocation().y) {
+            Tile bottomTile = getTargetTile(screenChunks, 0, -1);
+
+            if(player.hitBoxArea.y + player.hitBoxArea.height - 1 > getLocation().y
+            && (bottomTile == null
+            || bottomTile.tileShape.contains("Ceiling"))) {
                 player.hitBoxArea.y = getLocation().y - player.hitBoxArea.height;
                 player.velocity.y = 0;
                 player.hitCeiling();
@@ -284,7 +288,9 @@ public class Tile {
                 
                 && !(player.middleJustFellInRamp != null && player.middleJustFellInRamp == this)
                 && !(player.justFellInRamp != null && player.justFellInRamp == this)
-                && !(player.rightJustFellInRamp != null && player.rightJustFellInRamp == this)) {
+                && !(player.rightJustFellInRamp != null && player.rightJustFellInRamp == this)
+                
+                && player.hitBoxArea.x >= getLocation().x) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     return this;
                 }
@@ -343,7 +349,7 @@ public class Tile {
                 && player.onRamp != this
                 && player.onRamp.getLocation().y == getLocation().y)) {
                     if(player.hitBoxArea.y <= getLocation().y + (int) (16 * anglePercentRight)
-                    || player.onRamp != null) {
+                    || (player.onRamp != null && !player.flying)) {
                         player.hitBoxArea.y = getLocation().y + (int) (16 * anglePercentRight);
                         player.velocity.y = baseFloorSpeed;
                         player.land(this);
@@ -368,7 +374,9 @@ public class Tile {
                 
                 && !(player.middleJustFellInRamp != null && player.middleJustFellInRamp == this)
                 && !(player.justFellInRamp != null && player.justFellInRamp == this)
-                && !(player.rightJustFellInRamp != null && player.rightJustFellInRamp == this)) {
+                && !(player.rightJustFellInRamp != null && player.rightJustFellInRamp == this)
+                
+                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     return this;
                 }
@@ -453,7 +461,7 @@ public class Tile {
                 && player.onRamp != this
                 && player.onRamp.getLocation().y == getLocation().y)) {
                     if(player.hitBoxArea.y <= getLocation().y + (int) (16 * anglePercentLeft)
-                    || player.onRamp != null) {
+                    || (player.onRamp != null && !player.flying)) {
                         player.hitBoxArea.y = getLocation().y + (int) (16 * anglePercentLeft);
                         player.velocity.y = baseFloorSpeed;
                         player.land(this);
@@ -506,7 +514,9 @@ public class Tile {
                 
                 && !(player.middleJustFellInRamp != null && player.middleJustFellInRamp == this)
                 && !(player.justFellInRamp != null && player.justFellInRamp == this)
-                && !(player.rightJustFellInRamp != null && player.rightJustFellInRamp == this)) {
+                && !(player.rightJustFellInRamp != null && player.rightJustFellInRamp == this)
+                
+                && player.hitBoxArea.x >= getLocation().x) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     return this;
                 }
@@ -564,7 +574,7 @@ public class Tile {
                 && player.onHalfRampBottom != this
                 && player.onHalfRampBottom.getLocation().y == getLocation().y)) {
                     if(player.hitBoxArea.y <= getLocation().y + (int) (8 * anglePercentRight)
-                    || player.onHalfRampBottom != null) {
+                    || (player.onHalfRampBottom != null && !player.flying)) {
                         player.hitBoxArea.y = getLocation().y + (int) (8 * anglePercentRight);
                         player.velocity.y = baseFloorSpeed;
                         player.land(this);
@@ -591,7 +601,9 @@ public class Tile {
                 
                 && !(player.middleJustFellInRamp != null && player.middleJustFellInRamp == this)
                 && !(player.justFellInRamp != null && player.justFellInRamp == this)
-                && !(player.rightJustFellInRamp != null && player.rightJustFellInRamp == this)) {
+                && !(player.rightJustFellInRamp != null && player.rightJustFellInRamp == this)
+                
+                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     return this;
                 }
@@ -675,7 +687,7 @@ public class Tile {
                 && player.onHalfRampBottom != this
                 && player.onHalfRampBottom.getLocation().y == getLocation().y)) {
                     if(player.hitBoxArea.y <= getLocation().y + (int) (8 * anglePercentLeft)
-                    || player.onHalfRampBottom != null) {
+                    || (player.onHalfRampBottom != null && !player.flying)) {
                         player.hitBoxArea.y = getLocation().y + (int) (8 * anglePercentLeft);
                         player.velocity.y = baseFloorSpeed;
                         player.land(this);
@@ -725,7 +737,9 @@ public class Tile {
                 
                 && !(player.middleJustFellInRamp != null && player.middleJustFellInRamp == this)
                 && !(player.justFellInRamp != null && player.justFellInRamp == this)
-                && !(player.rightJustFellInRamp != null && player.rightJustFellInRamp == this)) {
+                && !(player.rightJustFellInRamp != null && player.rightJustFellInRamp == this)
+                
+                && player.hitBoxArea.x >= getLocation().x) {
                     player.hitBoxArea.x = getLocation().x + 16;
                     return this;
                 }
@@ -784,7 +798,7 @@ public class Tile {
                 && player.onHalfRampTop != this
                 && player.onHalfRampTop.getLocation().y == getLocation().y)) {
                     if(player.hitBoxArea.y <= getLocation().y + 8 + (int) (8 * anglePercentRight)
-                    || player.onHalfRampTop != null) {
+                    || (player.onHalfRampTop != null && !player.flying)) {
                         player.hitBoxArea.y = getLocation().y + 8 + (int) (8 * anglePercentRight);
                         player.velocity.y = baseFloorSpeed;
                         player.land(this);
@@ -809,7 +823,9 @@ public class Tile {
                 
                 && !(player.middleJustFellInRamp != null && player.middleJustFellInRamp == this)
                 && !(player.justFellInRamp != null && player.justFellInRamp == this)
-                && !(player.rightJustFellInRamp != null && player.rightJustFellInRamp == this)) {
+                && !(player.rightJustFellInRamp != null && player.rightJustFellInRamp == this)
+                
+                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16) {
                     player.hitBoxArea.x = getLocation().x - player.hitBoxArea.width;
                     return this;
                 }
@@ -893,7 +909,7 @@ public class Tile {
                 && player.onHalfRampTop != this
                 && player.onHalfRampTop.getLocation().y == getLocation().y)) {
                     if(player.hitBoxArea.y <= getLocation().y + 8 + (int) (8 * anglePercentLeft)
-                    || player.onHalfRampTop != null) {
+                    || (player.onHalfRampTop != null && !player.flying)) {
                         player.hitBoxArea.y = getLocation().y + 8 + (int) (8 * anglePercentLeft);
                         player.velocity.y = baseFloorSpeed;
                         player.land(this);
