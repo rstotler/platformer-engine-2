@@ -27,9 +27,8 @@ import com.jbs.platformerengine.screen.Screen;
  *  -Finish ImageManager.dispose()
  * 
  * Combat
- *  -Class Out Different Attacks
  *  -Charged Attacks
- *  -Real Combos
+ *  -Attack Chains
  *  -Multiple Hitboxes Per Attack
  *  -Knife Throw Ability
  *  -No Combos When Dashing
@@ -48,6 +47,7 @@ import com.jbs.platformerengine.screen.Screen;
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping (Still)
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
  * Can't Dropkick Bat After Targeting From Sword Attack
+ * Square-Half Superjump
  */
 
 public class GameScreen extends Screen {
@@ -98,7 +98,7 @@ public class GameScreen extends Screen {
 
                 if(key.equals("Left") || key.equals("Right") || key.equals("Up") || key.equals("Down")
                 || key.equals("A") || key.equals("S") || key.equals("D") || key.equals("W")
-                || key.equals("L-Shift") || key.equals("R-Shift")) {
+                || key.equals("L-Shift") || key.equals("R-Shift") || key.equals("L-Ctrl") || key.equals("R-Ctrl")) {
                     keyboard.keyDown(key);
                 }
 
@@ -115,7 +115,7 @@ public class GameScreen extends Screen {
                 
                 if(key.equals("Left") || key.equals("Right") || key.equals("Up") || key.equals("Down")
                 || key.equals("A") || key.equals("S") || key.equals("D") || key.equals("W")
-                || key.equals("L-Shift") || key.equals("R-Shift")) {
+                || key.equals("L-Shift") || key.equals("R-Shift") || key.equals("L-Ctrl") || key.equals("R-Ctrl")) {
                     keyboard.keyUp(key);
                 }
 
@@ -144,9 +144,11 @@ public class GameScreen extends Screen {
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.E)) {
             player.dash("Right");
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
-            player.attack();
+            player.attack(player);
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
             player.duck(true);
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_RIGHT)) {
+            player.startTargetingMob();
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
             displayDebugData += 1;
             if(displayDebugData >= 3) {
@@ -154,6 +156,8 @@ public class GameScreen extends Screen {
             }
         } else if(keyboard.lastUp.contains("S") || keyboard.lastUp.contains("Down")) {
             player.duck(false);
+        } else if(keyboard.lastUp.contains("R-Ctrl") || keyboard.lastUp.contains("L-Ctrl")) {
+            player.stopTargetingMob();
         }
 
         // Temp. Shapeshift //
@@ -368,9 +372,9 @@ public class GameScreen extends Screen {
             player.updateAnimation();
         }
         
-        if(player.attackCount > 0) {
-            player.renderAttackHitBox(shapeRenderer);
-        }
+        // if(player.attackCount > 0) {
+        //     player.renderAttackHitBox(shapeRenderer);
+        // }
 
         // Foreground //
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
@@ -509,14 +513,13 @@ public class GameScreen extends Screen {
             font.draw(spriteBatch, "Velocity X: " + player.velocity.x + " Y: " + player.velocity.y, 3, 750);
             font.draw(spriteBatch, "R: " + player.onRamp + " - HRB: " + player.onHalfRampBottom + " - HRT: " + player.onHalfRampTop, 3, 735);
             font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount + " Falling: " + player.falling + " Running: " + player.running, 3, 720);
+            font.draw(spriteBatch, "Run Acc: " + player.runAcceleration + " Fly Acc: " + player.flyingAcceleration, 3, 705);
             
             String attackString = " (0)";
-            if(player.attackCount > 0) {
-                attackString = " (" + player.attackDecayTimer + "/" + player.attackData.get(player.getCurrentAttack()).attackDecayTimerMax[player.attackCount - 1] + ")";
+            if(player.attackData != null) {
+                attackString = " (" + player.attackData.attackDecayTimer + "/" + player.attackData.attackDecayTimerMax + ")";
             }
-            font.draw(spriteBatch, "Attack: " + player.attackCount + attackString + " - DK: " + player.dropKickCheck + " SJ: " + player.superJumpCheck, 3, 705);
-            font.draw(spriteBatch, "Run Acc: " + player.runAcceleration + " Fly Acc: " + player.flyingAcceleration, 3, 690);
-            
+            // font.draw(spriteBatch, "Attack: " + player.attackCount + attackString + " - DK: " + player.dropKickCheck + " SJ: " + player.superJumpCheck, 3, 690);
         }
         
         spriteBatch.end();

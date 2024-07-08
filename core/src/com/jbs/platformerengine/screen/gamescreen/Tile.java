@@ -100,7 +100,7 @@ public class Tile {
     }
 
     public Tile collisionCheck(ScreenChunk[][] screenChunks, Mob player, String movingDir, int locationXIndex, int locationYIndex) {
-        // System.out.println(tileShape + " " + movingDir + " " + locationXIndex + " " + locationYIndex + " " + tileX + " " + tileY + " " + player.sideSpeedMiddleTileLastFrame);
+        // System.out.println(tileShape + " " + movingDir + " " + locationXIndex + " " + locationYIndex + " " + tileX + " " + tileY + " " + player.onRamp);
 
         float baseFloorSpeed = -4.00f;
         if(player.flying) {
@@ -275,8 +275,8 @@ public class Tile {
                 }
 
                 else if((int) player.hitBoxArea.y <= getLocation().y + (int) (16 * anglePercentRight)
-                && player.hitBoxArea.x >= getLocation().x
-                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16
+                && player.hitBoxArea.getMiddle().x >= getLocation().x
+                && player.hitBoxArea.getMiddle().x < getLocation().x + 16
                 && player.velocity.y <= 0) {
                     player.hitBoxArea.y = getLocation().y + (int) (16 * anglePercentRight);
                     player.velocity.y = baseFloorSpeed;
@@ -408,8 +408,8 @@ public class Tile {
                 }
 
                 else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentLeft)
-                && player.hitBoxArea.x >= getLocation().x
-                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16
+                && player.hitBoxArea.getMiddle().x >= getLocation().x
+                && player.hitBoxArea.getMiddle().x < getLocation().x + 16
                 && player.velocity.y <= 0) {
                     player.hitBoxArea.y = getLocation().y + (int) (16 * anglePercentLeft);
                     player.velocity.y = baseFloorSpeed;
@@ -505,8 +505,8 @@ public class Tile {
                 }
 
                 else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentRight)
-                && player.hitBoxArea.x >= getLocation().x
-                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16
+                && player.hitBoxArea.getMiddle().x >= getLocation().x
+                && player.hitBoxArea.getMiddle().x < getLocation().x + 16
                 && player.velocity.y <= 0) {
                     player.hitBoxArea.y = getLocation().y + (int) (8 * anglePercentRight);
                     player.velocity.y = baseFloorSpeed;
@@ -641,8 +641,8 @@ public class Tile {
                 }
 
                 else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentLeft)
-                && player.hitBoxArea.x >= getLocation().x
-                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16
+                && player.hitBoxArea.getMiddle().x >= getLocation().x
+                && player.hitBoxArea.getMiddle().x < getLocation().x + 16
                 && player.velocity.y <= 0) {
                     player.hitBoxArea.y = getLocation().y + (int) (8 * anglePercentLeft);
                     player.velocity.y = baseFloorSpeed;
@@ -736,8 +736,8 @@ public class Tile {
                 }
 
                 else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentRight)
-                && player.hitBoxArea.x >= getLocation().x
-                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16
+                && player.hitBoxArea.getMiddle().x >= getLocation().x
+                && player.hitBoxArea.getMiddle().x < getLocation().x + 16
                 && player.velocity.y <= 0) {
                     player.hitBoxArea.y = getLocation().y + 8 + (int) (8 * anglePercentRight);
                     player.velocity.y = baseFloorSpeed;
@@ -870,8 +870,8 @@ public class Tile {
                 }
 
                 else if((int) player.hitBoxArea.y < getLocation().y + (int) (16 * anglePercentLeft)
-                && player.hitBoxArea.x >= getLocation().x
-                && player.hitBoxArea.x + player.hitBoxArea.width - 1 < getLocation().x + 16
+                && player.hitBoxArea.getMiddle().x >= getLocation().x
+                && player.hitBoxArea.getMiddle().x < getLocation().x + 16
                 && player.velocity.y <= 0) {
                     player.hitBoxArea.y = getLocation().y + 8 + (int) (8 * anglePercentLeft);
                     player.velocity.y = baseFloorSpeed;

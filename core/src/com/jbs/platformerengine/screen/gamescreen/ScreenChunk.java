@@ -109,8 +109,8 @@ public class ScreenChunk {
                 mobObject.updateAnimationTimer = areaTimer;
             }
 
-            if(mobObject.attackCount > 0) {
-                mobObject.renderAttackHitBox(shapeRenderer);
+            if(mobObject.attackData != null) {
+                mobObject.attackData.renderAttackHitBox(shapeRenderer);
             }
         }
     }

@@ -3,6 +3,7 @@ package com.jbs.platformerengine.gamedata.entity;
 import java.util.*;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.jbs.platformerengine.gamedata.Point;
@@ -42,11 +43,6 @@ public class CombatEntity extends CollidableObject {
     public boolean dropKickCheck;
     public boolean dropKickBounceCheck;
 
-    public HashMap<String, AttackData> attackData;
-    public int attackCount;
-    public ArrayList<CollidableObject> hitObjectList;
-    public float attackDecayTimer;
-
     public boolean ducking;
     public boolean falling;
     public boolean justLanded;
@@ -59,6 +55,8 @@ public class CombatEntity extends CollidableObject {
     public float flyingAccelerationMin;
     public float flyingAcceleration;
 
+    public AttackData attackData;
+    public ArrayList<CollidableObject> hitObjectList;
     public ArrayList<Mob> enemyTargetList;
 
     public MovementPattern movementPattern;
@@ -91,11 +89,6 @@ public class CombatEntity extends CollidableObject {
         dropKickCheck = false;
         dropKickBounceCheck = false;
 
-        attackCount = 0;
-        attackDecayTimer = 0f;
-        hitObjectList = new ArrayList<>();
-        attackData = AttackData.loadAttackData();
-
         ducking = false;
         falling = false;
         justLanded = false;
@@ -108,50 +101,84 @@ public class CombatEntity extends CollidableObject {
         flyingAccelerationMin = .25f;
         flyingAcceleration = flyingAccelerationMin;
 
+        attackData = null;
+        hitObjectList = new ArrayList<>();
+        enemyTargetList = new ArrayList<>();
+
         movementPattern = null; 
         updateActionList = new ArrayList<>();
-
-        enemyTargetList = new ArrayList<>();
     }
 
-    public void attack() {
-        // If Combo: Can Attack After Combo Start Frame //
-        // Else: Can Attack After DecayTimerMax //
-        // Combos Disabled While In The Air //
+    public void attack(Mob thisMob) {
 
-        if(attackCount < attackData.get(getCurrentAttack()).attackDecayTimerMax.length) {
-            if((inAir() && attackCount == 0)
-            || (!inAir() && (attackCount == 0 || (attackCount < attackData.get(getCurrentAttack()).attackDecayTimerMax.length && attackDecayTimer >= attackData.get(getCurrentAttack()).attackComboStartFrame[attackCount - 1])))) {
-                if(!inAir()) {
-                    attackCount += 1;
+        // Start New Attack Chain //
+        if(attackData == null) {
+            boolean leftPressed = Gdx.input.isKeyPressed(Input.Keys.LEFT);
+            boolean rightPressed = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
+            boolean upPressed = Gdx.input.isKeyPressed(Input.Keys.UP);
+            boolean downPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN);
+
+            // Air Attacks //
+            if(thisMob.inAir() && !thisMob.flying) {
+                if(upPressed != downPressed && !leftPressed && !rightPressed) {
+                    if(upPressed) {
+                        attackData = AttackData.getAttackChainStartData("Up", true, thisMob.getCurrentWeaponType());
+                    } else {
+                        attackData = AttackData.getAttackChainStartData("Down", true, thisMob.getCurrentWeaponType());
+                    }
                 } else {
-                    attackCount = 1;
+                    attackData = AttackData.getAttackChainStartData("None", true, thisMob.getCurrentWeaponType());
                 }
-                
-                attackDecayTimer = 0;
-                hitObjectList.clear();
             }
+
+            // Directional Ground Attacks //
+            if(leftPressed != rightPressed || upPressed != downPressed) {
+                if(leftPressed != rightPressed) {
+                    attackData = AttackData.getAttackChainStartData("Side", false, thisMob.getCurrentWeaponType());
+                } else if(upPressed) {
+                    attackData = AttackData.getAttackChainStartData("Up", false, thisMob.getCurrentWeaponType());
+                } else if(downPressed) {
+                    attackData = AttackData.getAttackChainStartData("Down", false, thisMob.getCurrentWeaponType());
+                }
+            }
+
+            // Non-Directional Ground Attack //
+            else {
+                attackData = AttackData.getAttackChainStartData("None", false, thisMob.getCurrentWeaponType());
+            }
+        }
+
+        // Continue Attack Chain //
+        else {
+
         }
     }
 
     public void updateAttack() {
-        if(attackCount > 0) {
-            attackDecayTimer += 1;
-            if(attackDecayTimer >= attackData.get(getCurrentAttack()).attackDecayTimerMax[attackCount - 1]) {
-                attackCount = 0;
-                attackDecayTimer = 0;
-
-                hitObjectList.clear();
-            }
+        if(attackData == null) {
+            //attackData.
         }
+    }
+
+    public void updateAttackOld() {
+        // if(attackCount > 0) {
+        //     attackDecayTimer += 1;
+        //     if(attackDecayTimer >= attackData.get(getCurrentAttack()).attackDecayTimerMax[attackCount - 1]) {
+        //         attackCount = 0;
+        //         attackDecayTimer = 0;
+
+        //         hitObjectList.clear();
+        //     }
+        // }
     }
 
     public void updateAttackCollidables(ScreenChunk[][] screenChunks, Mob thisMob) {
         Rect attackRect = null;
         if(dropKickCheck) {
             attackRect = new Rect((int) hitBoxArea.x, (int) hitBoxArea.y, hitBoxArea.width, 20);
-        } else if(attackCount > 0) {
-            attackRect = getAttackHitBox();
+        }
+        else if(attackData != null) {
+            attackRect = attackData.getAttackHitBox();
         }
 
         if(attackRect != null) {
@@ -184,7 +211,7 @@ public class CombatEntity extends CollidableObject {
         ArrayList<T> deleteObjectList = new ArrayList<>();
         for(T object : objectList) {
             if(dropKickCheck ||
-            (attackCount > 0 && attackDecayTimer >= attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1] && attackDecayTimer < attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1])) {
+            (attackData != null && attackData.attackFrameList.contains(attackData.attackDecayTimer))) {
                 String objectType = object.getClass().toString().substring(object.getClass().toString().lastIndexOf(".") + 1);
                 CollidableObject collidableObject = null;
                 if(objectType.equals("BreakableObject")) {
@@ -230,25 +257,6 @@ public class CombatEntity extends CollidableObject {
 
         for(T deleteObject : deleteObjectList) {
             GameScreen.removeObjectFromCellCollidables(screenChunks, deleteObject);
-        }
-    }
-
-    public void renderAttackHitBox(ShapeRenderer shapeRenderer) {
-        if(attackDecayTimer >= attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1]
-        && attackDecayTimer < attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1]) {
-            shapeRenderer.begin(ShapeType.Filled);
-
-            if(attackCount == 1) {
-                shapeRenderer.setColor(82/255f, 0/255f, 0/255f, 1f);
-            } else if(attackCount == 2) {
-                shapeRenderer.setColor(92/255f, 0/255f, 0/255f, 1f);
-            } else {
-                shapeRenderer.setColor(102/255f, 0/255f, 0/255f, 1f);
-            }
-
-            Rect attackHitBox = getAttackHitBox();
-            shapeRenderer.rect((int) attackHitBox.x, (int) attackHitBox.y, attackHitBox.width, attackHitBox.height);
-            shapeRenderer.end();
         }
     }
 
@@ -354,37 +362,8 @@ public class CombatEntity extends CollidableObject {
         }
     }
 
-    public Rect getAttackHitBox() {
-        float movePercent = 0f;
-        int xMove = 0;
-        int yMove = 0;
-        if(attackDecayTimer > attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1]
-        && attackDecayTimer < attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1]) {
-            movePercent = (attackDecayTimer - attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1] - 1) / (attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1] - attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1] - 2);
-            if(attackData.get(getCurrentAttack()).attackMoveWidth[attackCount - 1] != -1) {
-                xMove = (int) (movePercent * attackData.get(getCurrentAttack()).attackMoveWidth[attackCount - 1]);
-            }
-            if(attackData.get(getCurrentAttack()).attackMoveHeight[attackCount - 1] != -1) {
-                yMove = (int) (movePercent * attackData.get(getCurrentAttack()).attackMoveHeight[attackCount - 1]);
-            }
-        }
-
-        int attackX = (int) hitBoxArea.x + (hitBoxArea.width / 2) + attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] + xMove;
-        if(facingDirection.equals("Left")) {
-            attackX -= attackData.get(getCurrentAttack()).attackWidth[attackCount - 1] + (attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] * 2) + xMove;
-        }
-        int attackY = (int) hitBoxArea.y + attackData.get(getCurrentAttack()).attackYMod[attackCount - 1] + yMove;
-        if(ducking) {
-            attackY -= 13;
-        }
-        int attackWidth = attackData.get(getCurrentAttack()).attackWidth[attackCount - 1];
-        int attackHeight = attackData.get(getCurrentAttack()).attackHeight[attackCount - 1];
-        
-        return new Rect(attackX, attackY, attackWidth, attackHeight);
-    }
-
-    public String getCurrentAttack() {
-        return "Sword 01";
+    public String getCurrentWeaponType() {
+        return "Sword";
     }
 
     public boolean inAir() {
@@ -404,8 +383,7 @@ public class CombatEntity extends CollidableObject {
 
         if(!justLanded) {
             justLanded = true;
-            attackCount = 0;
-            attackDecayTimer = 0f;
+            attackData = null;
         }
     }
 

@@ -6,13 +6,16 @@ import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.screen.ImageManager;
 
 public class Player extends Mob {
+    public Mob targetMob;
+
     public Player(ImageManager imageManager) {
         super("", new Point(3500, 600), imageManager, true);
 
         isPlayer = true;
-        
         displayHitBox = true;
         displayAfterImage = true;
+
+        targetMob = null;
     }
 
     public void updateInput(Keyboard keyboard) {
@@ -53,7 +56,7 @@ public class Player extends Mob {
 
             // Sideways Movement //
             velocity.x = 0;
-            if(keyboard.left && !keyboard.right && (attackCount == 0 || inAir())) {
+            if(keyboard.left && !keyboard.right && (attackData == null || inAir())) {
                 if(!ducking) {
                     velocity.x = -moveSpeed;
                 }
@@ -62,7 +65,7 @@ public class Player extends Mob {
                     turnAroundCheck = true;
                 }
                 moveCheck = true;
-            } else if(!keyboard.left && keyboard.right && (attackCount == 0 || inAir())) {
+            } else if(!keyboard.left && keyboard.right && (attackData == null || inAir())) {
                 if(!ducking) {
                     velocity.x = moveSpeed;
                 }
@@ -143,5 +146,13 @@ public class Player extends Mob {
         
         keyboard.lastDown.clear();
         keyboard.lastUp.clear();
+    }
+
+    public void startTargetingMob() {
+        
+    }
+
+    public void stopTargetingMob() {
+        targetMob = null;
     }
 }
