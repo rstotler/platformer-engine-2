@@ -8,20 +8,39 @@ import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 public class AttackHitBoxData {
     public ArrayList<Integer> attackFrameList;
 
+    public boolean centerXLocation;         // Center X Location Instead Of To The Side Of Mob HitBox
     public int[] xLocationModList;          // Offset By Pixel
+    public boolean centerYLocation;         // Center Y Location Instead Of To The Bottom Of Mob HitBox
     public float[] yLocationPercentModList; // Offset By Percentage (For Different Size Mobs)
-    public int[] attackWidthList;
+    public int[] attackWidthList;           // Attack Width Is A Specific (Pixel) Size
+    public float[] attackWidthPercentList;  // Attack Width Is A Percentage Of Mob HitBox
     public int[] attackHeightList;
+
+    public AttackHitBoxData() {
+        centerXLocation = false;
+        centerYLocation = true;
+    }
 
     public Rect getAttackHitBox(Mob thisMob, int currentFrame) {
         
         // Width //
         int attackWidth = 10;
-        if(currentFrame < attackWidthList.length) {
-            attackWidth = attackWidthList[currentFrame];
-        } else if(attackWidthList.length > 0) {
-            attackWidth = attackWidthList[attackWidthList.length - 1];
+        if(attackWidthPercentList.length > 0) {
+            if(currentFrame < attackWidthPercentList.length) {
+                float attackWidthPercent = attackWidthPercentList[currentFrame];
+                attackWidth = (int) (thisMob.hitBoxArea.width * attackWidthPercent);
+            } else if(attackWidthPercentList.length > 0) {
+                float attackWidthPercent = attackWidthPercentList[attackWidthPercentList.length - 1];
+                attackWidth = (int) (thisMob.hitBoxArea.width * attackWidthPercent);
+            }
+        } else {
+            if(currentFrame < attackWidthList.length) {
+                attackWidth = attackWidthList[currentFrame];
+            } else if(attackWidthList.length > 0) {
+                attackWidth = attackWidthList[attackWidthList.length - 1];
+            }
         }
+        
 
         // Height //
         int attackHeight = 10;
@@ -39,10 +58,20 @@ public class AttackHitBoxData {
             xLocationMod = xLocationModList[xLocationModList.length - 1];
         }
         int attackX = 0;
-        if(thisMob.facingDirection.equals("Right")) {
-            attackX = (int) thisMob.hitBoxArea.x + thisMob.hitBoxArea.width + xLocationMod;
+        if(!centerXLocation) {
+            attackX = (int) thisMob.hitBoxArea.x;
+            if(thisMob.facingDirection.equals("Right")) {
+                attackX += thisMob.hitBoxArea.width + xLocationMod;
+            } else {
+                attackX -= attackWidth + xLocationMod;
+            }
         } else {
-            attackX = (int) thisMob.hitBoxArea.x - attackWidth - xLocationMod;
+            attackX = thisMob.hitBoxArea.getMiddle().x - (thisMob.hitBoxArea.width / 2);
+            if(thisMob.facingDirection.equals("Right")) {
+                attackX += xLocationMod;
+            } else {
+                attackX -= xLocationMod;
+            }
         }
 
         // Y Location (Percentage) //
@@ -52,8 +81,15 @@ public class AttackHitBoxData {
         } else if(yLocationPercentModList.length > 0) {
             yLocationPercent = yLocationPercentModList[yLocationPercentModList.length - 1];
         }
-        int yLocationPercentMod = (int) ((thisMob.hitBoxArea.height / 2) * yLocationPercent);
-        int attackY = thisMob.hitBoxArea.getMiddle().y - (attackHeight / 2) + yLocationPercentMod;
+        int yLocationPercentMod = 0;
+        int attackY = 0;
+        if(!centerYLocation) {
+            yLocationPercentMod = (int) ((thisMob.hitBoxArea.height / 2) * yLocationPercent);
+            attackY = (int) thisMob.hitBoxArea.y + yLocationPercentMod;
+        } else {
+            yLocationPercentMod = (int) (thisMob.hitBoxArea.height * yLocationPercent);
+            attackY = thisMob.hitBoxArea.getMiddle().y - (attackHeight / 2) + yLocationPercentMod;
+        }
         
         return new Rect(attackX, attackY, attackWidth, attackHeight);
     }

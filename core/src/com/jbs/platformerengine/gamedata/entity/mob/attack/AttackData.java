@@ -99,7 +99,8 @@ public class AttackData {
         shapeRenderer.setColor(102/255f, 0/255f, 0/255f, 1f);
 
         for(AttackHitBoxData attackHitBoxData : attackHitBoxList) {
-            if(attackHitBoxData.attackFrameList.contains(currentFrame)) {
+            if(attackHitBoxData.attackFrameList.contains(currentFrame)
+            || attackHitBoxData.attackFrameList.contains(-1)) {
                 Rect attackHitBox = attackHitBoxData.getAttackHitBox(thisMob, currentFrame);
                 shapeRenderer.rect((int) attackHitBox.x, (int) attackHitBox.y, attackHitBox.width, attackHitBox.height);
             }

@@ -158,7 +158,8 @@ public class CombatEntity extends CollidableObject {
 
     public void updateAttackCollidables(ScreenChunk[][] screenChunks, Mob thisMob) {
         for(AttackHitBoxData attackHitBoxData : attackData.attackHitBoxList) {
-            if(attackHitBoxData.attackFrameList.contains(attackData.currentFrame)) {
+            if(attackHitBoxData.attackFrameList.contains(attackData.currentFrame)
+            || attackHitBoxData.attackFrameList.contains(-1)) {
                 Rect attackRect = attackHitBoxData.getAttackHitBox(thisMob, attackData.currentFrame);
 
                 int chunkX = (int) attackRect.x / Gdx.graphics.getWidth();
@@ -178,8 +179,8 @@ public class CombatEntity extends CollidableObject {
                         int cellX = (((int) attackRect.x + (x * 64)) % Gdx.graphics.getWidth()) / 64;
     
                         if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
-                            attackCollidableObjects(screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].breakableList, screenChunks, attackRect, null, attackData);
-                            attackCollidableObjects(screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].mobList, screenChunks, attackRect, thisMob, attackData);
+                            attackCollidableObjects(screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].breakableList, screenChunks, attackRect, thisMob);
+                            attackCollidableObjects(screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].mobList, screenChunks, attackRect, thisMob);
                         }
                     }
                 }
@@ -187,60 +188,60 @@ public class CombatEntity extends CollidableObject {
         }
     }
 
-    public <T> void attackCollidableObjects(ArrayList<T> objectList, ScreenChunk[][] screenChunks, Rect attackRect, Mob thisMob, AttackData thisAttack) {
-        String attackObjectClassName = "";
-        if(thisMob != null && thisMob.attackData != null) {
-            attackObjectClassName = thisMob.attackData.getClass().toString().substring(thisMob.attackData.getClass().toString().lastIndexOf(".") + 1);
-        }
+    public <T> void attackCollidableObjects(ArrayList<T> objectList, ScreenChunk[][] screenChunks, Rect attackRect, Mob thisMob) {
+        if(attackData != null) {
+            String attackObjectClassName = attackData.getClass().toString().substring(attackData.getClass().toString().lastIndexOf(".") + 1);
+        
+            ArrayList<T> deleteObjectList = new ArrayList<>();
+            for(T object : objectList) {
+                String objectType = object.getClass().toString().substring(object.getClass().toString().lastIndexOf(".") + 1);
+                CollidableObject collidableObject = null;
+                if(objectType.equals("BreakableObject")) {
+                    collidableObject = (BreakableObject) object;
+                } else if(objectType.equals("Mob")) {
+                    collidableObject = (Mob) object;
+                }
 
-        ArrayList<T> deleteObjectList = new ArrayList<>();
-        for(T object : objectList) {
-            String objectType = object.getClass().toString().substring(object.getClass().toString().lastIndexOf(".") + 1);
-            CollidableObject collidableObject = null;
-            if(objectType.equals("BreakableObject")) {
-                collidableObject = (BreakableObject) object;
-            } else if(objectType.equals("Mob")) {
-                collidableObject = (Mob) object;
-            }
+                if(collidableObject != null
+                && attackRect.rectCollide(collidableObject.hitBoxArea)
+                && !attackData.hitObjectList.contains(collidableObject)) {
 
-            if(collidableObject != null
-            && attackRect.rectCollide(collidableObject.hitBoxArea)
-            && !thisAttack.hitObjectList.contains(collidableObject)) {
-
-                // Reduce Mob Health & Add ThisMob To Defender EnemyTargetList //
-                if(objectType.equals("Mob")) {
-                    ((Mob) object).healthPoints -= 1;
-                    if(!((Mob) object).enemyTargetList.contains(thisMob)) {
-                        ((Mob) object).enemyTargetList.add(0, thisMob);
+                    // Reduce Mob Health & Add ThisMob To Defender EnemyTargetList //
+                    if(objectType.equals("Mob")) {
+                        ((Mob) object).healthPoints -= 1;
+                        if(!((Mob) object).enemyTargetList.contains(thisMob)) {
+                            ((Mob) object).enemyTargetList.add(0, thisMob);
+                        }
                     }
-                }
 
-                // Remove Dead Mob OR Add To Attack HitObjectList (To Prevent Multiple Hits) //
-                if(objectType.equals("BreakableObject")
-                || (objectType.equals("Mob") && ((Mob) object).healthPoints <= 0)) {
-                    deleteObjectList.add(object);
-                } else if(!thisAttack.hitObjectList.contains(collidableObject)) {
-                    thisAttack.hitObjectList.add(collidableObject);
-                }
+                    // Remove Dead Mob OR Add To Attack HitObjectList (To Prevent Multiple Hits) //
+                    if(objectType.equals("BreakableObject")
+                    || (objectType.equals("Mob") && ((Mob) object).healthPoints <= 0)) {
+                        deleteObjectList.add(object);
+                    } else if(!attackData.hitObjectList.contains(collidableObject)) {
+                        attackData.hitObjectList.add(collidableObject);
+                    }
 
-                // Drop Kick Bounce Check //
-                if(attackObjectClassName.equals("DropKick")
-                || (collidableObject.imageName != null && collidableObject.imageName.contains("Torch"))) {
+                    // Drop Kick Bounce Check //
                     if(attackObjectClassName.equals("DropKick")) {
                         velocity.y = 10;
                         jumpCheck = true;
                         jumpCount = 1;
                         jumpTimer = 0;
                         dropKickBounceCheck = true;
+
+                        if(thisMob.attackData != null) {
+                            thisMob.attackData = null;
+                        }
+                        
+                        break;
                     }
-                    
-                    break;
                 }
             }
-        }
 
-        for(T deleteObject : deleteObjectList) {
-            GameScreen.removeObjectFromCellCollidables(screenChunks, deleteObject);
+            for(T deleteObject : deleteObjectList) {
+                GameScreen.removeObjectFromCellCollidables(screenChunks, deleteObject);
+            }
         }
     }
 

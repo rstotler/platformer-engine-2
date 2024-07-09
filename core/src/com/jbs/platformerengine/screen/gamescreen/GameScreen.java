@@ -27,7 +27,6 @@ import com.jbs.platformerengine.screen.Screen;
  *  -Finish ImageManager.dispose()
  * 
  * Combat
- *  -Charged Attacks
  *  -Attack Chains
  *  -Knife Throw Ability
  * 
@@ -44,7 +43,6 @@ import com.jbs.platformerengine.screen.Screen;
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping (Still)
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
- * Can't Dropkick Bat After Targeting From Sword Attack
  * Square-Half Superjump
  */
 
