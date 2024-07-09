@@ -9,6 +9,7 @@ import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.gamedata.entity.mob.attack.AttackData;
 import com.jbs.platformerengine.gamedata.entity.mob.attack.AttackHitBoxData;
+import com.jbs.platformerengine.gamedata.entity.mob.attack.misc.DropKick;
 import com.jbs.platformerengine.gamedata.entity.mob.movement.MovementPattern;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.CellCollidables;
@@ -39,7 +40,6 @@ public class CombatEntity extends CollidableObject {
     public float dashPercent;
     public String dashDirection;
 
-    public boolean dropKickCheck;
     public boolean dropKickBounceCheck;
 
     public boolean ducking;
@@ -84,7 +84,6 @@ public class CombatEntity extends CollidableObject {
         dashTimerMax = 25f;
         dashPercent = 0f;
 
-        dropKickCheck = false;
         dropKickBounceCheck = false;
 
         ducking = false;
@@ -151,6 +150,12 @@ public class CombatEntity extends CollidableObject {
         }
     }
 
+    public void releaseChargedAttack() {
+        if(attackData != null && attackData.isChargeable && attackData.isCharging) {
+            attackData.isCharging = false;
+        }
+    }
+
     public void updateAttackCollidables(ScreenChunk[][] screenChunks, Mob thisMob) {
         for(AttackHitBoxData attackHitBoxData : attackData.attackHitBoxList) {
             if(attackHitBoxData.attackFrameList.contains(attackData.currentFrame)) {
@@ -183,6 +188,11 @@ public class CombatEntity extends CollidableObject {
     }
 
     public <T> void attackCollidableObjects(ArrayList<T> objectList, ScreenChunk[][] screenChunks, Rect attackRect, Mob thisMob, AttackData thisAttack) {
+        String attackObjectClassName = "";
+        if(thisMob != null && thisMob.attackData != null) {
+            attackObjectClassName = thisMob.attackData.getClass().toString().substring(thisMob.attackData.getClass().toString().lastIndexOf(".") + 1);
+        }
+
         ArrayList<T> deleteObjectList = new ArrayList<>();
         for(T object : objectList) {
             String objectType = object.getClass().toString().substring(object.getClass().toString().lastIndexOf(".") + 1);
@@ -196,29 +206,31 @@ public class CombatEntity extends CollidableObject {
             if(collidableObject != null
             && attackRect.rectCollide(collidableObject.hitBoxArea)
             && !thisAttack.hitObjectList.contains(collidableObject)) {
+
+                // Reduce Mob Health & Add ThisMob To Defender EnemyTargetList //
                 if(objectType.equals("Mob")) {
                     ((Mob) object).healthPoints -= 1;
-
                     if(!((Mob) object).enemyTargetList.contains(thisMob)) {
                         ((Mob) object).enemyTargetList.add(0, thisMob);
                     }
                 }
 
+                // Remove Dead Mob OR Add To Attack HitObjectList (To Prevent Multiple Hits) //
                 if(objectType.equals("BreakableObject")
                 || (objectType.equals("Mob") && ((Mob) object).healthPoints <= 0)) {
                     deleteObjectList.add(object);
-                } else if(!dropKickCheck && !thisAttack.hitObjectList.contains(collidableObject)) {
+                } else if(!thisAttack.hitObjectList.contains(collidableObject)) {
                     thisAttack.hitObjectList.add(collidableObject);
                 }
 
-                if(dropKickCheck
+                // Drop Kick Bounce Check //
+                if(attackObjectClassName.equals("DropKick")
                 || (collidableObject.imageName != null && collidableObject.imageName.contains("Torch"))) {
-                    if(dropKickCheck) {
+                    if(attackObjectClassName.equals("DropKick")) {
                         velocity.y = 10;
                         jumpCheck = true;
                         jumpCount = 1;
                         jumpTimer = 0;
-                        dropKickCheck = false;
                         dropKickBounceCheck = true;
                     }
                     
@@ -286,15 +298,23 @@ public class CombatEntity extends CollidableObject {
         return 2;
     }
 
-    public void dropKick() {
-        dropKickCheck = true;
-        // hitObjectList.clear();
+    public void dropKick(Mob thisMob) {
+        String attackObjectClassName = "";
+        if(thisMob.attackData != null) {
+            attackObjectClassName = thisMob.attackData.getClass().toString().substring(thisMob.attackData.getClass().toString().lastIndexOf(".") + 1);
+        }
+
+        if(thisMob.inAir()
+        && (superJumpTimer == 0 || superJumpTimer >= superJumpTimerMax)
+        && !(attackObjectClassName.equals("DropKick"))) {
+            attackData = new DropKick();
+        }
     }
 
-    public void superJump() {
+    public void superJump(Mob thisMob) {
         if(!flying
         && !ducking
-        && !dropKickCheck
+        && (thisMob.attackData == null || thisMob.attackData.currentFrame >= thisMob.attackData.canWalkOnFrame)
         && superJumpPercent < .05) {
             superJumpCheck = true;
             superJumpTimer = 0f;
@@ -313,7 +333,7 @@ public class CombatEntity extends CollidableObject {
     }
 
     public void dash(Mob thisMob, String direction) {
-        if(!flying
+        if(!flying && !ducking
         && runAcceleration <= runAccelerationMin
         && dashPercent < .75
         && superJumpPercent < .30
@@ -322,24 +342,32 @@ public class CombatEntity extends CollidableObject {
             dashTimer = 0f;
             dashDirection = direction;
 
-            if(thisMob.attackData != null
-            && thisMob.attackData.currentFrame >= thisMob.attackData.canWalkOnFrame) {
+            if(thisMob.attackData != null) {
                 thisMob.attackData = null;
             }
         }
     }
 
-    public void duck(boolean keyDown) {
-        if(!flying) {
+    public void duck(boolean keyDown, Mob thisMob) {
+        if(!flying
+        && (attackData == null || attackData.currentFrame >= attackData.canWalkOnFrame)) {
             if(keyDown && !inAir()) {
                 int duckHeightDiff = 13;
                 hitBoxArea.height = 48 - duckHeightDiff;
                 ducking = true;
+
+                if(thisMob.attackData != null) {
+                    thisMob.attackData = null;
+                }
             }
     
             else if(ducking && !keyDown) {
                 hitBoxArea.height = 48;
                 ducking = false;
+
+                if(thisMob.attackData != null) {
+                    thisMob.attackData = null;
+                }
             }
         }
     }
@@ -359,9 +387,6 @@ public class CombatEntity extends CollidableObject {
         falling = false;
 
         superJumpCheck = false;
-        if(dropKickCheck) {
-            dropKickCheck = false;
-        }
 
         if(!justLanded) {
             justLanded = true;

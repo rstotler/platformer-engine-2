@@ -158,8 +158,7 @@ public class Mob extends CombatEntity {
 
         // Update Attacks //
         if(attackData != null) {
-            attackData.currentFrame += 1;
-            if(attackData.currentFrame >= attackData.attackFrameLength) {
+            if(attackData.update(screenChunks, this)) {
                 attackData = null;
             } else {
                 updateAttackCollidables(screenChunks, this);

@@ -9,12 +9,21 @@ import com.jbs.platformerengine.gamedata.entity.CollidableObject;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.gamedata.entity.mob.attack.sword.ground.*;
 import com.jbs.platformerengine.gamedata.entity.mob.attack.sword.flying.*;
+import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 
 public class AttackData {
     public int currentFrame;
     public int attackFrameLength;
 
+    public float gravityMod;
+
     public int canWalkOnFrame;
+
+    public boolean isChargeable;
+    public boolean isCharging;
+    public float chargePercent;
+
+    public boolean isDropKick;
 
     public ArrayList<AttackHitBoxData> attackHitBoxList;
     public ArrayList<CollidableObject> hitObjectList;
@@ -23,7 +32,15 @@ public class AttackData {
         currentFrame = 0;
         attackFrameLength = 10;
 
+        gravityMod = 0;
+
         canWalkOnFrame = 9999;
+        
+        isChargeable = false;
+        isCharging = false;
+        chargePercent = 0.0f;
+
+        isDropKick = false;
 
         attackHitBoxList = new ArrayList<>();
         hitObjectList = new ArrayList<>();
@@ -57,24 +74,24 @@ public class AttackData {
         return new SwordGroundBaseAttack();
     }
 
-    public static HashMap<String, AttackData> loadAttackData() {
-        // HashMap<String, AttackData> attackData = new HashMap<>();
+    public boolean update(ScreenChunk[][] screenChunks, Mob thisMob) {
+        if(isChargeable && isCharging) {
+            if(chargePercent < 1.0) {
+                chargePercent += .01;
+                if(chargePercent > 1.0) {
+                    chargePercent = 1.0f;
+                }
+            }
+        }
 
-        // float[] attackDecayTimerMax = new float[] {24f, 24f, 20f};
-        // int[] attackFrameStart = new int[] {3, 3, 0};
-        // int[] attackFrameEnd = new int[] {7, 7, 7};
-        // int[] attackComboStartFrame = new int[] {12, 12, -1};
-        // int[] attackXMod = new int[] {20, 25, 25};
-        // int[] attackYMod = new int[] {34, 29, 40};
-        // int[] attackWidth = new int[] {50, 50, 30};
-        // int[] attackHeight = new int[] {4, 4, 6};
-        // int[] attackMoveWidth = new int[] {-1, -1, -1};
-        // int[] attackMoveHeight = new int[] {-1, -1, -40};
-        // AttackData attackDataSword01 = new AttackData(attackDecayTimerMax, attackFrameStart, attackFrameEnd, attackComboStartFrame, attackXMod, attackYMod, attackWidth, attackHeight, attackMoveWidth, attackMoveHeight);
-        // attackData.put("Sword 01", attackDataSword01);
+        else if(attackFrameLength > 0) {
+            currentFrame += 1;
+            if(currentFrame >= attackFrameLength) {
+                return true;
+            }
+        }
 
-        // return attackData;
-        return null;
+        return false;
     }
 
     public void renderAttackHitBoxes(ShapeRenderer shapeRenderer, Mob thisMob) {

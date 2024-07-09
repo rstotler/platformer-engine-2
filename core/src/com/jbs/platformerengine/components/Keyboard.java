@@ -7,6 +7,7 @@ public class Keyboard {
     public boolean right;
     public boolean up;
     public boolean down;
+
     public boolean shiftRight;
     public boolean shiftLeft;
     public boolean controlRight;
@@ -20,6 +21,7 @@ public class Keyboard {
         right = false;
         up = false;
         down = false;
+
         shiftRight = false;
         shiftLeft = false;
         controlRight = false;

@@ -4,6 +4,6 @@ import com.jbs.platformerengine.gamedata.entity.mob.attack.AttackData;
 
 public class SwordGroundDownBaseAttack extends AttackData {
     public SwordGroundDownBaseAttack() {
-        super();
+        attackFrameLength = 20;
     }
 }

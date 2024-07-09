@@ -4,6 +4,5 @@ import com.jbs.platformerengine.gamedata.entity.mob.attack.AttackData;
 
 public class SwordGroundUpBaseAttack extends AttackData {
     public SwordGroundUpBaseAttack() {
-        super();
     }
 }

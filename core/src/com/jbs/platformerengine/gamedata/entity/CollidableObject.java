@@ -51,8 +51,10 @@ public class CollidableObject extends AnimatedObject {
 
         // Apply Gravity (Or Drop Kick) //
         float gravityLevel = -.7f;
-        if(mob.dropKickCheck) {
-            velocity.y = -15;
+        if(mob.attackData != null
+        && mob.attackData.gravityMod != 0) {
+            gravityLevel = mob.attackData.gravityMod;
+            velocity.y = gravityLevel;
         }
         else if(!mob.flying && velocity.y > mob.maxFallVelocity) {
             if(mob.jumpTimer == mob.jumpTimerMax) {
@@ -526,6 +528,7 @@ public class CollidableObject extends AnimatedObject {
         // Remove Mob Attack If Moved Left/Right //
         if(moveSidewaysCheck
         && mob.attackData != null
+        && !mob.attackData.isDropKick
         && !mob.dashCheck) {
             mob.attackData = null;
         }

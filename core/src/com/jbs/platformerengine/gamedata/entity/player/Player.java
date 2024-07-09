@@ -9,7 +9,7 @@ public class Player extends Mob {
     public Mob targetMob;
 
     public Player(ImageManager imageManager) {
-        super("", new Point(3500, 600), imageManager, true);
+        super("", new Point(1300, 600), imageManager, true);
 
         isPlayer = true;
         displayHitBox = true;
@@ -86,11 +86,9 @@ public class Player extends Mob {
                             jump(this);
                         }
                         
-                    // Drop Kick (Button Press) //
+                    // Drop Kick //
                     } else {
-                        if(!dropKickCheck && (superJumpTimer == 0 || superJumpTimer >= superJumpTimerMax)) {
-                            dropKick();
-                        }
+                        dropKick(this);
                     }
 
                 } else if(jumpTimer < jumpTimerMax) {

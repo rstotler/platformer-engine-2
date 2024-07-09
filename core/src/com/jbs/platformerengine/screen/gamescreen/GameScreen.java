@@ -29,9 +29,7 @@ import com.jbs.platformerengine.screen.Screen;
  * Combat
  *  -Charged Attacks
  *  -Attack Chains
- *  -Multiple Hitboxes Per Attack
  *  -Knife Throw Ability
- *  -No Combos When Dashing
  * 
  * Background
  *  -Clouds
@@ -67,9 +65,7 @@ public class GameScreen extends Screen {
         
         cameraDebug = new OrthographicCamera();
         cameraDebug.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        
         keyboard = new Keyboard();
-        initInputAdapter();
         
         areaData = new Area01();
         unusedAreaData = new HashMap<>();
@@ -87,6 +83,7 @@ public class GameScreen extends Screen {
         bufferChunks();
 
         platformerEngine.player = new Player(imageManager);
+        initInputAdapter();
     }
 
     public void initInputAdapter() {
@@ -115,7 +112,8 @@ public class GameScreen extends Screen {
                 
                 if(key.equals("Left") || key.equals("Right") || key.equals("Up") || key.equals("Down")
                 || key.equals("A") || key.equals("S") || key.equals("D") || key.equals("W")
-                || key.equals("L-Shift") || key.equals("R-Shift") || key.equals("L-Ctrl") || key.equals("R-Ctrl")) {
+                || key.equals("L-Shift") || key.equals("R-Shift") || key.equals("L-Ctrl") || key.equals("R-Ctrl")
+                || key.equals("Z")) {
                     keyboard.keyUp(key);
                 }
 
@@ -133,35 +131,45 @@ public class GameScreen extends Screen {
     }
 
     public void handleInput(Player player) {
-        if(player.jumpButtonPressedCheck && (!Gdx.input.isKeyPressed(Keys.UP) && !Gdx.input.isKeyPressed(Input.Keys.W))) {
+        if(player.jumpButtonPressedCheck
+        && (!Gdx.input.isKeyPressed(Keys.UP)
+        && !Gdx.input.isKeyPressed(Input.Keys.W))) {
             player.jumpTimer = player.jumpTimerMax;
         }
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            player.superJump();
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+            player.duck(true, player);
+        } else if(player.ducking && !keyboard.down) {
+            player.duck(false, player);
+        }
+        
+        if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
             player.dash(player, "Left");
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.E)) {
             player.dash(player, "Right");
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            player.superJump(player);
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
             player.attack(player);
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
-            player.duck(true);
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_RIGHT)) {
+        } else if(keyboard.lastUp.contains("Z")) {
+            player.releaseChargedAttack();
+        }
+        
+        if(Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_RIGHT)) {
             player.startTargetingMob();
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
-            displayDebugData += 1;
-            if(displayDebugData >= 3) {
-                displayDebugData = 0;
-            }
-        } else if(keyboard.lastUp.contains("S") || keyboard.lastUp.contains("Down")) {
-            player.duck(false);
         } else if(keyboard.lastUp.contains("R-Ctrl") || keyboard.lastUp.contains("L-Ctrl")) {
             player.stopTargetingMob();
         }
 
         // Num Keys //
-        else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
+        else if(Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
+            displayDebugData += 1;
+            if(displayDebugData >= 3) {
+                displayDebugData = 0;
+            }
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
             player.changeSize(1);
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
             player.changeSize(2);
@@ -517,9 +525,9 @@ public class GameScreen extends Screen {
             
             String attackString = "None";
             if(player.attackData != null) {
-                attackString = "" + player.attackData.currentFrame + "/" + player.attackData.attackFrameLength;
+                attackString = "" + player.attackData.currentFrame + "/" + player.attackData.attackFrameLength + " (" + player.attackData.chargePercent + ")";
             }
-            font.draw(spriteBatch, "Attack: " + attackString + " - DK: " + player.dropKickCheck + " SJ: " + player.superJumpCheck, 3, 690);
+            font.draw(spriteBatch, "Attack: " + attackString + " - DKB: " + player.dropKickBounceCheck + " SJ: " + player.superJumpCheck, 3, 690);
         }
         
         spriteBatch.end();

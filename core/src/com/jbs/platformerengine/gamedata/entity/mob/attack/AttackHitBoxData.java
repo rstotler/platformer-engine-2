@@ -8,8 +8,8 @@ import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 public class AttackHitBoxData {
     public ArrayList<Integer> attackFrameList;
 
-    public int[] xLocationModList;
-    public int[] yLocationModList;
+    public int[] xLocationModList;          // Offset By Pixel
+    public float[] yLocationPercentModList; // Offset By Percentage (For Different Size Mobs)
     public int[] attackWidthList;
     public int[] attackHeightList;
 
@@ -45,14 +45,15 @@ public class AttackHitBoxData {
             attackX = (int) thisMob.hitBoxArea.x - attackWidth - xLocationMod;
         }
 
-        // Y Location //
-        int yLocationMod = 0;
-        if(currentFrame < yLocationModList.length) {
-            yLocationMod = yLocationModList[currentFrame];
-        } else if(yLocationModList.length > 0) {
-            yLocationMod = yLocationModList[yLocationModList.length - 1];
+        // Y Location (Percentage) //
+        float yLocationPercent = 0.0f;
+        if(currentFrame < yLocationPercentModList.length) {
+            yLocationPercent = yLocationPercentModList[currentFrame];
+        } else if(yLocationPercentModList.length > 0) {
+            yLocationPercent = yLocationPercentModList[yLocationPercentModList.length - 1];
         }
-        int attackY = thisMob.hitBoxArea.getMiddle().y - (attackHeight / 2) + yLocationMod;
+        int yLocationPercentMod = (int) ((thisMob.hitBoxArea.height / 2) * yLocationPercent);
+        int attackY = thisMob.hitBoxArea.getMiddle().y - (attackHeight / 2) + yLocationPercentMod;
         
         return new Rect(attackX, attackY, attackWidth, attackHeight);
     }
