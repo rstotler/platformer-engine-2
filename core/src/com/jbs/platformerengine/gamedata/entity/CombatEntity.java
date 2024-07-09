@@ -4,12 +4,11 @@ import java.util.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.gamedata.entity.mob.attack.AttackData;
+import com.jbs.platformerengine.gamedata.entity.mob.attack.AttackHitBoxData;
 import com.jbs.platformerengine.gamedata.entity.mob.movement.MovementPattern;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.CellCollidables;
@@ -56,7 +55,6 @@ public class CombatEntity extends CollidableObject {
     public float flyingAcceleration;
 
     public AttackData attackData;
-    public ArrayList<CollidableObject> hitObjectList;
     public ArrayList<Mob> enemyTargetList;
 
     public MovementPattern movementPattern;
@@ -102,7 +100,6 @@ public class CombatEntity extends CollidableObject {
         flyingAcceleration = flyingAccelerationMin;
 
         attackData = null;
-        hitObjectList = new ArrayList<>();
         enemyTargetList = new ArrayList<>();
 
         movementPattern = null; 
@@ -154,105 +151,80 @@ public class CombatEntity extends CollidableObject {
         }
     }
 
-    public void updateAttack() {
-        if(attackData == null) {
-            //attackData.
-        }
-    }
-
-    public void updateAttackOld() {
-        // if(attackCount > 0) {
-        //     attackDecayTimer += 1;
-        //     if(attackDecayTimer >= attackData.get(getCurrentAttack()).attackDecayTimerMax[attackCount - 1]) {
-        //         attackCount = 0;
-        //         attackDecayTimer = 0;
-
-        //         hitObjectList.clear();
-        //     }
-        // }
-    }
-
     public void updateAttackCollidables(ScreenChunk[][] screenChunks, Mob thisMob) {
-        Rect attackRect = null;
-        if(dropKickCheck) {
-            attackRect = new Rect((int) hitBoxArea.x, (int) hitBoxArea.y, hitBoxArea.width, 20);
-        }
-        else if(attackData != null) {
-            attackRect = attackData.getAttackHitBox();
-        }
+        for(AttackHitBoxData attackHitBoxData : attackData.attackHitBoxList) {
+            if(attackHitBoxData.attackFrameList.contains(attackData.currentFrame)) {
+                Rect attackRect = attackHitBoxData.getAttackHitBox(thisMob, attackData.currentFrame);
 
-        if(attackRect != null) {
-            int chunkX = (int) attackRect.x / Gdx.graphics.getWidth();
-            int chunkY = (int) attackRect.y / Gdx.graphics.getHeight();
-            int xCellStartIndex = ((int) attackRect.x % Gdx.graphics.getWidth()) / 64;
-            int yCellStartIndex = ((int) attackRect.y % Gdx.graphics.getHeight()) / 64;
-            int xPadding = (int) attackRect.x - ((chunkX * Gdx.graphics.getWidth()) + (xCellStartIndex * 64));
-            int yPadding = (int) attackRect.y - ((chunkY * Gdx.graphics.getHeight()) + (yCellStartIndex * 64));
-            int xCellSize = ((attackRect.width + xPadding) / 64) + 1;
-            int yCellSize = ((attackRect.height + yPadding) / 64) + 1;
-
-            for(int y = 0; y < yCellSize; y++) {
-                chunkY = ((int) attackRect.y + (y * 64)) / Gdx.graphics.getHeight();
-                int cellY = (((int) attackRect.y + (y * 64)) % Gdx.graphics.getHeight()) / 64;
-                for(int x = 0; x < xCellSize; x++) {
-                    chunkX = ((int) attackRect.x + (x * 64)) / Gdx.graphics.getWidth();
-                    int cellX = (((int) attackRect.x + (x * 64)) % Gdx.graphics.getWidth()) / 64;
-
-                    if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
-                        attackCollidableObject(screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].breakableList, screenChunks, attackRect, null);
-                        attackCollidableObject(screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].mobList, screenChunks, attackRect, thisMob);
+                int chunkX = (int) attackRect.x / Gdx.graphics.getWidth();
+                int chunkY = (int) attackRect.y / Gdx.graphics.getHeight();
+                int xCellStartIndex = ((int) attackRect.x % Gdx.graphics.getWidth()) / 64;
+                int yCellStartIndex = ((int) attackRect.y % Gdx.graphics.getHeight()) / 64;
+                int xPadding = (int) attackRect.x - ((chunkX * Gdx.graphics.getWidth()) + (xCellStartIndex * 64));
+                int yPadding = (int) attackRect.y - ((chunkY * Gdx.graphics.getHeight()) + (yCellStartIndex * 64));
+                int xCellSize = ((attackRect.width + xPadding) / 64) + 1;
+                int yCellSize = ((attackRect.height + yPadding) / 64) + 1;
+    
+                for(int y = 0; y < yCellSize; y++) {
+                    chunkY = ((int) attackRect.y + (y * 64)) / Gdx.graphics.getHeight();
+                    int cellY = (((int) attackRect.y + (y * 64)) % Gdx.graphics.getHeight()) / 64;
+                    for(int x = 0; x < xCellSize; x++) {
+                        chunkX = ((int) attackRect.x + (x * 64)) / Gdx.graphics.getWidth();
+                        int cellX = (((int) attackRect.x + (x * 64)) % Gdx.graphics.getWidth()) / 64;
+    
+                        if(chunkX >= 0 && chunkX < screenChunks.length && chunkY >= 0 && chunkY < screenChunks[0].length) {
+                            attackCollidableObjects(screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].breakableList, screenChunks, attackRect, null, attackData);
+                            attackCollidableObjects(screenChunks[chunkX][chunkY].cellCollidables[cellX][cellY].mobList, screenChunks, attackRect, thisMob, attackData);
+                        }
                     }
                 }
             }
         }
     }
 
-    public <T> void attackCollidableObject(ArrayList<T> objectList, ScreenChunk[][] screenChunks, Rect attackRect, Mob thisMob) {
+    public <T> void attackCollidableObjects(ArrayList<T> objectList, ScreenChunk[][] screenChunks, Rect attackRect, Mob thisMob, AttackData thisAttack) {
         ArrayList<T> deleteObjectList = new ArrayList<>();
         for(T object : objectList) {
-            if(dropKickCheck ||
-            (attackData != null && attackData.attackFrameList.contains(attackData.attackDecayTimer))) {
-                String objectType = object.getClass().toString().substring(object.getClass().toString().lastIndexOf(".") + 1);
-                CollidableObject collidableObject = null;
-                if(objectType.equals("BreakableObject")) {
-                    collidableObject = (BreakableObject) object;
-                } else if(objectType.equals("Mob")) {
-                    collidableObject = (Mob) object;
+            String objectType = object.getClass().toString().substring(object.getClass().toString().lastIndexOf(".") + 1);
+            CollidableObject collidableObject = null;
+            if(objectType.equals("BreakableObject")) {
+                collidableObject = (BreakableObject) object;
+            } else if(objectType.equals("Mob")) {
+                collidableObject = (Mob) object;
+            }
+
+            if(collidableObject != null
+            && attackRect.rectCollide(collidableObject.hitBoxArea)
+            && !thisAttack.hitObjectList.contains(collidableObject)) {
+                if(objectType.equals("Mob")) {
+                    ((Mob) object).healthPoints -= 1;
+
+                    if(!((Mob) object).enemyTargetList.contains(thisMob)) {
+                        ((Mob) object).enemyTargetList.add(0, thisMob);
+                    }
                 }
 
-                if(collidableObject != null
-                && attackRect.rectCollide(collidableObject.hitBoxArea)
-                && !hitObjectList.contains(collidableObject)) {
-                    if(objectType.equals("Mob")) {
-                        ((Mob) object).healthPoints -= 1;
+                if(objectType.equals("BreakableObject")
+                || (objectType.equals("Mob") && ((Mob) object).healthPoints <= 0)) {
+                    deleteObjectList.add(object);
+                } else if(!dropKickCheck && !thisAttack.hitObjectList.contains(collidableObject)) {
+                    thisAttack.hitObjectList.add(collidableObject);
+                }
 
-                        if(!((Mob) object).enemyTargetList.contains(thisMob)) {
-                            ((Mob) object).enemyTargetList.add(0, thisMob);
-                        }
+                if(dropKickCheck
+                || (collidableObject.imageName != null && collidableObject.imageName.contains("Torch"))) {
+                    if(dropKickCheck) {
+                        velocity.y = 10;
+                        jumpCheck = true;
+                        jumpCount = 1;
+                        jumpTimer = 0;
+                        dropKickCheck = false;
+                        dropKickBounceCheck = true;
                     }
-
-                    if(objectType.equals("BreakableObject")
-                    || (objectType.equals("Mob") && ((Mob) object).healthPoints <= 0)) {
-                        deleteObjectList.add(object);
-                    } else if(!dropKickCheck && !hitObjectList.contains(collidableObject)) {
-                        hitObjectList.add(collidableObject);
-                    }
-
-                    if(dropKickCheck
-                    || (collidableObject.imageName != null && collidableObject.imageName.contains("Torch"))) {
-                        if(dropKickCheck) {
-                            velocity.y = 10;
-                            jumpCheck = true;
-                            jumpCount = 1;
-                            jumpTimer = 0;
-                            dropKickCheck = false;
-                            dropKickBounceCheck = true;
-                        }
-                        
-                        break;
-                    }
-                }     
-            }             
+                    
+                    break;
+                }
+            }
         }
 
         for(T deleteObject : deleteObjectList) {
@@ -285,7 +257,7 @@ public class CombatEntity extends CollidableObject {
         }
     }
 
-    public void jump() {
+    public void jump(Mob thisMob) {
         velocity.y = 8;
         jumpCheck = true;
         jumpButtonPressedCheck = true;
@@ -304,6 +276,10 @@ public class CombatEntity extends CollidableObject {
         justLanded = false;
         justFellInRamp = null;
         middleJustFellInRamp = null;
+
+        if(thisMob.attackData != null) {
+            thisMob.attackData = null;
+        }
     }
 
     public int getMaxJumpCount() {
@@ -312,7 +288,7 @@ public class CombatEntity extends CollidableObject {
 
     public void dropKick() {
         dropKickCheck = true;
-        hitObjectList.clear();
+        // hitObjectList.clear();
     }
 
     public void superJump() {
@@ -336,14 +312,20 @@ public class CombatEntity extends CollidableObject {
         }
     }
 
-    public void dash(String direction) {
+    public void dash(Mob thisMob, String direction) {
         if(!flying
         && runAcceleration <= runAccelerationMin
         && dashPercent < .75
-        && superJumpPercent < .30) {
+        && superJumpPercent < .30
+        && (thisMob.attackData == null || thisMob.attackData.currentFrame >= thisMob.attackData.canWalkOnFrame)) {
             dashCheck = true;
             dashTimer = 0f;
             dashDirection = direction;
+
+            if(thisMob.attackData != null
+            && thisMob.attackData.currentFrame >= thisMob.attackData.canWalkOnFrame) {
+                thisMob.attackData = null;
+            }
         }
     }
 

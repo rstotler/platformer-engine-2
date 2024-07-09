@@ -5,29 +5,28 @@ import java.util.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.jbs.platformerengine.gamedata.Rect;
+import com.jbs.platformerengine.gamedata.entity.CollidableObject;
+import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.gamedata.entity.mob.attack.sword.ground.*;
 import com.jbs.platformerengine.gamedata.entity.mob.attack.sword.flying.*;
 
 public class AttackData {
-    public int[] attackFrameStart;
-    public int[] attackFrameEnd;
-    public int[] attackComboStartFrame;
+    public int currentFrame;
+    public int attackFrameLength;
 
-    public int[] attackXMod;
-    public int[] attackYMod;
-    public int[] attackWidth;
-    public int[] attackHeight;
-    public int[] attackMoveWidth;
-    public int[] attackMoveHeight;
+    public int canWalkOnFrame;
 
-    public int attackDecayTimer;
-    public int attackDecayTimerMax;
-    public ArrayList<Integer> attackFrameList;
+    public ArrayList<AttackHitBoxData> attackHitBoxList;
+    public ArrayList<CollidableObject> hitObjectList;
 
     public AttackData() {
-        attackDecayTimer = -1;
-        attackDecayTimerMax = 5;
-        attackFrameList = new ArrayList<>();
+        currentFrame = 0;
+        attackFrameLength = 10;
+
+        canWalkOnFrame = 9999;
+
+        attackHitBoxList = new ArrayList<>();
+        hitObjectList = new ArrayList<>();
     }
 
     public static AttackData getAttackChainStartData(String targetDirection, boolean flying, String weaponType) {
@@ -59,18 +58,18 @@ public class AttackData {
     }
 
     public static HashMap<String, AttackData> loadAttackData() {
-        HashMap<String, AttackData> attackData = new HashMap<>();
+        // HashMap<String, AttackData> attackData = new HashMap<>();
 
-        float[] attackDecayTimerMax = new float[] {24f, 24f, 20f};
-        int[] attackFrameStart = new int[] {3, 3, 0};
-        int[] attackFrameEnd = new int[] {7, 7, 7};
-        int[] attackComboStartFrame = new int[] {12, 12, -1};
-        int[] attackXMod = new int[] {20, 25, 25};
-        int[] attackYMod = new int[] {34, 29, 40};
-        int[] attackWidth = new int[] {50, 50, 30};
-        int[] attackHeight = new int[] {4, 4, 6};
-        int[] attackMoveWidth = new int[] {-1, -1, -1};
-        int[] attackMoveHeight = new int[] {-1, -1, -40};
+        // float[] attackDecayTimerMax = new float[] {24f, 24f, 20f};
+        // int[] attackFrameStart = new int[] {3, 3, 0};
+        // int[] attackFrameEnd = new int[] {7, 7, 7};
+        // int[] attackComboStartFrame = new int[] {12, 12, -1};
+        // int[] attackXMod = new int[] {20, 25, 25};
+        // int[] attackYMod = new int[] {34, 29, 40};
+        // int[] attackWidth = new int[] {50, 50, 30};
+        // int[] attackHeight = new int[] {4, 4, 6};
+        // int[] attackMoveWidth = new int[] {-1, -1, -1};
+        // int[] attackMoveHeight = new int[] {-1, -1, -40};
         // AttackData attackDataSword01 = new AttackData(attackDecayTimerMax, attackFrameStart, attackFrameEnd, attackComboStartFrame, attackXMod, attackYMod, attackWidth, attackHeight, attackMoveWidth, attackMoveHeight);
         // attackData.put("Sword 01", attackDataSword01);
 
@@ -78,60 +77,17 @@ public class AttackData {
         return null;
     }
 
-    public Rect getAttackHitBox() {
-        return null;
-    }
+    public void renderAttackHitBoxes(ShapeRenderer shapeRenderer, Mob thisMob) {
+        shapeRenderer.begin(ShapeType.Filled);
+        shapeRenderer.setColor(102/255f, 0/255f, 0/255f, 1f);
 
-    public void renderAttackHitBox(ShapeRenderer shapeRenderer) {
+        for(AttackHitBoxData attackHitBoxData : attackHitBoxList) {
+            if(attackHitBoxData.attackFrameList.contains(currentFrame)) {
+                Rect attackHitBox = attackHitBoxData.getAttackHitBox(thisMob, currentFrame);
+                shapeRenderer.rect((int) attackHitBox.x, (int) attackHitBox.y, attackHitBox.width, attackHitBox.height);
+            }
+        }
 
-    }
-
-    public Rect getAttackHitBoxOld() {
-        // float movePercent = 0f;
-        // int xMove = 0;
-        // int yMove = 0;
-        // if(attackDecayTimer > attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1]
-        // && attackDecayTimer < attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1]) {
-        //     movePercent = (attackDecayTimer - attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1] - 1) / (attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1] - attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1] - 2);
-        //     if(attackData.get(getCurrentAttack()).attackMoveWidth[attackCount - 1] != -1) {
-        //         xMove = (int) (movePercent * attackData.get(getCurrentAttack()).attackMoveWidth[attackCount - 1]);
-        //     }
-        //     if(attackData.get(getCurrentAttack()).attackMoveHeight[attackCount - 1] != -1) {
-        //         yMove = (int) (movePercent * attackData.get(getCurrentAttack()).attackMoveHeight[attackCount - 1]);
-        //     }
-        // }
-
-        // int attackX = (int) hitBoxArea.x + (hitBoxArea.width / 2) + attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] + xMove;
-        // if(facingDirection.equals("Left")) {
-        //     attackX -= attackData.get(getCurrentAttack()).attackWidth[attackCount - 1] + (attackData.get(getCurrentAttack()).attackXMod[attackCount - 1] * 2) + xMove;
-        // }
-        // int attackY = (int) hitBoxArea.y + attackData.get(getCurrentAttack()).attackYMod[attackCount - 1] + yMove;
-        // if(ducking) {
-        //     attackY -= 13;
-        // }
-        // int attackWidth = attackData.get(getCurrentAttack()).attackWidth[attackCount - 1];
-        // int attackHeight = attackData.get(getCurrentAttack()).attackHeight[attackCount - 1];
-        
-        // return new Rect(attackX, attackY, attackWidth, attackHeight);
-        return null;
-    }
-
-    public void renderAttackHitBoxOld(ShapeRenderer shapeRenderer) {
-        // if(attackDecayTimer >= attackData.get(getCurrentAttack()).attackFrameStart[attackCount - 1]
-        // && attackDecayTimer < attackData.get(getCurrentAttack()).attackFrameEnd[attackCount - 1]) {
-        //     shapeRenderer.begin(ShapeType.Filled);
-
-        //     if(attackCount == 1) {
-        //         shapeRenderer.setColor(82/255f, 0/255f, 0/255f, 1f);
-        //     } else if(attackCount == 2) {
-        //         shapeRenderer.setColor(92/255f, 0/255f, 0/255f, 1f);
-        //     } else {
-        //         shapeRenderer.setColor(102/255f, 0/255f, 0/255f, 1f);
-        //     }
-
-        //     Rect attackHitBox = getAttackHitBox();
-        //     shapeRenderer.rect((int) attackHitBox.x, (int) attackHitBox.y, attackHitBox.width, attackHitBox.height);
-        //     shapeRenderer.end();
-        // }
+        shapeRenderer.end();
     }
 }

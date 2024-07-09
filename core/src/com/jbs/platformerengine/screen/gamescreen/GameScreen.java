@@ -140,9 +140,9 @@ public class GameScreen extends Screen {
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             player.superJump();
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
-            player.dash("Left");
+            player.dash(player, "Left");
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-            player.dash("Right");
+            player.dash(player, "Right");
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
             player.attack(player);
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
@@ -160,7 +160,7 @@ public class GameScreen extends Screen {
             player.stopTargetingMob();
         }
 
-        // Temp. Shapeshift //
+        // Num Keys //
         else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
             player.changeSize(1);
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
@@ -372,9 +372,9 @@ public class GameScreen extends Screen {
             player.updateAnimation();
         }
         
-        // if(player.attackCount > 0) {
-        //     player.renderAttackHitBox(shapeRenderer);
-        // }
+        if(player.attackData != null) {
+            player.attackData.renderAttackHitBoxes(shapeRenderer, player);
+        }
 
         // Foreground //
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
@@ -512,14 +512,14 @@ public class GameScreen extends Screen {
             font.draw(spriteBatch, "Pos X: " + player.hitBoxArea.x + " (" + (player.hitBoxArea.x % Gdx.graphics.getWidth()) + ") " + " Y: " + player.hitBoxArea.y + " (" + (player.hitBoxArea.y % Gdx.graphics.getHeight()) + ") " + " Size: " + player.hitBoxArea.width + "x" + player.hitBoxArea.height, 3, 765);
             font.draw(spriteBatch, "Velocity X: " + player.velocity.x + " Y: " + player.velocity.y, 3, 750);
             font.draw(spriteBatch, "R: " + player.onRamp + " - HRB: " + player.onHalfRampBottom + " - HRT: " + player.onHalfRampTop, 3, 735);
-            font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount + " Falling: " + player.falling + " Running: " + player.running, 3, 720);
+            font.draw(spriteBatch, "Jumping: " + player.jumpCheck + " (" + player.jumpTimer + ") " + player.jumpCount + " Falling: " + player.falling + " Dashing: " + player.dashCheck + " Running: " + player.running, 3, 720);
             font.draw(spriteBatch, "Run Acc: " + player.runAcceleration + " Fly Acc: " + player.flyingAcceleration, 3, 705);
             
-            String attackString = " (0)";
+            String attackString = "None";
             if(player.attackData != null) {
-                attackString = " (" + player.attackData.attackDecayTimer + "/" + player.attackData.attackDecayTimerMax + ")";
+                attackString = "" + player.attackData.currentFrame + "/" + player.attackData.attackFrameLength;
             }
-            // font.draw(spriteBatch, "Attack: " + player.attackCount + attackString + " - DK: " + player.dropKickCheck + " SJ: " + player.superJumpCheck, 3, 690);
+            font.draw(spriteBatch, "Attack: " + attackString + " - DK: " + player.dropKickCheck + " SJ: " + player.superJumpCheck, 3, 690);
         }
         
         spriteBatch.end();

@@ -110,7 +110,7 @@ public class ScreenChunk {
             }
 
             if(mobObject.attackData != null) {
-                mobObject.attackData.renderAttackHitBox(shapeRenderer);
+                mobObject.attackData.renderAttackHitBoxes(shapeRenderer, mobObject);
             }
         }
     }

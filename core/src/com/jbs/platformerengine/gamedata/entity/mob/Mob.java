@@ -157,7 +157,13 @@ public class Mob extends CombatEntity {
         }
 
         // Update Attacks //
-        updateAttack();
-        updateAttackCollidables(screenChunks, this);
+        if(attackData != null) {
+            attackData.currentFrame += 1;
+            if(attackData.currentFrame >= attackData.attackFrameLength) {
+                attackData = null;
+            } else {
+                updateAttackCollidables(screenChunks, this);
+            }
+        }
     }
 }

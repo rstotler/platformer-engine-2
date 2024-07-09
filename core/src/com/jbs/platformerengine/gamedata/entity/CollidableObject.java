@@ -77,6 +77,7 @@ public class CollidableObject extends AnimatedObject {
         Tile xHitWallCheck = null;
         Tile yHitWallCheck = null;
         boolean hitLevelEdge = false;
+        boolean moveSidewaysCheck = velocity.x != 0;
 
         // Longer Left & Right //
         int updateDistance = 16;
@@ -520,6 +521,13 @@ public class CollidableObject extends AnimatedObject {
             if(mob.flyingAcceleration > mob.flyingAccelerationMin) {
                 mob.flyingAcceleration = mob.flyingAccelerationMin;
             }
+        }
+
+        // Remove Mob Attack If Moved Left/Right //
+        if(moveSidewaysCheck
+        && mob.attackData != null
+        && !mob.dashCheck) {
+            mob.attackData = null;
         }
     }
 

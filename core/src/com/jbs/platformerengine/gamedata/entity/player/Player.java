@@ -56,7 +56,8 @@ public class Player extends Mob {
 
             // Sideways Movement //
             velocity.x = 0;
-            if(keyboard.left && !keyboard.right && (attackData == null || inAir())) {
+            if(keyboard.left && !keyboard.right
+            && (attackData == null || attackData.currentFrame >= attackData.canWalkOnFrame || inAir())) {
                 if(!ducking) {
                     velocity.x = -moveSpeed;
                 }
@@ -65,7 +66,7 @@ public class Player extends Mob {
                     turnAroundCheck = true;
                 }
                 moveCheck = true;
-            } else if(!keyboard.left && keyboard.right && (attackData == null || inAir())) {
+            } else if(!keyboard.left && keyboard.right && (attackData == null || attackData.currentFrame >= attackData.canWalkOnFrame || inAir())) {
                 if(!ducking) {
                     velocity.x = moveSpeed;
                 }
@@ -82,7 +83,7 @@ public class Player extends Mob {
                 && !ducking) {
                     if(jumpCount < getMaxJumpCount() && !jumpButtonPressedCheck) {
                         if(superJumpPercent < .30) {
-                            jump();
+                            jump(this);
                         }
                         
                     // Drop Kick (Button Press) //
