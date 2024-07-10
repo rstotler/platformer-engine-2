@@ -146,7 +146,7 @@ public class CombatEntity extends CollidableObject {
 
         // Continue Attack Chain //
         else {
-
+            attackData.continueAttackChain(thisMob);
         }
     }
 

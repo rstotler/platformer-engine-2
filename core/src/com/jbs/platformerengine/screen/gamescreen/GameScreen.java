@@ -27,7 +27,6 @@ import com.jbs.platformerengine.screen.Screen;
  *  -Finish ImageManager.dispose()
  * 
  * Combat
- *  -Attack Chains
  *  -Knife Throw Ability
  * 
  * Background

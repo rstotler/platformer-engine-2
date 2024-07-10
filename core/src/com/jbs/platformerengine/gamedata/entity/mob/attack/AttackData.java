@@ -7,17 +7,14 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.CollidableObject;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
-import com.jbs.platformerengine.gamedata.entity.mob.attack.sword.ground.*;
-import com.jbs.platformerengine.gamedata.entity.mob.attack.sword.flying.*;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
 
 public class AttackData {
     public int currentFrame;
     public int attackFrameLength;
+    public int canWalkOnFrame;
 
     public float gravityMod;
-
-    public int canWalkOnFrame;
 
     public boolean isChargeable;
     public boolean isCharging;
@@ -28,14 +25,15 @@ public class AttackData {
     public ArrayList<AttackHitBoxData> attackHitBoxList;
     public ArrayList<CollidableObject> hitObjectList;
 
+    public LinkedHashMap<Integer, AttackData> attackChainMap;
+
     public AttackData() {
         currentFrame = 0;
         attackFrameLength = 10;
+        canWalkOnFrame = 9999;
 
         gravityMod = 0;
 
-        canWalkOnFrame = 9999;
-        
         isChargeable = false;
         isCharging = false;
         chargePercent = 0.0f;
@@ -44,34 +42,36 @@ public class AttackData {
 
         attackHitBoxList = new ArrayList<>();
         hitObjectList = new ArrayList<>();
+
+        attackChainMap = new LinkedHashMap<>();
     }
 
     public static AttackData getAttackChainStartData(String targetDirection, boolean flying, String weaponType) {
         if(weaponType.equals("Sword")) {
             if(flying) {
                 if(targetDirection.equals("Up")) {
-                    return new SwordFlyingUpBaseAttack();
+                    return new com.jbs.platformerengine.gamedata.entity.mob.attack.sword.flying.up.BaseAttack();
                 } else if(targetDirection.equals("Down")) {
-                    return new SwordFlyingDownBaseAttack();
+                    return new com.jbs.platformerengine.gamedata.entity.mob.attack.sword.flying.down.BaseAttack();
                 } else if(targetDirection.equals("None")) {
-                    return new SwordFlyingBaseAttack();
+                    return new com.jbs.platformerengine.gamedata.entity.mob.attack.sword.flying.base.BaseAttack();
                 }
             }
 
             else {
                 if(targetDirection.equals("Up")) {
-                    return new SwordGroundUpBaseAttack();
+                    return new com.jbs.platformerengine.gamedata.entity.mob.attack.sword.ground.up.BaseAttack();
                 } else if(targetDirection.equals("Down")) {
-                    return new SwordGroundDownBaseAttack();
+                    return new com.jbs.platformerengine.gamedata.entity.mob.attack.sword.ground.down.BaseAttack();
                 } else if(targetDirection.equals("Side")) {
-                    return new SwordGroundSideBaseAttack();
+                    return new com.jbs.platformerengine.gamedata.entity.mob.attack.sword.ground.side.BaseAttack();
                 } else if(targetDirection.equals("None")) {
-                    return new SwordGroundBaseAttack();
+                    return new com.jbs.platformerengine.gamedata.entity.mob.attack.sword.ground.base.BaseAttack();
                 }
             }
         }
 
-        return new SwordGroundBaseAttack();
+        return new com.jbs.platformerengine.gamedata.entity.mob.attack.sword.ground.base.BaseAttack();
     }
 
     public boolean update(ScreenChunk[][] screenChunks, Mob thisMob) {
@@ -107,5 +107,21 @@ public class AttackData {
         }
 
         shapeRenderer.end();
+    }
+
+    public void continueAttackChain(Mob thisMob) {
+        AttackData nextAttack = null;
+        int currentAttackStartFrame = -1;
+        for(Integer startFrame : attackChainMap.keySet()) {
+            if(currentFrame >= startFrame
+            && startFrame > currentAttackStartFrame) {
+                nextAttack = attackChainMap.get(startFrame);
+                currentAttackStartFrame = startFrame;
+            }
+        }
+
+        if(nextAttack != null) {
+            thisMob.attackData = nextAttack;
+        }
     }
 }

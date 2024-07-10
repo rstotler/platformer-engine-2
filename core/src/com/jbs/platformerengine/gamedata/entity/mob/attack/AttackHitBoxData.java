@@ -14,7 +14,7 @@ public class AttackHitBoxData {
     public float[] yLocationPercentModList; // Offset By Percentage (For Different Size Mobs)
     public int[] attackWidthList;           // Attack Width Is A Specific (Pixel) Size
     public float[] attackWidthPercentList;  // Attack Width Is A Percentage Of Mob HitBox
-    public int[] attackHeightList;
+    public int[] attackHeightList;          // Attack Height Is A Specific (Pixel) Size
 
     public AttackHitBoxData() {
         centerXLocation = false;
@@ -25,7 +25,7 @@ public class AttackHitBoxData {
         
         // Width //
         int attackWidth = 10;
-        if(attackWidthPercentList.length > 0) {
+        if(attackWidthPercentList != null && attackWidthPercentList.length > 0) {
             if(currentFrame < attackWidthPercentList.length) {
                 float attackWidthPercent = attackWidthPercentList[currentFrame];
                 attackWidth = (int) (thisMob.hitBoxArea.width * attackWidthPercent);
@@ -84,10 +84,10 @@ public class AttackHitBoxData {
         int yLocationPercentMod = 0;
         int attackY = 0;
         if(!centerYLocation) {
-            yLocationPercentMod = (int) ((thisMob.hitBoxArea.height / 2) * yLocationPercent);
+            yLocationPercentMod = (int) (thisMob.hitBoxArea.height * yLocationPercent);
             attackY = (int) thisMob.hitBoxArea.y + yLocationPercentMod;
         } else {
-            yLocationPercentMod = (int) (thisMob.hitBoxArea.height * yLocationPercent);
+            yLocationPercentMod = (int) ((thisMob.hitBoxArea.height / 2) * yLocationPercent);
             attackY = thisMob.hitBoxArea.getMiddle().y - (attackHeight / 2) + yLocationPercentMod;
         }
         
