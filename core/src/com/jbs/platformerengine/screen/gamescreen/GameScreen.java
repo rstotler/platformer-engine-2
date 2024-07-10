@@ -42,7 +42,6 @@ import com.jbs.platformerengine.screen.Screen;
  * Bugs:
  * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping (Still)
  * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
- * Square-Half Superjump
  */
 
 public class GameScreen extends Screen {
@@ -83,6 +82,14 @@ public class GameScreen extends Screen {
         initInputAdapter();
     }
 
+    public void bufferChunks() {
+        for(int y = 0; y < areaData.screenChunks[0].length; y++) {
+            for(int x = 0; x < areaData.screenChunks.length; x++) {
+                areaData.screenChunks[x][y].bufferTiles(spriteBatch, imageManager);
+            }
+        }
+    }
+
     public void initInputAdapter() {
         Gdx.input.setInputProcessor(new InputAdapter() {
 
@@ -92,7 +99,7 @@ public class GameScreen extends Screen {
 
                 if(key.equals("Left") || key.equals("Right") || key.equals("Up") || key.equals("Down")
                 || key.equals("A") || key.equals("S") || key.equals("D") || key.equals("W")
-                || key.equals("L-Shift") || key.equals("R-Shift") || key.equals("L-Ctrl") || key.equals("R-Ctrl")) {
+                || key.equals("L-Ctrl") || key.equals("R-Ctrl")) {
                     keyboard.keyDown(key);
                 }
 
@@ -109,7 +116,7 @@ public class GameScreen extends Screen {
                 
                 if(key.equals("Left") || key.equals("Right") || key.equals("Up") || key.equals("Down")
                 || key.equals("A") || key.equals("S") || key.equals("D") || key.equals("W")
-                || key.equals("L-Shift") || key.equals("R-Shift") || key.equals("L-Ctrl") || key.equals("R-Ctrl")
+                || key.equals("L-Ctrl") || key.equals("R-Ctrl")
                 || key.equals("Z")) {
                     keyboard.keyUp(key);
                 }
@@ -117,14 +124,6 @@ public class GameScreen extends Screen {
                 return true;
             }
         });
-    }
-
-    public void bufferChunks() {
-        for(int y = 0; y < areaData.screenChunks[0].length; y++) {
-            for(int x = 0; x < areaData.screenChunks.length; x++) {
-                areaData.screenChunks[x][y].bufferTiles(spriteBatch, imageManager);
-            }
-        }
     }
 
     public void handleInput(Player player) {
@@ -141,9 +140,7 @@ public class GameScreen extends Screen {
         }
         
         if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
-            player.dash(player, "Left");
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-            player.dash(player, "Right");
+            player.dash(player);
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
@@ -156,7 +153,8 @@ public class GameScreen extends Screen {
         
         if(Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_RIGHT)) {
             player.startTargetingMob();
-        } else if(keyboard.lastUp.contains("R-Ctrl") || keyboard.lastUp.contains("L-Ctrl")) {
+        } else if((keyboard.lastUp.contains("R-Ctrl") && !Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
+        || (keyboard.lastUp.contains("L-Ctrl")) && !Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) {
             player.stopTargetingMob();
         }
 

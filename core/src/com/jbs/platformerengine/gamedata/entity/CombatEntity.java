@@ -40,6 +40,7 @@ public class CombatEntity extends CollidableObject {
     public float dashPercent;
     public String dashDirection;
 
+    public boolean dashInAirCheck;
     public boolean dropKickBounceCheck;
 
     public boolean ducking;
@@ -84,6 +85,7 @@ public class CombatEntity extends CollidableObject {
         dashTimerMax = 25f;
         dashPercent = 0f;
 
+        dashInAirCheck = false;
         dropKickBounceCheck = false;
 
         ducking = false;
@@ -109,10 +111,10 @@ public class CombatEntity extends CollidableObject {
 
         // Start New Attack Chain //
         if(attackData == null) {
-            boolean leftPressed = Gdx.input.isKeyPressed(Input.Keys.LEFT);
-            boolean rightPressed = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
-            boolean upPressed = Gdx.input.isKeyPressed(Input.Keys.UP);
-            boolean downPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN);
+            boolean leftPressed = Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A);
+            boolean rightPressed = Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D);
+            boolean upPressed = Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W);
+            boolean downPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S);
 
             // Air Attacks //
             if(thisMob.inAir() && !thisMob.flying) {
@@ -271,27 +273,29 @@ public class CombatEntity extends CollidableObject {
     }
 
     public void jump(Mob thisMob) {
-        velocity.y = 8;
-        jumpCheck = true;
-        jumpButtonPressedCheck = true;
-        jumpTimer = 0;
-        jumpCount += 1;
-
-        dropKickBounceCheck = false;
-        superJumpCheck = false;
-        superJumpTimer = 0f;
-        superJumpPercent = 0f;
-
-        onRamp = null;
-        onHalfRampBottom = null;
-        onHalfRampTop = null;
-
-        justLanded = false;
-        justFellInRamp = null;
-        middleJustFellInRamp = null;
-
-        if(thisMob.attackData != null) {
-            thisMob.attackData = null;
+        if(superJumpPercent < .30) {
+            velocity.y = 8;
+            jumpCheck = true;
+            jumpButtonPressedCheck = true;
+            jumpTimer = 0;
+            jumpCount += 1;
+    
+            dropKickBounceCheck = false;
+            superJumpCheck = false;
+            superJumpTimer = 0f;
+            superJumpPercent = 0f;
+    
+            onRamp = null;
+            onHalfRampBottom = null;
+            onHalfRampTop = null;
+    
+            justLanded = false;
+            justFellInRamp = null;
+            middleJustFellInRamp = null;
+    
+            if(thisMob.attackData != null) {
+                thisMob.attackData = null;
+            }
         }
     }
 
@@ -300,21 +304,24 @@ public class CombatEntity extends CollidableObject {
     }
 
     public void dropKick(Mob thisMob) {
-        String attackObjectClassName = "";
-        if(thisMob.attackData != null) {
-            attackObjectClassName = thisMob.attackData.getClass().toString().substring(thisMob.attackData.getClass().toString().lastIndexOf(".") + 1);
-        }
-
-        if(thisMob.inAir()
-        && (superJumpTimer == 0 || superJumpTimer >= superJumpTimerMax)
-        && !(attackObjectClassName.equals("DropKick"))) {
-            attackData = new DropKick();
+        if(!dashInAirCheck) {
+            String attackObjectClassName = "";
+            if(thisMob.attackData != null) {
+                attackObjectClassName = thisMob.attackData.getClass().toString().substring(thisMob.attackData.getClass().toString().lastIndexOf(".") + 1);
+            }
+    
+            if(thisMob.inAir()
+            && (superJumpTimer == 0 || superJumpTimer >= superJumpTimerMax)
+            && !(attackObjectClassName.equals("DropKick"))) {
+                attackData = new DropKick();
+            }
         }
     }
 
     public void superJump(Mob thisMob) {
         if(!flying
         && !ducking
+        && !dashInAirCheck
         && (thisMob.attackData == null || thisMob.attackData.currentFrame >= thisMob.attackData.canWalkOnFrame)
         && superJumpPercent < .05) {
             superJumpCheck = true;
@@ -333,18 +340,29 @@ public class CombatEntity extends CollidableObject {
         }
     }
 
-    public void dash(Mob thisMob, String direction) {
+    public void dash(Mob thisMob) {
         if(!flying && !ducking
         && runAcceleration <= runAccelerationMin
         && dashPercent < .75
         && superJumpPercent < .30
+        && !dashInAirCheck
         && (thisMob.attackData == null || thisMob.attackData.currentFrame >= thisMob.attackData.canWalkOnFrame)) {
             dashCheck = true;
             dashTimer = 0f;
-            dashDirection = direction;
+
+            if(facingDirection.equals("Right")) {
+                dashDirection = "Left";
+            } else {
+                dashDirection = "Right";
+            }
 
             if(thisMob.attackData != null) {
                 thisMob.attackData = null;
+            }
+
+            if(inAir()) {
+                jumpCount = getMaxJumpCount();
+                dashInAirCheck = true;
             }
         }
     }
@@ -388,6 +406,7 @@ public class CombatEntity extends CollidableObject {
         falling = false;
 
         superJumpCheck = false;
+        dashInAirCheck = false;
 
         if(!justLanded) {
             justLanded = true;

@@ -1,5 +1,7 @@
 package com.jbs.platformerengine.gamedata.entity.player;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
@@ -82,11 +84,7 @@ public class Player extends Mob {
                 if(((keyboard.lastDown.contains("Up") || keyboard.lastDown.contains("W")))
                 && !ducking) {
                     if(jumpCount < getMaxJumpCount() && !jumpButtonPressedCheck) {
-                        if(superJumpPercent < .30) {
-                            jump(this);
-                        }
-                        
-                    // Drop Kick //
+                        jump(this);
                     } else {
                         dropKick(this);
                     }
@@ -131,7 +129,8 @@ public class Player extends Mob {
         }
 
         // Run Check //
-        if(keyboard.shiftIsPressed() && moveCheck) {
+        if((Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || (Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)))
+        && moveCheck) {
             running = true;
         } else {
             running = false;
@@ -148,10 +147,11 @@ public class Player extends Mob {
     }
 
     public void startTargetingMob() {
-        
+        System.out.println("Start");
     }
 
     public void stopTargetingMob() {
         targetMob = null;
+        System.out.println("Stop");
     }
 }

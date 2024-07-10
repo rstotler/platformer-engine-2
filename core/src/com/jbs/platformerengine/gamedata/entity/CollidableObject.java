@@ -378,10 +378,7 @@ public class CollidableObject extends AnimatedObject {
                     && (fellInSquareHalfLastFrame.getLocation().y / 16) > ((int) hitBoxArea.y / 16)) {
                         targetTile = ScreenChunk.getTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y);
                         if((targetTile == null
-                        && !(Tile.isEmptyTile(screenChunks, (int) hitBoxArea.getMiddle().x, (int) hitBoxArea.y)) == true)
-
-                        || (targetTile != null
-                        && targetTile.getLocation().y < fellInSquareHalfLastFrame.getLocation().y)) {
+                        || targetTile.getLocation().y < fellInSquareHalfLastFrame.getLocation().y)) {
                             hitBoxArea.y = fellInSquareHalfLastFrame.getLocation().y;
                         }
                     }
