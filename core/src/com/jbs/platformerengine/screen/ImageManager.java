@@ -131,7 +131,7 @@ public class ImageManager {
             }
         }
 
-        for(String removeBreakableImageName : removeMobImageList) {
+        for(String removeBreakableImageName : removeBreakableImageList) {
             if(breakableImage.containsKey(removeBreakableImageName)) {
                 for(String removeBreakableName : breakableImage.get(removeBreakableImageName).keySet()) {
                     // int i = 0;
@@ -168,6 +168,8 @@ public class ImageManager {
     }
 
     public void dispose() {
+        removeImages(new ArrayList<>(tile.keySet()), new ArrayList<>(breakableImage.keySet()), new ArrayList<>(mobImage.keySet()), true);
         
+        shaderProgramColorChannel.dispose();
     }
 }

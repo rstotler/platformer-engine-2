@@ -22,26 +22,24 @@ import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
- *  -Audit Enemies In GameScreen.getObjectCellCollidables()
- *  -Finish ImageManager.dispose()
- * 
- * Combat
+ * Combat:
  *  -Target/Untarget Mob
  *  -Knife Throw Ability
  * 
- * Background
+ * Background:
  *  -Clouds
  *  -Stars
  *  -Pixelate Moon Glow
  *  -Wave Shader When Walking Past Grass
  * 
- * Areas
+ * Areas:
  *  -Tower
  *  -Underground
  * 
  * Bugs:
- * Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping (Still)
- * Jumps Somehow Get Disabled When Holding Jump When Bouncing?
+ *  -Superjumps Can Get Disabled Somehow Through Excessive Dropkick/Superjumping (Still)
+ *  -Jumps Somehow Get Disabled When Holding Jump When Bouncing?
+ *  -Mob Sprite Disappears For One Frame When Crossing ScreenChunks
  */
 
 public class GameScreen extends Screen {
@@ -54,7 +52,8 @@ public class GameScreen extends Screen {
     ShapeRenderer shapeRenderer;
     ImageManager imageManager;
 
-    int displayDebugData;
+    int displayDebugDataLevel;       // 0 - Debug & FPS, 1 - FPS,             2 - None
+    int displayCollidableCellsLevel; // 0 - None,        1 - CellCollidables, 2 - Target CellCollidables
     
     public GameScreen(PlatformerEngine platformerEngine) {
         super();
@@ -71,11 +70,11 @@ public class GameScreen extends Screen {
         shapeRenderer = new ShapeRenderer();
         imageManager = new ImageManager(areaData.tileSetList, areaData.breakableImageList, areaData.mobImageList, areaData.outside);
         
-        displayDebugData = 1;
+        displayDebugDataLevel = 0;
+        displayCollidableCellsLevel = 0;
 
         areaData.loadArea(spriteBatch, imageManager);
         areaData.loadBackgroundFrameBuffers(spriteBatch);
-
         bufferChunks();
 
         platformerEngine.player = new Player(imageManager);
@@ -152,7 +151,7 @@ public class GameScreen extends Screen {
         }
         
         if(Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_RIGHT)) {
-            player.startTargetingMob();
+            player.startTargetingMob(areaData.screenChunks);
         } else if((keyboard.lastUp.contains("R-Ctrl") && !Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
         || (keyboard.lastUp.contains("L-Ctrl")) && !Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) {
             player.stopTargetingMob();
@@ -160,18 +159,23 @@ public class GameScreen extends Screen {
 
         // Num Keys //
         else if(Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
-            displayDebugData += 1;
-            if(displayDebugData >= 3) {
-                displayDebugData = 0;
+            displayDebugDataLevel += 1;
+            if(displayDebugDataLevel >= 3) {
+                displayDebugDataLevel = 0;
+            }
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
+            displayCollidableCellsLevel += 1;
+            if(displayCollidableCellsLevel >= 3) {
+                displayCollidableCellsLevel = 0;
             }
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
-            player.changeSize(1);
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
-            player.changeSize(2);
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
-            player.changeSize(3);
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
             player.changeForm(imageManager, true);
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
+            player.changeSize(1);
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
+            player.changeSize(2);
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
+            player.changeSize(3);
         } else if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
             if(player.displayAfterImage) {
                 player.displayAfterImage = false;
@@ -323,7 +327,7 @@ public class GameScreen extends Screen {
         int chunkStartX = (((int) player.hitBoxArea.x) / Gdx.graphics.getWidth()) - 1;
         int chunkStartY = (((int) player.hitBoxArea.y) / Gdx.graphics.getHeight()) - 1;
 
-        // Walls & Tiles //
+        // Walls, Tiles (& CellCollidables) //
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
                 if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
@@ -331,23 +335,34 @@ public class GameScreen extends Screen {
                     int yLoc = y * Gdx.graphics.getHeight();
                     
                     spriteBatch.setProjectionMatrix(camera.combined);
-
                     spriteBatch.begin();
-                    spriteBatch.draw(areaData.screenChunks[x][y].frameBufferWalls.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                    
+                    if(displayCollidableCellsLevel == 0) {
+                        spriteBatch.draw(areaData.screenChunks[x][y].frameBufferWalls.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                    } else {
+                        spriteBatch.end();
+                        areaData.screenChunks[x][y].renderCellCollidables(camera, shapeRenderer, displayCollidableCellsLevel);
+                        spriteBatch.setProjectionMatrix(camera.combined);
+                        spriteBatch.begin();
+                    }
+                    
                     spriteBatch.draw(areaData.screenChunks[x][y].frameBufferTiles.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
                     spriteBatch.end();
                 }
             }
         }
 
-        // Animations //
+        // Animations (& CellCollidables Data) //
         for(int y = chunkStartY; y < chunkStartY + 3; y++) {
             for(int x = chunkStartX; x < chunkStartX + 3; x++) {
                 if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
                     int xLoc = x * Gdx.graphics.getWidth();
                     int yLoc = y * Gdx.graphics.getHeight();
                     
-                    areaData.screenChunks[x][y].bufferAnimations(camera, spriteBatch, imageManager, shapeRenderer, areaData.areaTimer);
+                    if(displayCollidableCellsLevel != 0) {
+                        areaData.screenChunks[x][y].renderCellCollidablesData(camera, spriteBatch, font);
+                    }
+                    areaData.screenChunks[x][y].bufferAnimations(camera, spriteBatch, imageManager, shapeRenderer, areaData.areaTimer, player);
 
                     spriteBatch.begin();
                     spriteBatch.draw(areaData.screenChunks[x][y].frameBufferAnimation.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
@@ -359,36 +374,35 @@ public class GameScreen extends Screen {
         if(player.displayHitBox) {
             player.renderHitBox(camera, shapeRenderer, player.facingDirection);
         }
-        
         if(player.displayAfterImage) {
             player.renderAfterImage(imageManager, spriteBatch);
             player.removeAfterImage(player);
         }
-
         if(player.displaySprite) {
             player.renderAnimatedObject(imageManager, spriteBatch, player.hitBoxArea, player.facingDirection, true);
             player.updateAnimation();
         }
-        
         if(player.attackData != null) {
             player.attackData.renderAttackHitBoxes(shapeRenderer, player);
         }
 
         // Foreground //
-        for(int y = chunkStartY; y < chunkStartY + 3; y++) {
-            for(int x = chunkStartX; x < chunkStartX + 3; x++) {
-                if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
-                    int xLoc = x * Gdx.graphics.getWidth();
-                    int yLoc = y * Gdx.graphics.getHeight();
-                    
-                    spriteBatch.begin();
-                    spriteBatch.draw(areaData.screenChunks[x][y].frameBufferForeground.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
-                    spriteBatch.end();
+        if(displayCollidableCellsLevel == 0) {
+            for(int y = chunkStartY; y < chunkStartY + 3; y++) {
+                for(int x = chunkStartX; x < chunkStartX + 3; x++) {
+                    if(x >= 0 && y >= 0 && x < areaData.screenChunks.length && y < areaData.screenChunks[0].length) {
+                        int xLoc = x * Gdx.graphics.getWidth();
+                        int yLoc = y * Gdx.graphics.getHeight();
+                        
+                        spriteBatch.begin();
+                        spriteBatch.draw(areaData.screenChunks[x][y].frameBufferForeground.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+                        spriteBatch.end();
+                    }
                 }
             }
         }
         
-        if(displayDebugData != 0) {
+        if(displayDebugDataLevel != 2) {
             renderDebugData(player);
         }
     }
@@ -506,7 +520,7 @@ public class GameScreen extends Screen {
         font.setColor(Color.WHITE);
         font.draw(spriteBatch, "FPS: " + String.valueOf(Gdx.graphics.getFramesPerSecond()), 1205, 767);
 
-        if(displayDebugData == 1) {
+        if(displayDebugDataLevel == 0) {
             font.draw(spriteBatch, "Pos X: " + player.hitBoxArea.x + " (" + (player.hitBoxArea.x % Gdx.graphics.getWidth()) + ") " + " Y: " + player.hitBoxArea.y + " (" + (player.hitBoxArea.y % Gdx.graphics.getHeight()) + ") " + " Size: " + player.hitBoxArea.width + "x" + player.hitBoxArea.height, 3, 765);
             font.draw(spriteBatch, "Velocity X: " + player.velocity.x + " Y: " + player.velocity.y, 3, 750);
             font.draw(spriteBatch, "R: " + player.onRamp + " - HRB: " + player.onHalfRampBottom + " - HRT: " + player.onHalfRampTop, 3, 735);
@@ -517,7 +531,7 @@ public class GameScreen extends Screen {
             if(player.attackData != null) {
                 attackString = "" + player.attackData.currentFrame + "/" + player.attackData.attackFrameLength + " (" + player.attackData.chargePercent + ")";
             }
-            font.draw(spriteBatch, "Attack: " + attackString + " - DKB: " + player.dropKickBounceCheck + " SJ: " + player.superJumpCheck, 3, 690);
+            font.draw(spriteBatch, "Attack: " + attackString + " - DKB: " + player.dropKickBounceCheck + " SJ: " + player.superJumpCheck + " Target: " + player.targetMob, 3, 690);
         }
         
         spriteBatch.end();

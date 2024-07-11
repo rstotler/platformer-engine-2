@@ -560,6 +560,17 @@ public class CollidableObject extends AnimatedObject {
         shapeRenderer.end();
     }
 
+    public void renderTargetBox(OrthographicCamera camera, ShapeRenderer shapeRenderer) {
+        shapeRenderer.begin(ShapeType.Line);
+        shapeRenderer.setProjectionMatrix(camera.combined);        
+        shapeRenderer.setColor(140/255f, 0/255f, 140/255f, 1f);
+
+        int paddingSize = 10;
+        shapeRenderer.rect((int) hitBoxArea.x - paddingSize, (int) hitBoxArea.y - paddingSize, hitBoxArea.width + (paddingSize * 2), hitBoxArea.height + (paddingSize * 2));
+
+        shapeRenderer.end();
+    }
+
     public void changeSize(int num) {
         if(num == 1) {
             hitBoxArea.width = 12;

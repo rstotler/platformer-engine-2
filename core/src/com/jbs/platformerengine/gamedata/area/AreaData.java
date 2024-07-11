@@ -957,6 +957,10 @@ public class AreaData {
         if(outside) {
             nightTimer = 0;
         }
+
+        if(player.targetMob != null) {
+            player.targetMob = null;
+        }
     }
 
     public void update(Player player) {

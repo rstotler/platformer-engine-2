@@ -7,19 +7,23 @@ import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.gamescreen.Tile;
+import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
+import com.jbs.platformerengine.screen.gamescreen.CellCollidables;
 
 public class Player extends Mob {
     public Mob targetMob;
+
     public Tile changeAreaTile;
 
     public Player(ImageManager imageManager) {
-        super("", new Point(1300, 600), imageManager, true);
+        super("", new Point(3700, 600), imageManager, true);
 
         isPlayer = true;
         displayHitBox = true;
         displayAfterImage = true;
 
         targetMob = null;
+        
         changeAreaTile = null;
     }
 
@@ -149,12 +153,52 @@ public class Player extends Mob {
         keyboard.lastUp.clear();
     }
 
-    public void startTargetingMob() {
-        System.out.println("Start");
+    public void startTargetingMob(ScreenChunk[][] screenChunks) {
+        Mob closestMob = null;
+        float closestDistance = 0.0f;
+        boolean breakCheck = false;
+
+        int areaSize = 5;
+        for(int y = 0; y < areaSize; y++) {
+            for(int x = 0; x < areaSize; x++) {
+                if(x == 0 && y == 0) { // Check Center First
+                    x = areaSize / 2;
+                    y = areaSize / 2;
+                } else if(x == areaSize / 2 && y == areaSize / 2) {
+                    x = 0;
+                    y = 0;
+                }
+
+                int cellCollidablesStartX = hitBoxArea.getMiddle().x - ((areaSize / 2) * 20) + (x * 20);
+                int cellCollidablesStartY = hitBoxArea.getMiddle().y - ((areaSize / 2) * 20) + (y * 20);
+                CellCollidables targetCellCollidablesCell = ScreenChunk.getCellCollidablesCell(screenChunks, cellCollidablesStartX, cellCollidablesStartY);
+
+                if(targetCellCollidablesCell != null) {
+                    for(Mob mob : targetCellCollidablesCell.mobList) {
+                        if(closestMob == null
+                        || hitBoxArea.getMiddle().getDistance(mob.hitBoxArea.getMiddle()) < closestDistance) {
+                            closestMob = mob;
+                        }
+                    }
+
+                    if(x == areaSize / 2 && y == areaSize / 2
+                    && closestMob != null) {
+                        breakCheck = true;
+                        break;
+                    }
+                }
+            }
+            if(breakCheck) {
+                break;
+            }
+        }
+
+        if(closestMob != null) {
+            targetMob = closestMob;
+        }
     }
 
     public void stopTargetingMob() {
         targetMob = null;
-        System.out.println("Stop");
     }
 }
