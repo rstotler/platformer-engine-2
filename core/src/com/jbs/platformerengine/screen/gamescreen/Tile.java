@@ -3,6 +3,7 @@ package com.jbs.platformerengine.screen.gamescreen;
 import com.badlogic.gdx.Gdx;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
+import com.jbs.platformerengine.gamedata.entity.player.Player;
 
 public class Tile {
     public String tileSet;
@@ -18,6 +19,7 @@ public class Tile {
 
     public String changeArea;
     public Point changeLocation;
+    public boolean exitIsOnLeftSide;
 
     public boolean moveOntoCheck;
 
@@ -34,6 +36,7 @@ public class Tile {
         initTileShape();
 
         changeArea = "None";
+        exitIsOnLeftSide = false;
     }
 
     public Tile(String tileSet, String tileName, int chunkX, int chunkY, int tileX, int tileY){ 
@@ -49,6 +52,7 @@ public class Tile {
         initTileShape();
 
         changeArea = "None";
+        exitIsOnLeftSide = false;
     }
 
     public Tile(String changeArea, Point changeLocation, int chunkX, int chunkY, int tileX, int tileY) {
@@ -65,6 +69,7 @@ public class Tile {
 
         this.changeArea = changeArea;
         this.changeLocation = changeLocation;
+        exitIsOnLeftSide = false;
     }
 
     public void initTileShape() {
@@ -108,6 +113,11 @@ public class Tile {
         }
 
         moveOntoCheck = false;
+
+        if(!changeArea.equals("None")
+        && player.isPlayer) {
+            ((Player) player).changeAreaTile = this;
+        }
 
         float locationDiffRight = player.hitBoxArea.getMiddle().x - getLocation().x;
         float locationDiffLeft = 16 - (player.hitBoxArea.getMiddle().x - getLocation().x);

@@ -165,9 +165,11 @@ public class Area02 extends AreaData {
             int tileY = (exitYLoc + y) % 48;
             int exitX = 100;
             if(GameScreen.getAreaData("Area01") != null) {
-                exitX = (GameScreen.getAreaData("Area01").screenChunks.length * Gdx.graphics.getWidth()) - 32; // Update 32 With Player Width
+                exitX = (GameScreen.getAreaData("Area01").screenChunks.length * Gdx.graphics.getWidth()) - 16;
             }
-            screenChunks[0][chunkY].tiles[0][tileY] = new Tile("Area01", new Point(exitX, 600), 0, chunkY, 0, tileY);
+            Tile exitTile = new Tile("Area01", new Point(exitX, 600), 0, chunkY, 0, tileY);
+            exitTile.exitIsOnLeftSide = true;
+            screenChunks[0][chunkY].tiles[0][tileY] = exitTile;
         }
 
         // Dispose Textures //

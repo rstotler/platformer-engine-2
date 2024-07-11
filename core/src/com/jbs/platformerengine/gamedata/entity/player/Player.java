@@ -6,9 +6,11 @@ import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.screen.ImageManager;
+import com.jbs.platformerengine.screen.gamescreen.Tile;
 
 public class Player extends Mob {
     public Mob targetMob;
+    public Tile changeAreaTile;
 
     public Player(ImageManager imageManager) {
         super("", new Point(1300, 600), imageManager, true);
@@ -18,6 +20,7 @@ public class Player extends Mob {
         displayAfterImage = true;
 
         targetMob = null;
+        changeAreaTile = null;
     }
 
     public void updateInput(Keyboard keyboard) {

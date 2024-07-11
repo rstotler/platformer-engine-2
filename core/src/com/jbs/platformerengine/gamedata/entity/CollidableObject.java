@@ -9,6 +9,7 @@ import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.PointF;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
+import com.jbs.platformerengine.gamedata.entity.player.Player;
 import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.animatedobject.AnimatedObject;
 import com.jbs.platformerengine.screen.gamescreen.ScreenChunk;
@@ -78,8 +79,13 @@ public class CollidableObject extends AnimatedObject {
         float updateYMove = -1;
         Tile xHitWallCheck = null;
         Tile yHitWallCheck = null;
+
+        // Set (Other) Variables //
         boolean hitLevelEdge = false;
         boolean moveSidewaysCheck = velocity.x != 0;
+        if(mob.isPlayer) {
+            ((Player) mob).changeAreaTile = null;
+        }
 
         // Longer Left & Right //
         int updateDistance = 16;

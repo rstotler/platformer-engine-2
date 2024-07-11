@@ -196,9 +196,11 @@ public class Area01 extends AreaData {
             int tileY = (exitYLoc + y) % 48;
             int exitX = 100;
             if(GameScreen.getAreaData("AreaDebug") != null) {
-                exitX = (GameScreen.getAreaData("AreaDebug").screenChunks.length * Gdx.graphics.getWidth()) - 32; // Update 32 With Player Width
+                exitX = (GameScreen.getAreaData("AreaDebug").screenChunks.length * Gdx.graphics.getWidth()) - 16;
             }
-            screenChunks[0][chunkY].tiles[0][tileY] = new Tile("AreaDebug", new Point(exitX, 16), 0, chunkY, 0, tileY);
+            Tile exitTile = new Tile("AreaDebug", new Point(exitX, 16), 0, chunkY, 0, tileY);
+            exitTile.exitIsOnLeftSide = true;
+            screenChunks[0][chunkY].tiles[0][tileY] = exitTile;
         }
 
         // Right Bridge Exit To Area02 //

@@ -23,10 +23,10 @@ import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
  *  -Audit Enemies In GameScreen.getObjectCellCollidables()
- *  -Fix Room Exits For Large Mob Sizes
  *  -Finish ImageManager.dispose()
  * 
  * Combat
+ *  -Target/Untarget Mob
  *  -Knife Throw Ability
  * 
  * Background
@@ -260,52 +260,47 @@ public class GameScreen extends Screen {
         player.update(areaData.screenChunks, null);
         
         // Change Area Check //
-        int chunkX = player.hitBoxArea.getMiddle().x / Gdx.graphics.getWidth();
-        int chunkY = player.hitBoxArea.getMiddle().y / Gdx.graphics.getHeight();
-        int tileX = (player.hitBoxArea.getMiddle().x % Gdx.graphics.getWidth()) / 16;
-        int tileY = (player.hitBoxArea.getMiddle().y % Gdx.graphics.getHeight()) / 16;
-        int xLoc = (chunkX * Gdx.graphics.getWidth()) + (tileX * 16);
-        int yLoc = (chunkY * Gdx.graphics.getHeight()) + (tileY * 16);
-        Tile changeAreaTile = ScreenChunk.getTile(areaData.screenChunks, xLoc, yLoc);
-        if(changeAreaTile != null
-        && !changeAreaTile.changeArea.equals("None")) {
-            changeArea(player, changeAreaTile);
+        if(player.changeAreaTile != null) {
+            changeArea(player);
         }
     }
 
-    public void changeArea(Player player, Tile targetTile) {
-        if(unusedAreaData.containsKey(targetTile.changeArea)) {
+    public void changeArea(Player player) {
+        if(unusedAreaData.containsKey(player.changeAreaTile.changeArea)) {
             areaData.dispose();
 
             // Create RemoveTileSetList & RemoveBreakableImageList //
             ArrayList<String> removeTileSetList = new ArrayList<>();
             for(String tileSet : areaData.tileSetList) {
-                if(!unusedAreaData.get(targetTile.changeArea).tileSetList.contains(tileSet)) {
+                if(!unusedAreaData.get(player.changeAreaTile.changeArea).tileSetList.contains(tileSet)) {
                     removeTileSetList.add(tileSet);
                 }
             }
             ArrayList<String> removeBreakableImageList = new ArrayList<>();
             for(String breakableImageName : areaData.breakableImageList) {
-                if(!unusedAreaData.get(targetTile.changeArea).breakableImageList.contains(breakableImageName)) {
+                if(!unusedAreaData.get(player.changeAreaTile.changeArea).breakableImageList.contains(breakableImageName)) {
                     removeBreakableImageList.add(breakableImageName);
                 }
             }
             ArrayList<String> removeMobImageList = new ArrayList<>();
             for(String mobImageName : areaData.mobImageList) {
-                if(!unusedAreaData.get(targetTile.changeArea).mobImageList.contains(mobImageName)) {
+                if(!unusedAreaData.get(player.changeAreaTile.changeArea).mobImageList.contains(mobImageName)) {
                     removeMobImageList.add(mobImageName);
                 }
             }
-            imageManager.removeImages(removeTileSetList, removeBreakableImageList, removeMobImageList, unusedAreaData.get(targetTile.changeArea).outside);
+            imageManager.removeImages(removeTileSetList, removeBreakableImageList, removeMobImageList, unusedAreaData.get(player.changeAreaTile.changeArea).outside);
             
             unusedAreaData.put(areaData.levelName, areaData);
-            areaData = unusedAreaData.get(targetTile.changeArea);
-            unusedAreaData.remove(targetTile.changeArea);
+            areaData = unusedAreaData.get(player.changeAreaTile.changeArea);
+            unusedAreaData.remove(player.changeAreaTile.changeArea);
 
             areaData.changeArea(spriteBatch, imageManager, player);
 
-            player.hitBoxArea.x = targetTile.changeLocation.x;
-            player.hitBoxArea.y = targetTile.changeLocation.y;
+            player.hitBoxArea.x = player.changeAreaTile.changeLocation.x;
+            if(player.changeAreaTile.exitIsOnLeftSide) {
+                player.hitBoxArea.x = player.changeAreaTile.changeLocation.x - player.hitBoxArea.width;
+            }
+            player.hitBoxArea.y = player.changeAreaTile.changeLocation.y;
             player.resetRamps();
         }
     }
