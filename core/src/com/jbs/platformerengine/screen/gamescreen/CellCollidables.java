@@ -27,6 +27,8 @@ public class CellCollidables {
     }
 
     public String toString() {
-        return "Chunk: " + chunkX + ", " + chunkY;
+        int xLoc = (chunkX * 20) + location.x;
+        int yLoc = (chunkY * 12) + location.y;
+        return "(" + xLoc + ", " + yLoc + ")";
     }
 }

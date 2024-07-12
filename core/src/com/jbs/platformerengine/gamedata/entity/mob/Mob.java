@@ -79,10 +79,13 @@ public class Mob extends CombatEntity {
     }
 
     public void update(ScreenChunk[][] screenChunks, HashMap<Mob, ArrayList<CellCollidables>> updateMobScreenChunkMap) {
+        
+        // Update After Image //
         if(displayAfterImage) {
             updateAfterImage(this);
         }
         
+        // Mob Movement //
         if(updateMobScreenChunkMap != null) {
             updateMovement(screenChunks, updateMobScreenChunkMap, this);
         }

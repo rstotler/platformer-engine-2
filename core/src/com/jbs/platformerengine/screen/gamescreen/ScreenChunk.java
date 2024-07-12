@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.jbs.platformerengine.gamedata.Point;
+import com.jbs.platformerengine.gamedata.area.AreaData;
 import com.jbs.platformerengine.gamedata.entity.BreakableObject;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
 import com.jbs.platformerengine.gamedata.entity.player.Player;
@@ -92,14 +93,20 @@ public class ScreenChunk {
         spriteBatch.end();
     }
 
-    public void renderCellCollidables(OrthographicCamera camera, ShapeRenderer shapeRenderer, int displayCollidableCellsLevel) {
+    public void renderCellCollidables(OrthographicCamera camera, ShapeRenderer shapeRenderer, AreaData areaData, Player player, int displayCollidableCellsLevel) {
         shapeRenderer.begin(ShapeType.Filled);
         shapeRenderer.setProjectionMatrix(camera.combined);
+
+        ArrayList<CellCollidables> targetCellCollidablesList = player.getTargetMobAreaCellCollidables(areaData.screenChunks);
 
         for(int y = 0; y < 12; y++) {
             for(int x = 0; x < 20; x++) {
                 CellCollidables targetCellCollidables = cellCollidables[x][y];
-                shapeRenderer.setColor(0/255f, 0/255f, targetCellCollidables.cellColor/255f, 1f);
+                if(targetCellCollidablesList.contains(targetCellCollidables)) {
+                    shapeRenderer.setColor(0/255f, targetCellCollidables.cellColor/255f, 0/255f, 1f);
+                } else {
+                    shapeRenderer.setColor(0/255f, 0/255f, targetCellCollidables.cellColor/255f, 1f);
+                }
                 
                 int xLoc = (location.x * Gdx.graphics.getWidth()) + (x * 64);
                 int yLoc = (location.y * Gdx.graphics.getHeight()) + (y * 64);
@@ -122,6 +129,7 @@ public class ScreenChunk {
                 int yLoc = (location.y * Gdx.graphics.getHeight()) + (y * 64) + 15;
                 String stringMobListSize = String.valueOf(targetCellCollidables.mobList.size());
                 
+                font.draw(spriteBatch, targetCellCollidables.toString(), xLoc, yLoc + 20);
                 font.draw(spriteBatch, stringMobListSize, xLoc, yLoc);
             }
         }
@@ -200,8 +208,8 @@ public class ScreenChunk {
     public static CellCollidables getCellCollidablesCell(ScreenChunk[][] screenChunks, int xLoc, int yLoc) {
         int chunkX = xLoc / Gdx.graphics.getWidth();
         int chunkY = yLoc / Gdx.graphics.getHeight();
-        int cellX = (xLoc % Gdx.graphics.getWidth()) / 20;
-        int cellY = (yLoc % Gdx.graphics.getHeight()) / 20;
+        int cellX = (xLoc % Gdx.graphics.getWidth()) / 64;
+        int cellY = (yLoc % Gdx.graphics.getHeight()) / 64;
 
         if(chunkX >= 0 && chunkX < screenChunks.length
         && chunkY >= 0 && chunkY < screenChunks[0].length

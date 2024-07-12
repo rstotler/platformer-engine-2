@@ -341,7 +341,7 @@ public class GameScreen extends Screen {
                         spriteBatch.draw(areaData.screenChunks[x][y].frameBufferWalls.getColorBufferTexture(), xLoc, yLoc, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
                     } else {
                         spriteBatch.end();
-                        areaData.screenChunks[x][y].renderCellCollidables(camera, shapeRenderer, displayCollidableCellsLevel);
+                        areaData.screenChunks[x][y].renderCellCollidables(camera, shapeRenderer, areaData, player, displayCollidableCellsLevel);
                         spriteBatch.setProjectionMatrix(camera.combined);
                         spriteBatch.begin();
                     }
@@ -360,7 +360,7 @@ public class GameScreen extends Screen {
                     int yLoc = y * Gdx.graphics.getHeight();
                     
                     if(displayCollidableCellsLevel != 0) {
-                        areaData.screenChunks[x][y].renderCellCollidablesData(camera, spriteBatch, font);
+                        areaData.screenChunks[x][y].renderCellCollidablesData(camera, spriteBatch, fontSmall);
                     }
                     areaData.screenChunks[x][y].bufferAnimations(camera, spriteBatch, imageManager, shapeRenderer, areaData.areaTimer, player);
 

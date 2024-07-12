@@ -1,5 +1,7 @@
 package com.jbs.platformerengine.gamedata.entity.player;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.jbs.platformerengine.components.Keyboard;
@@ -12,7 +14,7 @@ import com.jbs.platformerengine.screen.gamescreen.CellCollidables;
 
 public class Player extends Mob {
     public Mob targetMob;
-
+    
     public Tile changeAreaTile;
 
     public Player(ImageManager imageManager) {
@@ -154,51 +156,50 @@ public class Player extends Mob {
     }
 
     public void startTargetingMob(ScreenChunk[][] screenChunks) {
-        Mob closestMob = null;
-        float closestDistance = 0.0f;
-        boolean breakCheck = false;
+        if(targetMob == null) {
+            Mob closestMob = null;
+            float closestDistance = 0.0f;
 
-        int areaSize = 5;
-        for(int y = 0; y < areaSize; y++) {
-            for(int x = 0; x < areaSize; x++) {
-                if(x == 0 && y == 0) { // Check Center First
-                    x = areaSize / 2;
-                    y = areaSize / 2;
-                } else if(x == areaSize / 2 && y == areaSize / 2) {
-                    x = 0;
-                    y = 0;
-                }
-
-                int cellCollidablesStartX = hitBoxArea.getMiddle().x - ((areaSize / 2) * 20) + (x * 20);
-                int cellCollidablesStartY = hitBoxArea.getMiddle().y - ((areaSize / 2) * 20) + (y * 20);
-                CellCollidables targetCellCollidablesCell = ScreenChunk.getCellCollidablesCell(screenChunks, cellCollidablesStartX, cellCollidablesStartY);
-
-                if(targetCellCollidablesCell != null) {
-                    for(Mob mob : targetCellCollidablesCell.mobList) {
-                        if(closestMob == null
-                        || hitBoxArea.getMiddle().getDistance(mob.hitBoxArea.getMiddle()) < closestDistance) {
-                            closestMob = mob;
-                        }
-                    }
-
-                    if(x == areaSize / 2 && y == areaSize / 2
-                    && closestMob != null) {
-                        breakCheck = true;
-                        break;
+            for(CellCollidables targetCellCollidablesCell : getTargetMobAreaCellCollidables(screenChunks)) {
+                for(Mob mob : targetCellCollidablesCell.mobList) {
+                    float mobDistance = hitBoxArea.getMiddle().getDistance(mob.hitBoxArea.getMiddle());
+                    
+                    if(closestMob == null
+                    || mobDistance < closestDistance) {
+                        closestMob = mob;
+                        closestDistance = mobDistance;
                     }
                 }
             }
-            if(breakCheck) {
-                break;
+            if(closestMob != null) {
+                targetMob = closestMob;
             }
-        }
-
-        if(closestMob != null) {
-            targetMob = closestMob;
         }
     }
 
     public void stopTargetingMob() {
-        targetMob = null;
+        if(targetMob != null) {
+            targetMob = null;
+        }
+    }
+
+    // Utility Functions //
+    public ArrayList<CellCollidables> getTargetMobAreaCellCollidables(ScreenChunk[][] screenChunks) {
+        ArrayList<CellCollidables> cellCollidablesList = new ArrayList<>();
+
+        int areaSize = 5;
+        for(int y = 0; y < areaSize; y++) {
+            for(int x = 0; x < areaSize; x++) {
+                int cellCollidablesStartX = hitBoxArea.getMiddle().x - ((areaSize / 2) * 64) + (x * 64);
+                int cellCollidablesStartY = hitBoxArea.getMiddle().y - ((areaSize / 2) * 64) + (y * 64);
+                CellCollidables targetCellCollidablesCell = ScreenChunk.getCellCollidablesCell(screenChunks, cellCollidablesStartX, cellCollidablesStartY);
+
+                if(targetCellCollidablesCell != null) {
+                    cellCollidablesList.add(targetCellCollidablesCell);
+                }
+            }
+        }
+
+        return cellCollidablesList;
     }
 }
