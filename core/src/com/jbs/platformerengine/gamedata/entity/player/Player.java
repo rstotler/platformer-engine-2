@@ -156,9 +156,10 @@ public class Player extends Mob {
     }
 
     public void update(ScreenChunk[][] screenChunks) {
-
+        
         // Update Facing Direction If Targeting Mob //
-        if(targetMob != null) {
+        if(targetMob != null
+        && !dashCheck) {
             if((facingDirection.equals("Right")
             && hitBoxArea.getMiddle().x > targetMob.hitBoxArea.getMiddle().x)
             || (facingDirection.equals("Left")

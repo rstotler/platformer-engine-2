@@ -25,7 +25,6 @@ import com.jbs.platformerengine.screen.Screen;
  *  -Knife Throw Ability
  * 
  * Background:
- *  -Clouds
  *  -Stars
  *  -Wave Shader When Walking Past Grass
  * 
@@ -134,7 +133,7 @@ public class GameScreen extends Screen {
         }
         
         if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
-            player.dash(player);
+            player.dash(player, keyboard);
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
@@ -494,18 +493,17 @@ public class GameScreen extends Screen {
         float moonX = 550 + moonXMod;
         float moonY = 240 + moonYMod;
 
-        for(Cloud cloud : areaData.cloudBackList) {
-            cloud.update();
-            spriteBatch.setColor(cloud.tintColor/255f, cloud.tintColor/255f, cloud.tintColor/255f, 1);
-            spriteBatch.draw(imageManager.outsideImage.get("Cloud").get(cloud.num), cloud.location.x + cloudXMod + cloud.getMoveMod(), cloud.location.y + cloudYMod);
-            spriteBatch.setColor(1, 1, 1, 1);
-        }
-
         spriteBatch.draw(textureMoonGlow, moonX - xPercentMod - 61, moonY - yPercentMod - 61);
         spriteBatch.draw(textureMoon, moonX - xPercentMod, moonY - yPercentMod);
 
+        for(Cloud cloud : areaData.cloudBackList) {
+            // cloud.update();
+            spriteBatch.setColor(cloud.tintColor/255f, cloud.tintColor/255f, cloud.tintColor/255f, .85f);
+            spriteBatch.draw(imageManager.outsideImage.get("Cloud").get(cloud.num), cloud.location.x + cloudXMod + cloud.getMoveMod(), cloud.location.y + cloudYMod);
+            spriteBatch.setColor(1, 1, 1, 1);
+        }
         for(Cloud cloud : areaData.cloudFrontList) {
-            cloud.update();
+            // cloud.update();
             spriteBatch.setColor(cloud.tintColor/255f, cloud.tintColor/255f, cloud.tintColor/255f, 1);
             spriteBatch.draw(imageManager.outsideImage.get("Cloud").get(cloud.num), cloud.location.x + cloudXMod + cloud.getMoveMod(), cloud.location.y + cloudYMod);
             spriteBatch.setColor(1, 1, 1, 1);

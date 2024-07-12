@@ -4,9 +4,11 @@ import java.util.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.jbs.platformerengine.components.Keyboard;
 import com.jbs.platformerengine.gamedata.Point;
 import com.jbs.platformerengine.gamedata.Rect;
 import com.jbs.platformerengine.gamedata.entity.mob.Mob;
+import com.jbs.platformerengine.gamedata.entity.player.Player;
 import com.jbs.platformerengine.gamedata.entity.mob.attack.AttackData;
 import com.jbs.platformerengine.gamedata.entity.mob.attack.AttackHitBoxData;
 import com.jbs.platformerengine.gamedata.entity.mob.attack.misc.DropKick;
@@ -220,6 +222,11 @@ public class CombatEntity extends CollidableObject {
                     if(objectType.equals("BreakableObject")
                     || (objectType.equals("Mob") && ((Mob) object).healthPoints <= 0)) {
                         deleteObjectList.add(object);
+                        if(objectType.equals("Mob")) {
+                            if(thisMob.isPlayer && ((Player) thisMob).targetMob != null && ((Player) thisMob).targetMob == (Mob) object) {
+                                ((Player) thisMob).targetMob = null;
+                            }
+                        }
                     } else if(!attackData.hitObjectList.contains(collidableObject)) {
                         attackData.hitObjectList.add(collidableObject);
                     }
@@ -340,7 +347,7 @@ public class CombatEntity extends CollidableObject {
         }
     }
 
-    public void dash(Mob thisMob) {
+    public void dash(Mob thisMob, Keyboard keyboard) {
         if(!flying && !ducking
         && runAcceleration <= runAccelerationMin
         && dashPercent < .75
@@ -351,9 +358,19 @@ public class CombatEntity extends CollidableObject {
             dashTimer = 0f;
 
             if(facingDirection.equals("Right")) {
-                dashDirection = "Left";
-            } else {
-                dashDirection = "Right";
+                if(((Player) thisMob).targetMob != null && keyboard != null && keyboard.left) {
+                    dashDirection = "Right";
+                    facingDirection = "Left";
+                } else {
+                    dashDirection = "Left";
+                }
+            } else if(facingDirection.equals("Left")) {
+                if(((Player) thisMob).targetMob != null && keyboard != null && keyboard.right) {
+                    dashDirection = "Left";
+                    facingDirection = "Right";
+                } else {
+                    dashDirection = "Right";
+                }
             }
 
             if(thisMob.attackData != null) {

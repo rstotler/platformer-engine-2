@@ -66,17 +66,18 @@ public class Area01 extends AreaData {
             cloudMoveDir = -1;
         }
 
+        int areaWidth = (int) ((Gdx.graphics.getWidth() / 2) * 1.5);
         for(int i = 0; i < 5; i++) {
-            // int xLoc = new Random().nextInt(600);
-            // int yLoc = new Random().nextInt(100) + 200;
-            // cloudBackList.add(new Cloud(xLoc, yLoc, cloudMoveDir));
+            int xLoc = new Random().nextInt(areaWidth + 75) - 75;
+            int yLoc = new Random().nextInt(150) + 100;
+            cloudBackList.add(new Cloud(xLoc, yLoc, cloudMoveDir));
         }
         for(int i = 0; i < 5; i++) {
-            int xLoc = new Random().nextInt(600);
-            int yLoc = new Random().nextInt(100) + 200;
+            int xLoc = new Random().nextInt(areaWidth + 75) - 75;
+            int yLoc = new Random().nextInt(130) + 85;
             Cloud cloud = new Cloud(xLoc, yLoc, cloudMoveDir);
-            cloud.tintColor = new Random().nextInt(50) + 125;
-            // cloudFrontList.add(cloud);
+            cloud.tintColor = new Random().nextInt(75) + 75;
+            cloudFrontList.add(cloud);
         }
 
         // Trees //
