@@ -155,6 +155,21 @@ public class Player extends Mob {
         keyboard.lastUp.clear();
     }
 
+    public void update(ScreenChunk[][] screenChunks) {
+
+        // Update Facing Direction If Targeting Mob //
+        if(targetMob != null) {
+            if((facingDirection.equals("Right")
+            && hitBoxArea.getMiddle().x > targetMob.hitBoxArea.getMiddle().x)
+            || (facingDirection.equals("Left")
+            && hitBoxArea.getMiddle().x < targetMob.hitBoxArea.getMiddle().x)) {
+                reverseDirection();
+            }
+        }
+
+        super.update(screenChunks, null);
+    }
+
     public void startTargetingMob(ScreenChunk[][] screenChunks) {
         if(targetMob == null) {
             Mob closestMob = null;
@@ -175,6 +190,10 @@ public class Player extends Mob {
                 targetMob = closestMob;
             }
         }
+    }
+
+    public void targetNextMob() {
+
     }
 
     public void stopTargetingMob() {

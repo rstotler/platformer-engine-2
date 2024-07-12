@@ -9,7 +9,6 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.jbs.platformerengine.PlatformerEngine;
 import com.jbs.platformerengine.components.Keyboard;
@@ -23,13 +22,11 @@ import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
  * Combat:
- *  -Target/Untarget Mob
  *  -Knife Throw Ability
  * 
  * Background:
  *  -Clouds
  *  -Stars
- *  -Pixelate Moon Glow
  *  -Wave Shader When Walking Past Grass
  * 
  * Areas:
@@ -49,7 +46,6 @@ public class GameScreen extends Screen {
     public static AreaData areaData;
     public static HashMap<String, AreaData> unusedAreaData;
     
-    ShapeRenderer shapeRenderer;
     ImageManager imageManager;
 
     int displayDebugDataLevel;       // 0 - Debug & FPS, 1 - FPS,             2 - None
@@ -67,7 +63,6 @@ public class GameScreen extends Screen {
         unusedAreaData.put("AreaDebug", new AreaDebug());
         unusedAreaData.put("Area02", new Area02());
 
-        shapeRenderer = new ShapeRenderer();
         imageManager = new ImageManager(areaData.tileSetList, areaData.breakableImageList, areaData.mobImageList, areaData.outside);
         
         displayDebugDataLevel = 0;
@@ -261,7 +256,7 @@ public class GameScreen extends Screen {
     public void update(Player player) {
         areaData.update(player);
         player.updateInput(keyboard);
-        player.update(areaData.screenChunks, null);
+        player.update(areaData.screenChunks);
         
         // Change Area Check //
         if(player.changeAreaTile != null) {
@@ -322,7 +317,10 @@ public class GameScreen extends Screen {
         }
         camera.update();
 
-        renderBackground(player);
+        // Background //
+        if(displayCollidableCellsLevel == 0) {
+            renderBackground(player);
+        }
 
         int chunkStartX = (((int) player.hitBoxArea.x) / Gdx.graphics.getWidth()) - 1;
         int chunkStartY = (((int) player.hitBoxArea.y) / Gdx.graphics.getHeight()) - 1;
@@ -371,6 +369,7 @@ public class GameScreen extends Screen {
             }
         }
 
+        // Player //
         if(player.displayHitBox) {
             player.renderHitBox(camera, shapeRenderer, player.facingDirection);
         }
@@ -402,6 +401,7 @@ public class GameScreen extends Screen {
             }
         }
         
+        // Debug Data //
         if(displayDebugDataLevel != 2) {
             renderDebugData(player);
         }
@@ -501,7 +501,7 @@ public class GameScreen extends Screen {
             spriteBatch.setColor(1, 1, 1, 1);
         }
 
-        spriteBatch.draw(textureMoonGlow, moonX - xPercentMod - 46, moonY - yPercentMod - 46);
+        spriteBatch.draw(textureMoonGlow, moonX - xPercentMod - 61, moonY - yPercentMod - 61);
         spriteBatch.draw(textureMoon, moonX - xPercentMod, moonY - yPercentMod);
 
         for(Cloud cloud : areaData.cloudFrontList) {

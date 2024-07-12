@@ -102,7 +102,8 @@ public class ScreenChunk {
         for(int y = 0; y < 12; y++) {
             for(int x = 0; x < 20; x++) {
                 CellCollidables targetCellCollidables = cellCollidables[x][y];
-                if(targetCellCollidablesList.contains(targetCellCollidables)) {
+                if(displayCollidableCellsLevel == 2
+                && targetCellCollidablesList.contains(targetCellCollidables)) {
                     shapeRenderer.setColor(0/255f, targetCellCollidables.cellColor/255f, 0/255f, 1f);
                 } else {
                     shapeRenderer.setColor(0/255f, 0/255f, targetCellCollidables.cellColor/255f, 1f);

@@ -82,7 +82,7 @@ public class CombatEntity extends CollidableObject {
 
         dashCheck = false;
         dashTimer = 0f;
-        dashTimerMax = 25f;
+        dashTimerMax = 30f;
         dashPercent = 0f;
 
         dashInAirCheck = false;
