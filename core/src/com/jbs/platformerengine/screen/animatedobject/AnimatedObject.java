@@ -22,6 +22,9 @@ public class AnimatedObject {
     public ArrayList<AfterImageFrame> afterImageFrameList;
     public int afterImageLength;
 
+    public int isHitTimerMax;
+    public int isHitTimer;
+
     public AnimatedObject(String imageName, ImageManager imageManager) {
         this.imageName = imageName;
         imageType = "";
@@ -33,6 +36,9 @@ public class AnimatedObject {
         displayAfterImage = false;
         afterImageFrameList = new ArrayList<>();
         afterImageLength = 7;
+
+        isHitTimerMax = 8;
+        isHitTimer = isHitTimerMax;
         
         maxFrameNum = 0;
         if(imageManager != null) {
@@ -73,7 +79,21 @@ public class AnimatedObject {
             }
     
             spriteBatch.begin();
+
+            int srcFunc = spriteBatch.getBlendSrcFunc();
+            int destFunc = spriteBatch.getBlendDstFunc();
+            if(isHitTimer < isHitTimerMax) {
+                spriteBatch.setShader(imageManager.shaderProgramColorChannel);
+                imageManager.shaderProgramColorChannel.setUniformf("target_r", 0.5f);
+                imageManager.shaderProgramColorChannel.setUniformf("target_g", 0.0f);
+                imageManager.shaderProgramColorChannel.setUniformf("target_b", 0.0f);
+                imageManager.shaderProgramColorChannel.setUniformf("target_alpha", 1.0f);
+            }
+
             spriteBatch.draw(texture, spriteX, spriteY, texture.getWidth(), texture.getHeight(), 0, 0, texture.getWidth(), texture.getHeight(), flipDirection, false);
+
+            spriteBatch.setShader(null);
+            spriteBatch.setBlendFunction(srcFunc, destFunc);
             spriteBatch.end();
         }
     }

@@ -80,6 +80,11 @@ public class Mob extends CombatEntity {
 
     public void update(ScreenChunk[][] screenChunks, HashMap<Mob, ArrayList<CellCollidables>> updateMobScreenChunkMap) {
         
+        // Hit Timer (Red Hit Sprite) //
+        if(isHitTimer < isHitTimerMax) {
+            isHitTimer += 1;
+        }
+
         // Update After Image //
         if(displayAfterImage) {
             updateAfterImage(this);

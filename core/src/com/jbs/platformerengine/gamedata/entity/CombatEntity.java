@@ -213,6 +213,7 @@ public class CombatEntity extends CollidableObject {
                     // Reduce Mob Health & Add ThisMob To Defender EnemyTargetList //
                     if(objectType.equals("Mob")) {
                         ((Mob) object).healthPoints -= 1;
+                        ((CombatEntity) object).isHitTimer = 0;
                         if(!((Mob) object).enemyTargetList.contains(thisMob)) {
                             ((Mob) object).enemyTargetList.add(0, thisMob);
                         }

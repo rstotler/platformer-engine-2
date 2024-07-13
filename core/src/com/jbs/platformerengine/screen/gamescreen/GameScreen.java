@@ -21,8 +21,15 @@ import com.jbs.platformerengine.screen.ImageManager;
 import com.jbs.platformerengine.screen.Screen;
 
 /* To-Do List:
+ *  -Large Hitbox Collision Detection Audit
+ *  -New Mob
+ * 
  * Combat:
+ *  -Player Get Hit By Mob
  *  -Knife Throw Ability
+ *  -Forward Strike Attack (X Velocity Mod)
+ *  -Maintain Facing Direction When Holding Target Button
+ *  -Upward Strike Attack (Hold Target & Back Buttons)
  * 
  * Background:
  *  -Stars
